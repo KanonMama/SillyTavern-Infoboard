@@ -12,12 +12,21 @@
             </div>
 
             <div class="ib-setting-row">
+                <label for="ib_lang"><b>Language</b></label>
+                <select id="ib_lang">
+                    <option value="ru">Русский</option>
+                    <option value="en">English</option>
+                </select>
+            </div>
+
+            <div class="ib-setting-row">
                 <label for="ib_theme"><b>Theme</b></label>
                 <select id="ib_theme">
                     <option value="nocturne">Nocturne</option>
                     <option value="burgundy">Burgundy</option>
                     <option value="ashrose">Ash Rose</option>
                     <option value="coldsteel">Cold Steel</option>
+                    <option value="frostwhite">Frostwhite</option>
                 </select>
             </div>
 
@@ -45,7 +54,7 @@
             </div>
 
             <div id="ib_state_display" class="ib-state-display">
-                <b>Current State:</b>
+                <b id="ib_state_label">Current State:</b>
                 <div id="ib_state_summary" class="ib-state-summary">No state loaded.</div>
             </div>
 
