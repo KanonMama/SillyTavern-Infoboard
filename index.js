@@ -187,12 +187,32 @@ function ParseInfoboard(text) {
     });
 
     const relNodes = doc.querySelectorAll("rels > rel");
-    relNodes.forEach(rel => {
+relNodes.forEach(rel => {
+    const source = rel.getAttribute("source") || "???";
+    const target = rel.getAttribute("target") || "{{user}}";
+
+    if (IsUserLikeName(source)) return;
+
+    result.rels.push({
+        source,
+        target,
+        a: Clamp(parseInt(rel.getAttribute("a")) || 0, 0, 100),
+        ac: Clamp(parseInt(rel.getAttribute("ac")) || 0, -100, 100),
+        tr: Clamp(parseInt(rel.getAttribute("tr")) || 0, 0, 100),
+        tc: Clamp(parseInt(rel.getAttribute("tc")) || 0, -100, 100),
+        l: Clamp(parseInt(rel.getAttribute("l")) || 0, 0, 100),
+        lc: Clamp(parseInt(rel.getAttribute("lc")) || 0, -100, 100),
+        status: rel.getAttribute("status") || "не определено"
+    });
+});
+
+    // fallback for old single <rel /> format
+    if (!result.rels.length) {
+    doc.querySelectorAll("rel").forEach(rel => {
         const source = rel.getAttribute("source") || "???";
-        const target = rel.getAttribute("target") || "???";
+        const target = rel.getAttribute("target") || "{{user}}";
 
         if (IsUserLikeName(source)) return;
-        if (!target || (!target.includes("{{user}}") && NormalizeName(target) !== "user")) return;
 
         result.rels.push({
             source,
@@ -206,29 +226,7 @@ function ParseInfoboard(text) {
             status: rel.getAttribute("status") || "не определено"
         });
     });
-
-    // fallback for old single <rel /> format
-    if (!result.rels.length) {
-        doc.querySelectorAll("rel").forEach(rel => {
-            const source = rel.getAttribute("source") || "???";
-            const target = rel.getAttribute("target") || "???";
-
-            if (IsUserLikeName(source)) return;
-            if (!target || (!target.includes("{{user}}") && NormalizeName(target) !== "user")) return;
-
-            result.rels.push({
-                source,
-                target,
-                a: Clamp(parseInt(rel.getAttribute("a")) || 0, 0, 100),
-                ac: Clamp(parseInt(rel.getAttribute("ac")) || 0, -100, 100),
-                tr: Clamp(parseInt(rel.getAttribute("tr")) || 0, 0, 100),
-                tc: Clamp(parseInt(rel.getAttribute("tc")) || 0, -100, 100),
-                l: Clamp(parseInt(rel.getAttribute("l")) || 0, 0, 100),
-                lc: Clamp(parseInt(rel.getAttribute("lc")) || 0, -100, 100),
-                status: rel.getAttribute("status") || "не определено"
-            });
-        });
-    }
+}
 
     const thk = doc.querySelector("thk");
     if (thk) {
