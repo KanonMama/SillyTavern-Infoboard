@@ -9,6 +9,7 @@ const kHideRawKey = "IB_HideRaw";
 const kShowThoughtsKey = "IB_ShowThoughts";
 const kShowNsfwKey = "IB_ShowNsfw";
 const kLangKey = "IB_Lang";
+const kBarStyleKey = "IB_BarStyle";
 
 let gEnabled = false;
 let gTheme = "nocturne";
@@ -16,6 +17,7 @@ let gHideRaw = true;
 let gShowThoughts = true;
 let gShowNsfw = true;
 let gLang = "ru";
+let gBarStyle = "deep";
 
 const kLang = {
     ru: {
@@ -51,7 +53,8 @@ const kLang = {
         resetConfirm: "Сбросить состояние Infoboard для этого чата?",
         stateNpcLabel: "NPCs",
         title: "INFOBOARD",
-        noStatus: "не определено"
+        noStatus: "не определено",
+        barStyle: "Стиль полос",
     },
     en: {
         enable: "Enable Infoboard",
@@ -86,7 +89,8 @@ const kLang = {
         resetConfirm: "Reset Infoboard state for this chat?",
         stateNpcLabel: "NPCs",
         title: "INFOBOARD",
-        noStatus: "undefined"
+        noStatus: "undefined",
+        barStyle: "Bar Style",
     }
 };
 
@@ -649,7 +653,7 @@ function RenderLastUpdate(lines) {
 
 function RenderBoard(state, isFresh = false) {
     return `
-    <div class="ib-board ib-theme-${EscapeHtml(gTheme)} ${isFresh ? "ib-fresh" : ""}">
+    <div class="ib-board ib-theme-${EscapeHtml(gTheme)} ib-bars-${EscapeHtml(gBarStyle)} ${isFresh ? "ib-fresh" : ""}">
         <div class="ib-title">${T("title")}</div>
 
         <div class="ib-header">
@@ -723,6 +727,7 @@ function UpdateSettingsText() {
     $('label[for="ib_enabled"]').html(`<b>${T("enable")}</b>`);
     $('label[for="ib_lang"]').html(`<b>${T("language")}</b>`);
     $('label[for="ib_theme"]').html(`<b>${T("theme")}</b>`);
+    $('label[for="ib_bar_style"]').html(`<b>${T("barStyle")}</b>`);
     $('label[for="ib_hide_raw"]').text(T("hideRaw"));
     $('label[for="ib_show_thoughts"]').text(T("showThoughts"));
     $('label[for="ib_show_nsfw"]').text(T("showNsfw"));
@@ -924,15 +929,17 @@ jQuery(async () => {
     gShowThoughts = localStorage.getItem(kShowThoughtsKey) !== "false";
     gShowNsfw = localStorage.getItem(kShowNsfwKey) !== "false";
     gLang = localStorage.getItem(kLangKey) || "ru";
+    gBarStyle = localStorage.getItem(kBarStyleKey) || "deep";
 
     LoadState();
 
-    $("#ib_enabled").prop("checked", gEnabled);
-    $("#ib_lang").val(gLang);
-    $("#ib_theme").val(gTheme);
-    $("#ib_hide_raw").prop("checked", gHideRaw);
-    $("#ib_show_thoughts").prop("checked", gShowThoughts);
-    $("#ib_show_nsfw").prop("checked", gShowNsfw);
+$("#ib_enabled").prop("checked", gEnabled);
+$("#ib_lang").val(gLang);
+$("#ib_theme").val(gTheme);
+$("#ib_bar_style").val(gBarStyle);
+$("#ib_hide_raw").prop("checked", gHideRaw);
+$("#ib_show_thoughts").prop("checked", gShowThoughts);
+$("#ib_show_nsfw").prop("checked", gShowNsfw);
 
     UpdateSettingsText();
     UpdateStatusDisplay();
@@ -943,7 +950,12 @@ jQuery(async () => {
         localStorage.setItem(kEnabledKey, String(gEnabled));
         UpdateStatusDisplay();
         InjectPrompt();
-    });
+
+        $("#ib_bar_style").on("change", function () {
+    gBarStyle = $(this).val();
+    localStorage.setItem(kBarStyleKey, gBarStyle);
+    ReprocessChat();
+});
 
     $("#ib_lang").on("change", function () {
         gLang = $(this).val();
@@ -1070,3 +1082,245 @@ jQuery(async () => {
     InjectPrompt();
     console.log("[IB] Infoboard extension ready");
 });
+
+       /* =========================
+   BAR STYLE PRESETS
+========================= */
+
+/* shared bar improvements */
+.ib-bar {
+    position: relative;
+}
+
+.ib-bar-fill {
+    position: relative;
+}
+
+.ib-bar-fill::after {
+    content: "";
+    position: absolute;
+    right: 0;
+    top: 50%;
+    transform: translate(35%, -50%);
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    opacity: 0;
+    pointer-events: none;
+}
+
+/* =========================
+   CLASSIC
+========================= */
+
+.ib-bars-classic .ib-bar {
+    height: 7px;
+    background: rgba(10, 14, 24, 0.26);
+}
+
+.ib-bars-classic .ib-bar-fill::after {
+    opacity: 0;
+}
+
+/* =========================
+   DEEP NEON
+========================= */
+
+.ib-bars-deep .ib-bar {
+    height: 7px;
+    background:
+        linear-gradient(180deg, rgba(255,255,255,0.02), rgba(0,0,0,0.08)),
+        rgba(8, 12, 22, 0.30);
+    box-shadow: inset 0 1px 1px rgba(255,255,255,0.025);
+}
+
+.ib-bars-deep .ib-bar-fill {
+    filter: saturate(0.94) brightness(0.96);
+}
+
+.ib-bars-deep .ib-bar-fill::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgba(255,255,255,0.14), rgba(255,255,255,0.02) 45%, transparent 100%);
+    border-radius: inherit;
+    pointer-events: none;
+    opacity: 0.6;
+}
+
+.ib-bars-deep .ib-bar-fill::after {
+    opacity: 0.75;
+    box-shadow: 0 0 8px currentColor;
+}
+
+/* =========================
+   GLASS NEEDLE
+========================= */
+
+.ib-bars-glass .ib-bar {
+    height: 6px;
+    background:
+        linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01)),
+        rgba(12, 18, 30, 0.24);
+    border: 1px solid rgba(255,255,255,0.04);
+}
+
+.ib-bars-glass .ib-bar-fill {
+    height: 100%;
+    filter: saturate(0.82) brightness(0.98);
+    opacity: 0.92;
+}
+
+.ib-bars-glass .ib-bar-fill::before {
+    content: "";
+    position: absolute;
+    inset: 1px 0 1px 0;
+    background: linear-gradient(180deg, rgba(255,255,255,0.18), rgba(255,255,255,0.04));
+    border-radius: inherit;
+    pointer-events: none;
+    opacity: 0.42;
+}
+
+.ib-bars-glass .ib-bar-fill::after {
+    opacity: 0.88;
+    width: 7px;
+    height: 7px;
+    box-shadow: 0 0 10px currentColor, 0 0 3px currentColor;
+}
+
+/* =========================
+   SOFT MATTE
+========================= */
+
+.ib-bars-soft .ib-bar {
+    height: 6px;
+    background: rgba(12, 16, 26, 0.24);
+}
+
+.ib-bars-soft .ib-bar-fill {
+    filter: saturate(0.72) brightness(0.92);
+    box-shadow: none !important;
+}
+
+.ib-bars-soft .ib-bar-fill::before,
+.ib-bars-soft .ib-bar-fill::after {
+    opacity: 0 !important;
+}
+
+.ib-bars-soft .ib-meter-value {
+    opacity: 0.92;
+}
+
+/* =========================
+   PER-STYLE COLOR TUNING
+========================= */
+
+/* Deep */
+.ib-bars-deep .ib-bar-affection-pos {
+    background: linear-gradient(90deg, #5cab86, #2f9366 58%, #21694a);
+    color: #53c895;
+}
+
+.ib-bars-deep .ib-bar-affection-neg {
+    background: linear-gradient(90deg, #ba6d67, #964848 58%, #6f3333);
+    color: #d57f79;
+}
+
+.ib-bars-deep .ib-bar-trust-pos {
+    background: linear-gradient(90deg, #669bc2, #4676bf 58%, #305491);
+    color: #78b5ea;
+}
+
+.ib-bars-deep .ib-bar-trust-neg {
+    background: linear-gradient(90deg, #b9895f, #99603a 58%, #744628);
+    color: #d8a574;
+}
+
+.ib-bars-deep .ib-bar-love-pos {
+    background: linear-gradient(90deg, #9b76c8, #7747bc 58%, #552f87);
+    color: #b98cff;
+}
+
+.ib-bars-deep .ib-bar-love-neg {
+    background: linear-gradient(90deg, #b85a71, #8c334b 58%, #642032);
+    color: #d96d8c;
+}
+
+/* Glass */
+.ib-bars-glass .ib-bar-affection-pos {
+    background: linear-gradient(90deg, rgba(117, 226, 171, 0.88), rgba(47, 169, 111, 0.82));
+    color: #7ae3b1;
+}
+
+.ib-bars-glass .ib-bar-affection-neg {
+    background: linear-gradient(90deg, rgba(224, 126, 126, 0.88), rgba(170, 78, 78, 0.82));
+    color: #f09a9a;
+}
+
+.ib-bars-glass .ib-bar-trust-pos {
+    background: linear-gradient(90deg, rgba(117, 180, 255, 0.90), rgba(63, 114, 220, 0.82));
+    color: #89c2ff;
+}
+
+.ib-bars-glass .ib-bar-trust-neg {
+    background: linear-gradient(90deg, rgba(227, 166, 103, 0.90), rgba(177, 109, 55, 0.84));
+    color: #efba83;
+}
+
+.ib-bars-glass .ib-bar-love-pos {
+    background: linear-gradient(90deg, rgba(190, 143, 255, 0.90), rgba(126, 72, 222, 0.82));
+    color: #c7a3ff;
+}
+
+.ib-bars-glass .ib-bar-love-neg {
+    background: linear-gradient(90deg, rgba(223, 113, 145, 0.90), rgba(157, 49, 82, 0.84));
+    color: #ef92af;
+}
+
+/* Soft */
+.ib-bars-soft .ib-bar-affection-pos {
+    background: linear-gradient(90deg, #5a9f7c, #3f7d62);
+    color: #66bd93;
+}
+
+.ib-bars-soft .ib-bar-affection-neg {
+    background: linear-gradient(90deg, #a36565, #7c4a4a);
+    color: #c88383;
+}
+
+.ib-bars-soft .ib-bar-trust-pos {
+    background: linear-gradient(90deg, #5e8db3, #476b8d);
+    color: #78a9d4;
+}
+
+.ib-bars-soft .ib-bar-trust-neg {
+    background: linear-gradient(90deg, #a67a56, #825d3f);
+    color: #cb9a70;
+}
+
+.ib-bars-soft .ib-bar-love-pos {
+    background: linear-gradient(90deg, #8766b5, #65498f);
+    color: #ab86dc;
+}
+
+.ib-bars-soft .ib-bar-love-neg {
+    background: linear-gradient(90deg, #a2556f, #7b3a4f);
+    color: #cc7d97;
+}
+
+/* Frostwhite compatibility */
+.ib-theme-frostwhite.ib-bars-deep .ib-bar {
+    background:
+        linear-gradient(180deg, rgba(255,255,255,0.03), rgba(0,0,0,0.04)),
+        rgba(18, 32, 52, 0.24);
+}
+
+.ib-theme-frostwhite.ib-bars-glass .ib-bar {
+    background:
+        linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.01)),
+        rgba(26, 44, 68, 0.18);
+}
+
+.ib-theme-frostwhite.ib-bars-soft .ib-bar {
+    background: rgba(24, 38, 58, 0.18);
+}
