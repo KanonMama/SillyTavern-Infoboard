@@ -8,14 +8,85 @@ const kThemeKey = "IB_Theme";
 const kHideRawKey = "IB_HideRaw";
 const kShowThoughtsKey = "IB_ShowThoughts";
 const kShowNsfwKey = "IB_ShowNsfw";
+const kLangKey = "IB_Lang";
 
 let gEnabled = false;
 let gTheme = "nocturne";
 let gHideRaw = true;
 let gShowThoughts = true;
 let gShowNsfw = true;
+let gLang = "ru";
 
-const kSystemPrompt = `Infoboard:
+const kLang = {
+    ru: {
+        enable: "Enable Infoboard",
+        language: "Язык",
+        theme: "Тема",
+        hideRaw: "Скрывать сырой XML из сообщений",
+        showThoughts: "Показывать блок мыслей",
+        showNsfw: "Показывать NSFW блок",
+        active: "✦ Расширение активно",
+        inactive: "Расширение отключено",
+        currentState: "Текущее состояние:",
+        noState: "Состояние не загружено.",
+        noRecentUpdates: "Нет недавних изменений.",
+        disabledPrompt: "Отключено — промт не инжектится.",
+        chars: "💖 Персонажи в сцене",
+        rels: "🤍 Отношения к тебе",
+        thoughts: "💭 Скрытые мысли NPC",
+        nsfw: "🔥 Интимный контекст",
+        affection: "💚 Симпатия",
+        trust: "💙 Доверие",
+        love: "💜 Любовь",
+        fetishes: "Фетиши",
+        positions: "Позиции",
+        toYou: "тебе",
+        resetState: "🗑 Сбросить состояние",
+        reprocess: "🔄 Перепарсить чат",
+        exportState: "📤 Экспорт состояния",
+        importState: "📥 Импорт состояния",
+        importFail: "Импорт не удался. Невалидный JSON.",
+        resetConfirm: "Сбросить состояние Infoboard для этого чата?",
+        stateNpcLabel: "NPCs",
+        title: "INFOBOARD",
+        noStatus: "не определено"
+    },
+    en: {
+        enable: "Enable Infoboard",
+        language: "Language",
+        theme: "Theme",
+        hideRaw: "Hide raw XML from messages",
+        showThoughts: "Show thoughts section",
+        showNsfw: "Show NSFW section",
+        active: "✦ Extension is active",
+        inactive: "Extension is inactive",
+        currentState: "Current State:",
+        noState: "No state loaded.",
+        noRecentUpdates: "No recent updates.",
+        disabledPrompt: "Disabled — not injecting prompts.",
+        chars: "💖 Characters in Scene",
+        rels: "🤍 Feelings Toward You",
+        thoughts: "💭 Hidden NPC Thoughts",
+        nsfw: "🔥 Intimate Context",
+        affection: "💚 Affection",
+        trust: "💙 Trust",
+        love: "💜 Love",
+        fetishes: "Fetishes",
+        positions: "Positions",
+        toYou: "you",
+        resetState: "🗑 Reset State",
+        reprocess: "🔄 Reprocess Chat",
+        exportState: "📤 Export State",
+        importState: "📥 Import State",
+        importFail: "Import failed. Invalid JSON.",
+        resetConfirm: "Reset Infoboard state for this chat?",
+        stateNpcLabel: "NPCs",
+        title: "INFOBOARD",
+        noStatus: "undefined"
+    }
+};
+
+const kSystemPromptRu = `Infoboard:
 Always append exactly one XML block at the end of every assistant response. Fill all field values in Russian. Keep entries concise, scene-accurate, and updated every message. Use this format strictly:
 
 <infoboard time="" date="" weather="" loc="">
@@ -47,6 +118,38 @@ Rules:
 - If scene is not intimate, omit <nsfw /> completely
 - Do not add any extra XML tags or commentary outside this format`;
 
+const kSystemPromptEn = `Infoboard:
+Always append exactly one XML block at the end of every assistant response. Fill all field values in English. Keep entries concise, scene-accurate, and updated every message. Use this format strictly:
+
+<infoboard time="" date="" weather="" loc="">
+<chars>
+<c icon="" name="" tags="" />
+</chars>
+<rels>
+<rel source="" target="{{user}}" a="" ac="" tr="" tc="" l="" lc="" status="" />
+</rels>
+<thk></thk>
+</infoboard>
+
+Optional block only for explicitly intimate or aroused scenes:
+<nsfw f="" p="" />
+
+Rules:
+- Always output exactly one <infoboard> block in every message.
+- Fill all values in English.
+- Add one <c /> for each NPC currently present in the scene.
+- tags must contain 1-3 short tags separated by |
+- Add one <rel /> for each present NPC describing their feelings toward {{user}}, never between NPCs
+- Use a, tr, l as values from 0 to 100
+- Use ac, tc, lc as per-message changes, usually within -5..+5 unless a major event just happened
+- Relationship values must evolve logically and consistently
+- Love should not sharply increase without enough affection and trust
+- Put all NPC private thoughts into one <thk> block
+- In <thk>, each NPC starts on a new line in format: Name: thought
+- Never write thoughts, feelings, or internal state for {{user}} inside <thk>
+- If scene is not intimate, omit <nsfw /> completely
+- Do not add any extra XML tags or commentary outside this format`;
+
 const kDefaultState = {
     time: "???",
     date: "???",
@@ -60,6 +163,10 @@ const kDefaultState = {
 };
 
 let gState = JSON.parse(JSON.stringify(kDefaultState));
+
+function T(key) {
+    return kLang[gLang]?.[key] ?? key;
+}
 
 function GetStorageKey() {
     const stContext = SillyTavern.getContext();
@@ -116,7 +223,21 @@ function IsUserLikeName(name) {
         n === "вы" ||
         n === "твой персонаж" ||
         n === "героиня" ||
-        n === "герой";
+        n === "герой" ||
+        n === "you";
+}
+
+function IsUnknownValue(val) {
+    const v = NormalizeName(val);
+    return v === "???" || v === "неизвестно" || v === "n/a" || v === "none" || v === "unknown" || v === "н/д";
+}
+
+function RenderMaybeUnknown(val) {
+    const escaped = EscapeHtml(val);
+    if (IsUnknownValue(val)) {
+        return `<span class="ib-unknown">${escaped}</span>`;
+    }
+    return escaped;
 }
 
 function ParseThoughtLine(line) {
@@ -142,9 +263,7 @@ function ParseInfoboard(text) {
     const boardMatch = text.match(/<infoboard[\s\S]*?<\/infoboard>/i);
     if (!boardMatch) return null;
 
-    const fullBoardMatch = text.match(/(<infoboard[\s\S]*?<\/infoboard>)([\s\S]*?)$/i);
     const xmlBlock = boardMatch[0];
-
     const parser = new DOMParser();
     const doc = parser.parseFromString(xmlBlock, "text/xml");
 
@@ -165,7 +284,7 @@ function ParseInfoboard(text) {
         rels: [],
         thoughts: [],
         nsfw: null,
-        rawXml: fullBoardMatch ? fullBoardMatch[1] : xmlBlock
+        rawXml: xmlBlock
     };
 
     doc.querySelectorAll("chars > c").forEach(c => {
@@ -187,28 +306,7 @@ function ParseInfoboard(text) {
     });
 
     const relNodes = doc.querySelectorAll("rels > rel");
-relNodes.forEach(rel => {
-    const source = rel.getAttribute("source") || "???";
-    const target = rel.getAttribute("target") || "{{user}}";
-
-    if (IsUserLikeName(source)) return;
-
-    result.rels.push({
-        source,
-        target,
-        a: Clamp(parseInt(rel.getAttribute("a")) || 0, 0, 100),
-        ac: Clamp(parseInt(rel.getAttribute("ac")) || 0, -100, 100),
-        tr: Clamp(parseInt(rel.getAttribute("tr")) || 0, 0, 100),
-        tc: Clamp(parseInt(rel.getAttribute("tc")) || 0, -100, 100),
-        l: Clamp(parseInt(rel.getAttribute("l")) || 0, 0, 100),
-        lc: Clamp(parseInt(rel.getAttribute("lc")) || 0, -100, 100),
-        status: rel.getAttribute("status") || "не определено"
-    });
-});
-
-    // fallback for old single <rel /> format
-    if (!result.rels.length) {
-    doc.querySelectorAll("rel").forEach(rel => {
+    relNodes.forEach(rel => {
         const source = rel.getAttribute("source") || "???";
         const target = rel.getAttribute("target") || "{{user}}";
 
@@ -223,10 +321,30 @@ relNodes.forEach(rel => {
             tc: Clamp(parseInt(rel.getAttribute("tc")) || 0, -100, 100),
             l: Clamp(parseInt(rel.getAttribute("l")) || 0, 0, 100),
             lc: Clamp(parseInt(rel.getAttribute("lc")) || 0, -100, 100),
-            status: rel.getAttribute("status") || "не определено"
+            status: rel.getAttribute("status") || T("noStatus")
         });
     });
-}
+
+    if (!result.rels.length) {
+        doc.querySelectorAll("rel").forEach(rel => {
+            const source = rel.getAttribute("source") || "???";
+            const target = rel.getAttribute("target") || "{{user}}";
+
+            if (IsUserLikeName(source)) return;
+
+            result.rels.push({
+                source,
+                target,
+                a: Clamp(parseInt(rel.getAttribute("a")) || 0, 0, 100),
+                ac: Clamp(parseInt(rel.getAttribute("ac")) || 0, -100, 100),
+                tr: Clamp(parseInt(rel.getAttribute("tr")) || 0, 0, 100),
+                tc: Clamp(parseInt(rel.getAttribute("tc")) || 0, -100, 100),
+                l: Clamp(parseInt(rel.getAttribute("l")) || 0, 0, 100),
+                lc: Clamp(parseInt(rel.getAttribute("lc")) || 0, -100, 100),
+                status: rel.getAttribute("status") || T("noStatus")
+            });
+        });
+    }
 
     const thk = doc.querySelector("thk");
     if (thk) {
@@ -279,9 +397,9 @@ function BuildLastUpdate(parsed) {
 
     for (const r of parsed.rels) {
         const parts = [];
-        if ((parseInt(r.ac) || 0) !== 0) parts.push(`симпатия ${SignedText(r.ac)}`);
-        if ((parseInt(r.tc) || 0) !== 0) parts.push(`доверие ${SignedText(r.tc)}`);
-        if ((parseInt(r.lc) || 0) !== 0) parts.push(`любовь ${SignedText(r.lc)}`);
+        if ((parseInt(r.ac) || 0) !== 0) parts.push(`${gLang === "ru" ? "симпатия" : "affection"} ${SignedText(r.ac)}`);
+        if ((parseInt(r.tc) || 0) !== 0) parts.push(`${gLang === "ru" ? "доверие" : "trust"} ${SignedText(r.tc)}`);
+        if ((parseInt(r.lc) || 0) !== 0) parts.push(`${gLang === "ru" ? "любовь" : "love"} ${SignedText(r.lc)}`);
 
         if (parts.length) {
             updates.push(`${r.source}: ${parts.join(", ")}`);
@@ -356,12 +474,18 @@ function RenderDelta(num) {
     return `<span class="${cls}">${txt}</span>`;
 }
 
+function RenderBarWidth(value) {
+    const v = Clamp(parseInt(value) || 0, 0, 100);
+    if (v <= 0) return "0%";
+    return `${Math.max(v, 4)}%`;
+}
+
 function GetStatusClass(status) {
     const s = NormalizeName(status);
 
-    const romantic = ["роман", "любов", "влюб", "пара", "отношен", "свидан", "любовники", "муж", "жена", "соулмейт", "dating", "lover", "romantic", "married", "soulmate"];
-    const negative = ["враг", "ненав", "токс", "абьюз", "сопер", "rival", "enemy", "abusive", "toxic", "ex-", "бывш"];
-    const complex = ["сложн", "одерж", "защит", "ментор", "учен", "family", "нераздел", "complicated", "protective", "mentor", "unrequited", "obsession"];
+    const romantic = ["роман", "любов", "влюб", "пара", "отношен", "свидан", "любовники", "муж", "жена", "соулмейт", "dating", "lover", "romantic", "married", "soulmate", "romance"];
+    const negative = ["враг", "ненав", "токс", "абьюз", "сопер", "rival", "enemy", "abusive", "toxic", "ex-", "бывш", "hostile"];
+    const complex = ["сложн", "одерж", "защит", "ментор", "учен", "family", "нераздел", "complicated", "protective", "mentor", "unrequited", "obsession", "obsessed"];
 
     if (romantic.some(k => s.includes(k))) return "ib-status-romantic";
     if (negative.some(k => s.includes(k))) return "ib-status-negative";
@@ -374,13 +498,13 @@ function RenderChars(chars) {
 
     return `
     <div class="ib-section">
-        <div class="ib-section-title">💖 Персонажи в сцене</div>
+        <div class="ib-section-title">${T("chars")}</div>
         <div class="ib-chars">
             ${chars.map(c => `
                 <div class="ib-char">
                     <div class="ib-char-main">
                         <span class="ib-char-icon-wrap"><span class="ib-char-icon">${EscapeHtml(c.icon)}</span></span>
-                        <span class="ib-char-name">${EscapeHtml(c.name)}</span>
+                        <span class="ib-char-name">${RenderMaybeUnknown(c.name)}</span>
                     </div>
                     <div class="ib-char-tags">
                         ${(c.tags || []).map(tag => `<span class="ib-tag">${EscapeHtml(tag)}</span>`).join("")}
@@ -397,33 +521,34 @@ function RenderRelCard(r) {
     return `
     <div class="ib-rel-card">
         <div class="ib-rel-head">
-            <span>💕 ${EscapeHtml(r.source)} → ${EscapeHtml(r.target)}</span>
+            <span>💕 ${EscapeHtml(r.source)} → ${T("toYou")}</span>
             <span class="ib-status-chip ${statusClass}">${EscapeHtml(r.status)}</span>
         </div>
 
         <div class="ib-meter">
             <div class="ib-meter-top">
-                <span class="ib-meter-label" style="color:var(--ib-green)">💚 Симпатия</span>
+                <span class="ib-meter-label" style="color:var(--ib-green)">${T("affection")}</span>
                 <span class="ib-meter-value">${r.a}/100 (${RenderDelta(r.ac)})</span>
             </div>
-            <div class="ib-bar"><div class="ib-bar-fill ib-bar-affection" style="width:${Clamp(r.a, 0, 100)}%"></div></div>
+            <div class="ib-bar"><div class="ib-bar-fill ib-bar-affection" style="width:${RenderBarWidth(r.a)}"></div></div>
         </div>
 
         <div class="ib-meter">
             <div class="ib-meter-top">
-                <span class="ib-meter-label" style="color:var(--ib-blue)">💙 Доверие</span>
+                <span class="ib-meter-label" style="color:var(--ib-blue)">${T("trust")}</span>
                 <span class="ib-meter-value">${r.tr}/100 (${RenderDelta(r.tc)})</span>
             </div>
-            <div class="ib-bar"><div class="ib-bar-fill ib-bar-trust" style="width:${Clamp(r.tr, 0, 100)}%"></div></div>
+            <div class="ib-bar"><div class="ib-bar-fill ib-bar-trust" style="width:${RenderBarWidth(r.tr)}"></div></div>
         </div>
 
         <div class="ib-meter">
             <div class="ib-meter-top">
-                <span class="ib-meter-label" style="color:var(--ib-purple)">💜 Любовь</span>
+                <span class="ib-meter-label" style="color:var(--ib-purple)">${T("love")}</span>
                 <span class="ib-meter-value">${r.l}/100 (${RenderDelta(r.lc)})</span>
             </div>
-            <div class="ib-bar"><div class="ib-bar-fill ib-bar-love" style="width:${Clamp(r.l, 0, 100)}%"></div></div>
-        </div>`;
+            <div class="ib-bar"><div class="ib-bar-fill ib-bar-love" style="width:${RenderBarWidth(r.l)}"></div></div>
+        </div>
+    </div>`;
 }
 
 function RenderRelations(rels) {
@@ -431,7 +556,7 @@ function RenderRelations(rels) {
 
     return `
     <div class="ib-section">
-        <div class="ib-section-title">🤍 Отношения к тебе</div>
+        <div class="ib-section-title">${T("rels")}</div>
         ${rels.map(RenderRelCard).join("")}
     </div>`;
 }
@@ -441,7 +566,7 @@ function RenderThoughts(thoughts) {
 
     return `
     <div class="ib-section">
-        <div class="ib-section-title">💭 Скрытые мысли NPC</div>
+        <div class="ib-section-title">${T("thoughts")}</div>
         <div class="ib-thought-list">
             ${thoughts.map(t => `
                 <div class="ib-thought-card">
@@ -461,9 +586,9 @@ function RenderNsfw(nsfw) {
 
     return `
     <div class="ib-section ib-nsfw">
-        <div class="ib-section-title">🔥 Интимный контекст</div>
-        <div class="ib-nsfw-line"><b>Фетиши:</b> ${EscapeHtml(nsfw.f)}</div>
-        <div class="ib-nsfw-line"><b>Позиции:</b> ${EscapeHtml(nsfw.p)}</div>
+        <div class="ib-section-title">${T("nsfw")}</div>
+        <div class="ib-nsfw-line"><b>${T("fetishes")}:</b> ${EscapeHtml(nsfw.f)}</div>
+        <div class="ib-nsfw-line"><b>${T("positions")}:</b> ${EscapeHtml(nsfw.p)}</div>
     </div>`;
 }
 
@@ -478,18 +603,18 @@ function RenderLastUpdate(lines) {
 function RenderBoard(state, isFresh = false) {
     return `
     <div class="ib-board ib-theme-${EscapeHtml(gTheme)} ${isFresh ? "ib-fresh" : ""}">
-        <div class="ib-title">✦ INFOBOARD ✦</div>
+        <div class="ib-title">${T("title")}</div>
 
         <div class="ib-header">
             <div class="ib-header-left">
-                <span>⏰ <b>${EscapeHtml(state.time)}</b></span>
+                <span>⏰ <b>${RenderMaybeUnknown(state.time)}</b></span>
                 <span class="ib-sep">│</span>
-                <span>📅 <b>${EscapeHtml(state.date)}</b></span>
+                <span>📅 <b>${RenderMaybeUnknown(state.date)}</b></span>
                 <span class="ib-sep">│</span>
-                <span class="ib-weather-chip">🌧 ${EscapeHtml(state.weather)}</span>
+                <span class="ib-weather-chip">🌧 ${RenderMaybeUnknown(state.weather)}</span>
             </div>
             <div class="ib-header-right">
-                <span class="ib-loc-chip">📍 <b>${EscapeHtml(state.loc)}</b></span>
+                <span class="ib-loc-chip">📍 <b>${RenderMaybeUnknown(state.loc)}</b></span>
             </div>
         </div>
 
@@ -519,10 +644,24 @@ function RemoveRawXmlFromText(messageTextEl, parsed) {
 function UpdateLastUpdateDisplay() {
     const $el = $("#ib_last_update");
     if (!gState.lastUpdate?.length) {
-        $el.text("No recent updates.");
+        $el.text(T("noRecentUpdates"));
         return;
     }
     $el.html(gState.lastUpdate.map(x => `• ${EscapeHtml(x)}`).join("<br>"));
+}
+
+function UpdateSettingsText() {
+    $('label[for="ib_enabled"]').html(`<b>${T("enable")}</b>`);
+    $('label[for="ib_lang"]').html(`<b>${T("language")}</b>`);
+    $('label[for="ib_theme"]').html(`<b>${T("theme")}</b>`);
+    $('label[for="ib_hide_raw"]').text(T("hideRaw"));
+    $('label[for="ib_show_thoughts"]').text(T("showThoughts"));
+    $('label[for="ib_show_nsfw"]').text(T("showNsfw"));
+    $("#ib_state_label").text(T("currentState"));
+    $("#ib_reset_state").text(T("resetState"));
+    $("#ib_reprocess_chat").text(T("reprocess"));
+    $("#ib_export_state").text(T("exportState"));
+    $("#ib_import_state").text(T("importState"));
 }
 
 function ProcessMessage(messageDiv, msgIndex) {
@@ -578,8 +717,6 @@ function ReprocessChat() {
         const msgId = Number(node.getAttribute("mesid"));
         if (!isNaN(msgId)) {
             const stMsg = stContext.chat[msgId];
-            const fresh = false;
-
             if (!stMsg?.is_user) {
                 const parsed = ParseInfoboard(stMsg?.mes || "");
                 const mesTextEl = node.querySelector(".mes_text");
@@ -593,7 +730,7 @@ function ReprocessChat() {
                         wrapper.innerHTML = RenderBoard({
                             ...parsed,
                             lastUpdate: BuildLastUpdate(parsed)
-                        }, fresh);
+                        }, false);
                         const boardEl = wrapper.firstElementChild;
                         if (boardEl) mesTextEl.appendChild(boardEl);
                     }
@@ -608,6 +745,7 @@ function ReprocessChat() {
 
 function OnChatChanged() {
     LoadState();
+    UpdateSettingsText();
     UpdateStatusDisplay();
     UpdateLastUpdateDisplay();
 
@@ -620,16 +758,16 @@ function UpdateStatusDisplay() {
     const $summary = $("#ib_state_summary");
 
     if (gEnabled) {
-        $status.html(`<span style="color:#7fb68a">✦ Extension is active</span>`);
+        $status.html(`<span style="color:#7fb68a">${EscapeHtml(T("active"))}</span>`);
         $summary.html(
             `${EscapeHtml(gState.time)} | ${EscapeHtml(gState.date)}<br>` +
             `${EscapeHtml(gState.weather)}<br>` +
             `📍 ${EscapeHtml(gState.loc)}<br>` +
-            `NPCs: ${gState.chars.map(c => EscapeHtml(c.name)).join(", ") || "—"}`
+            `${EscapeHtml(T("stateNpcLabel"))}: ${gState.chars.map(c => EscapeHtml(c.name)).join(", ") || "—"}`
         );
     } else {
-        $status.html(`<span style="color:#888">Extension is inactive</span>`);
-        $summary.text("Disabled — not injecting prompts.");
+        $status.html(`<span style="color:#888">${EscapeHtml(T("inactive"))}</span>`);
+        $summary.text(T("disabledPrompt"));
     }
 }
 
@@ -674,7 +812,7 @@ async function ImportStateFromFile(file) {
         ReprocessChat();
     } catch (e) {
         console.error("[IB] Import failed:", e);
-        alert("Import failed. Invalid JSON.");
+        alert(T("importFail"));
     }
 }
 
@@ -689,7 +827,8 @@ jQuery(async () => {
                 return;
             }
 
-            const fullPrompt = `${kSystemPrompt}\n\n${BuildStateInjection()}`;
+            const systemPrompt = gLang === "en" ? kSystemPromptEn : kSystemPromptRu;
+            const fullPrompt = `${systemPrompt}\n\n${BuildStateInjection()}`;
             stContext.setExtensionPrompt(injectionId, fullPrompt, 1, 0);
             console.log("[IB] Prompt injected:", fullPrompt.length);
         } catch (e) {
@@ -715,15 +854,18 @@ jQuery(async () => {
     gHideRaw = localStorage.getItem(kHideRawKey) !== "false";
     gShowThoughts = localStorage.getItem(kShowThoughtsKey) !== "false";
     gShowNsfw = localStorage.getItem(kShowNsfwKey) !== "false";
+    gLang = localStorage.getItem(kLangKey) || "ru";
 
     LoadState();
 
     $("#ib_enabled").prop("checked", gEnabled);
+    $("#ib_lang").val(gLang);
     $("#ib_theme").val(gTheme);
     $("#ib_hide_raw").prop("checked", gHideRaw);
     $("#ib_show_thoughts").prop("checked", gShowThoughts);
     $("#ib_show_nsfw").prop("checked", gShowNsfw);
 
+    UpdateSettingsText();
     UpdateStatusDisplay();
     UpdateLastUpdateDisplay();
 
@@ -732,6 +874,16 @@ jQuery(async () => {
         localStorage.setItem(kEnabledKey, String(gEnabled));
         UpdateStatusDisplay();
         InjectPrompt();
+    });
+
+    $("#ib_lang").on("change", function () {
+        gLang = $(this).val();
+        localStorage.setItem(kLangKey, gLang);
+        UpdateSettingsText();
+        UpdateStatusDisplay();
+        UpdateLastUpdateDisplay();
+        InjectPrompt();
+        ReprocessChat();
     });
 
     $("#ib_theme").on("change", function () {
@@ -759,7 +911,7 @@ jQuery(async () => {
     });
 
     $("#ib_reset_state").on("click", function () {
-        if (confirm("Reset Infoboard state for this chat?")) {
+        if (confirm(T("resetConfirm"))) {
             gState = JSON.parse(JSON.stringify(kDefaultState));
             SaveState();
             UpdateStatusDisplay();
