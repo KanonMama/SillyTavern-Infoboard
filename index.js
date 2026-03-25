@@ -423,10 +423,7 @@ function RenderRelCard(r) {
                 <span class="ib-meter-value">${r.l}/100 (${RenderDelta(r.lc)})</span>
             </div>
             <div class="ib-bar"><div class="ib-bar-fill ib-bar-love" style="width:${Clamp(r.l, 0, 100)}%"></div></div>
-        </div>
-
-        <div class="ib-rel-status-note">📋 Динамика: ${EscapeHtml(r.status)}</div>
-    </div>`;
+        </div>`;
 }
 
 function RenderRelations(rels) {
