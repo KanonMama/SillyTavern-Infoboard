@@ -40,13 +40,26 @@
                 Extension is inactive.
             </div>
 
+            <div id="ib_last_update" class="ib-last-update">
+                No recent updates.
+            </div>
+
             <div id="ib_state_display" class="ib-state-display">
                 <b>Current State:</b>
                 <div id="ib_state_summary" class="ib-state-summary">No state loaded.</div>
             </div>
 
-            <div class="menu_button" id="ib_reset_state">🗑 Reset State</div>
-            <div class="menu_button" id="ib_reprocess_chat">🔄 Reprocess Chat</div>
+            <div class="ib-button-row">
+                <div class="menu_button" id="ib_reset_state">🗑 Reset State</div>
+                <div class="menu_button" id="ib_reprocess_chat">🔄 Reprocess Chat</div>
+            </div>
+
+            <div class="ib-button-row">
+                <div class="menu_button" id="ib_export_state">📤 Export State</div>
+                <div class="menu_button" id="ib_import_state">📥 Import State</div>
+            </div>
+
+            <input type="file" id="ib_import_file" accept=".json,application/json" style="display:none;" />
         </div>
     </div>
 </div>
