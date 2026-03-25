@@ -653,13 +653,15 @@ function RenderBoard(state, isFresh = false) {
         <div class="ib-title">${T("title")}</div>
 
         <div class="ib-header">
-            <div class="ib-header-top">
+            <div class="ib-header-left">
                 <span>⏰ <b>${RenderMaybeUnknown(state.time)}</b></span>
                 <span class="ib-sep">│</span>
                 <span>📅 <b>${RenderMaybeUnknown(state.date)}</b></span>
                 <span class="ib-sep">│</span>
                 <span class="ib-weather-chip">🌧 ${RenderMaybeUnknown(state.weather)}</span>
-                <span class="ib-sep">│</span>
+            </div>
+
+            <div class="ib-header-right">
                 <span class="ib-loc-chip">📍 <b>${RenderMaybeUnknown(state.loc)}</b></span>
             </div>
         </div>
