@@ -90,26 +90,26 @@
 }
 
 .ib-theme-frostwhite {
-    --ib-bg-1: #cfdbe8;
-    --ib-bg-2: #bccbdb;
-    --ib-bg-3: #aebfd1;
-    --ib-border: rgba(108, 140, 176, 0.34);
-    --ib-soft-border: rgba(108, 140, 176, 0.18);
-    --ib-text: #162637;
-    --ib-muted: #41586d;
-    --ib-dim: #657d92;
-    --ib-accent: #3b78c7;
-    --ib-accent-2: #6f7ff0;
-    --ib-green: #24b56e;
-    --ib-blue: #417fff;
-    --ib-purple: #7f63f7;
-    --ib-warm: #d08b49;
-    --ib-danger: #c84f67;
-    --ib-chip-bg: rgba(118, 150, 188, 0.16);
-    --ib-chip-border: rgba(118, 150, 188, 0.30);
-    --ib-shadow: 0 12px 28px rgba(78, 102, 130, 0.22);
-    --ib-neon: 0 0 18px rgba(120, 170, 230, 0.10);
-    --ib-header-glow: radial-gradient(circle at top right, rgba(180, 220, 255, 0.14), transparent 48%);
+    --ib-bg-1: #253446;
+    --ib-bg-2: #2d4158;
+    --ib-bg-3: #213244;
+    --ib-border: rgba(150, 190, 230, 0.20);
+    --ib-soft-border: rgba(150, 190, 230, 0.10);
+    --ib-text: #e3eefc;
+    --ib-muted: #9eb4cf;
+    --ib-dim: #7489a5;
+    --ib-accent: #7fb8ff;
+    --ib-accent-2: #a8bfff;
+    --ib-green: #5fe0a0;
+    --ib-blue: #69adff;
+    --ib-purple: #ae7fff;
+    --ib-warm: #d6a15b;
+    --ib-danger: #e06c84;
+    --ib-chip-bg: rgba(125, 165, 215, 0.14);
+    --ib-chip-border: rgba(140, 180, 230, 0.22);
+    --ib-shadow: 0 12px 30px rgba(8, 16, 28, 0.38);
+    --ib-neon: 0 0 18px rgba(120, 180, 255, 0.08);
+    --ib-header-glow: radial-gradient(circle at top right, rgba(140, 200, 255, 0.08), transparent 48%);
 }
 
 .ib-settings .ib-setting-row {
@@ -175,10 +175,10 @@
     position: absolute;
     inset: 0;
     background:
-        linear-gradient(120deg, rgba(255,255,255,0.03), transparent 32%),
-        radial-gradient(circle at 10% 0%, rgba(255,255,255,0.05), transparent 22%);
+        linear-gradient(120deg, rgba(255,255,255,0.025), transparent 32%),
+        radial-gradient(circle at 10% 0%, rgba(255,255,255,0.04), transparent 22%);
     pointer-events: none;
-    opacity: 0.9;
+    opacity: 0.75;
 }
 
 .ib-board.ib-fresh {
@@ -260,15 +260,22 @@
     border: 1px solid var(--ib-chip-border);
 }
 
+.ib-weather-chip {
+    opacity: 0.92;
+}
+
 .ib-loc-chip {
     color: var(--ib-text);
     font-weight: 700;
     width: fit-content;
     max-width: 100%;
+    background: linear-gradient(135deg, rgba(90, 135, 190, 0.24), rgba(70, 110, 165, 0.18));
+    border: 1px solid rgba(150, 190, 240, 0.22);
+    box-shadow: 0 0 12px rgba(120, 170, 240, 0.06);
 }
 
 .ib-section {
-    background: rgba(255,255,255,0.04);
+    background: rgba(255,255,255,0.03);
     border: 1px solid var(--ib-soft-border);
     border-radius: 10px;
     padding: 10px 12px;
@@ -299,7 +306,7 @@
     gap: 10px;
     padding: 8px 10px;
     border-radius: 8px;
-    background: rgba(255,255,255,0.035);
+    background: rgba(255,255,255,0.025);
     border: 1px solid var(--ib-soft-border);
     flex-wrap: wrap;
 }
@@ -350,7 +357,7 @@
 }
 
 .ib-rel-card {
-    background: rgba(255,255,255,0.035);
+    background: rgba(255,255,255,0.025);
     border: 1px solid var(--ib-soft-border);
     border-radius: 10px;
     padding: 10px;
@@ -490,7 +497,7 @@
 .ib-thought-card {
     padding: 8px 10px;
     border-radius: 8px;
-    background: rgba(255,255,255,0.035);
+    background: rgba(255,255,255,0.025);
     border: 1px solid var(--ib-soft-border);
 }
 
