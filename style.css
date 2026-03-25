@@ -220,8 +220,9 @@
 
 .ib-header {
     display: flex;
-    flex-direction: column;
-    gap: 8px;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
     padding: 9px 10px;
     margin-bottom: 10px;
     background: rgba(255,255,255,0.04);
@@ -238,10 +239,6 @@
     align-items: center;
     color: var(--ib-muted);
     font-size: 12px;
-}
-
-.ib-header-bottom {
-    display: flex;
     width: 100%;
 }
 
@@ -261,17 +258,20 @@
 }
 
 .ib-weather-chip {
-    opacity: 0.92;
+    opacity: 0.88;
 }
 
 .ib-loc-chip {
     color: var(--ib-text);
     font-weight: 700;
-    width: fit-content;
-    max-width: 100%;
-    background: linear-gradient(135deg, rgba(90, 135, 190, 0.24), rgba(70, 110, 165, 0.18));
-    border: 1px solid rgba(150, 190, 240, 0.22);
-    box-shadow: 0 0 12px rgba(120, 170, 240, 0.06);
+    margin-left: auto;
+    max-width: min(46%, 420px);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    background: linear-gradient(135deg, rgba(86, 122, 170, 0.16), rgba(62, 92, 138, 0.12));
+    border: 1px solid rgba(140, 180, 230, 0.18);
+    box-shadow: 0 0 8px rgba(120, 170, 240, 0.04);
 }
 
 .ib-section {
@@ -465,27 +465,27 @@
 }
 
 .ib-bar-affection-pos {
-    background: linear-gradient(90deg, #78e7ab, #19c86f);
+    background: linear-gradient(90deg, #67c79a, #2da96f 58%, #23885a);
 }
 
 .ib-bar-affection-neg {
-    background: linear-gradient(90deg, #ffb0a1, #e05c5c);
+    background: linear-gradient(90deg, #d88a82, #b55252 60%, #8d3d3d);
 }
 
 .ib-bar-trust-pos {
-    background: linear-gradient(90deg, #8ac7ff, #3574ff);
+    background: linear-gradient(90deg, #72b2da, #4a87d8 58%, #3569b0);
 }
 
 .ib-bar-trust-neg {
-    background: linear-gradient(90deg, #ffc989, #e08743);
+    background: linear-gradient(90deg, #d3a06d, #b87442 60%, #945932);
 }
 
 .ib-bar-love-pos {
-    background: linear-gradient(90deg, #c39cff, #7b3dff);
+    background: linear-gradient(90deg, #b086d9, #8a58d4 58%, #6738a5);
 }
 
 .ib-bar-love-neg {
-    background: linear-gradient(90deg, #ff8aa8, #b32645);
+    background: linear-gradient(90deg, #d56d87, #a93b58 60%, #7e243d);
 }
 
 .ib-thought-list {
