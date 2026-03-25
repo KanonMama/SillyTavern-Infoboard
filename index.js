@@ -519,16 +519,27 @@ function GetStatusClass(status) {
 function GetMetricMeta(type, value) {
     const v = Clamp(parseInt(value) || 0, -100, 100);
     const abs = Math.abs(v);
-    const saturation = 0.82 + abs / 320;
-    const brightness = 0.92 + abs / 500;
-    const glow = 4 + abs / 24;
-    const alpha = 0.10 + abs / 520;
+    const saturation = 0.88 + abs / 420;
+    const brightness = 0.95 + abs / 700;
+    const glow = 2 + abs / 36;
+    const alpha = 0.06 + abs / 900;
 
     if (type === "a") {
         return v >= 0
             ? { label: T("affection"), barClass: "ib-bar-affection-pos", style: `filter:saturate(${saturation}) brightness(${brightness}); box-shadow:0 0 ${glow}px rgba(45, 169, 111, ${alpha});` }
             : { label: T("aversion"), barClass: "ib-bar-affection-neg", style: `filter:saturate(${saturation}) brightness(${brightness}); box-shadow:0 0 ${glow}px rgba(181, 82, 82, ${alpha});` };
     }
+
+    if (type === "tr") {
+        return v >= 0
+            ? { label: T("trust"), barClass: "ib-bar-trust-pos", style: `filter:saturate(${saturation}) brightness(${brightness}); box-shadow:0 0 ${glow}px rgba(74, 135, 216, ${alpha});` }
+            : { label: T("distrust"), barClass: "ib-bar-trust-neg", style: `filter:saturate(${saturation}) brightness(${brightness}); box-shadow:0 0 ${glow}px rgba(184, 116, 66, ${alpha});` };
+    }
+
+    return v >= 0
+        ? { label: T("love"), barClass: "ib-bar-love-pos", style: `filter:saturate(${saturation}) brightness(${brightness}); box-shadow:0 0 ${glow}px rgba(138, 88, 212, ${alpha});` }
+        : { label: T("hatred"), barClass: "ib-bar-love-neg", style: `filter:saturate(${saturation}) brightness(${brightness}); box-shadow:0 0 ${glow}px rgba(169, 59, 88, ${alpha});` };
+}
 
     if (type === "tr") {
         return v >= 0
