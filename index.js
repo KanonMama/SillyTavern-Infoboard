@@ -10,6 +10,7 @@ const kShowThoughtsKey = "IB_ShowThoughts";
 const kShowNsfwKey = "IB_ShowNsfw";
 const kLangKey = "IB_Lang";
 const kBarStyleKey = "IB_BarStyle";
+const kCustomCssKey = "IB_CustomCss";
 
 let gEnabled = false;
 let gTheme = "nocturne";
@@ -18,19 +19,20 @@ let gShowThoughts = true;
 let gShowNsfw = true;
 let gLang = "ru";
 let gBarStyle = "deep";
+let gCustomCss = "";
 
 const kLang = {
     ru: {
         enable: "Enable Infoboard",
         language: "Язык",
         theme: "Тема",
+        barStyle: "Стиль полос",
         hideRaw: "Скрывать сырой XML из сообщений",
         showThoughts: "Показывать блок мыслей",
         showNsfw: "Показывать NSFW блок",
         active: "✦ Расширение активно",
         inactive: "Расширение отключено",
         currentState: "Текущее состояние:",
-        noState: "Состояние не загружено.",
         noRecentUpdates: "Нет недавних изменений.",
         disabledPrompt: "Отключено — промт не инжектится.",
         chars: "💖 Персонажи в сцене",
@@ -54,19 +56,23 @@ const kLang = {
         stateNpcLabel: "NPCs",
         title: "INFOBOARD",
         noStatus: "не определено",
-        barStyle: "Стиль полос",
+        customCssLabel: "Пользовательский CSS",
+        customCssHelp: "Применяется после встроенных стилей. Можно переопределять цвета, отступы, полосы и любые классы Infoboard.",
+        saveCustomCss: "💾 Сохранить CSS",
+        clearCustomCss: "🧹 Очистить CSS",
+        clearCustomCssConfirm: "Очистить пользовательский CSS?"
     },
     en: {
         enable: "Enable Infoboard",
         language: "Language",
         theme: "Theme",
+        barStyle: "Bar Style",
         hideRaw: "Hide raw XML from messages",
         showThoughts: "Show thoughts section",
         showNsfw: "Show NSFW section",
         active: "✦ Extension is active",
         inactive: "Extension is inactive",
         currentState: "Current State:",
-        noState: "No state loaded.",
         noRecentUpdates: "No recent updates.",
         disabledPrompt: "Disabled — not injecting prompts.",
         chars: "💖 Characters in Scene",
@@ -90,7 +96,11 @@ const kLang = {
         stateNpcLabel: "NPCs",
         title: "INFOBOARD",
         noStatus: "undefined",
-        barStyle: "Bar Style",
+        customCssLabel: "Custom CSS Overrides",
+        customCssHelp: "Applied after built-in styles. Use to override colors, spacing, bars, or any Infoboard classes.",
+        saveCustomCss: "💾 Save Custom CSS",
+        clearCustomCss: "🧹 Clear Custom CSS",
+        clearCustomCssConfirm: "Clear custom CSS?"
     }
 };
 
@@ -192,6 +202,16 @@ function GetUserName() {
     } catch {
         return "User";
     }
+}
+
+function ApplyCustomCss() {
+    let styleEl = document.getElementById("ib_custom_css_style");
+    if (!styleEl) {
+        styleEl = document.createElement("style");
+        styleEl.id = "ib_custom_css_style";
+        document.head.appendChild(styleEl);
+    }
+    styleEl.textContent = gCustomCss || "";
 }
 
 function GetStorageKey() {
@@ -541,17 +561,6 @@ function GetMetricMeta(type, value) {
         : { label: T("hatred"), barClass: "ib-bar-love-neg", style: `filter:saturate(${saturation}) brightness(${brightness}); box-shadow:0 0 ${glow}px rgba(169, 59, 88, ${alpha});` };
 }
 
-    if (type === "tr") {
-        return v >= 0
-            ? { label: T("trust"), barClass: "ib-bar-trust-pos", style: `filter:saturate(${saturation}) brightness(${brightness}); box-shadow:0 0 ${glow}px rgba(74, 135, 216, ${alpha});` }
-            : { label: T("distrust"), barClass: "ib-bar-trust-neg", style: `filter:saturate(${saturation}) brightness(${brightness}); box-shadow:0 0 ${glow}px rgba(184, 116, 66, ${alpha});` };
-    }
-
-    return v >= 0
-        ? { label: T("love"), barClass: "ib-bar-love-pos", style: `filter:saturate(${saturation}) brightness(${brightness}); box-shadow:0 0 ${glow}px rgba(138, 88, 212, ${alpha});` }
-        : { label: T("hatred"), barClass: "ib-bar-love-neg", style: `filter:saturate(${saturation}) brightness(${brightness}); box-shadow:0 0 ${glow}px rgba(169, 59, 88, ${alpha});` };
-}
-
 function RenderChars(chars) {
     if (!chars.length) return "";
 
@@ -702,9 +711,7 @@ function RemoveThoughtLeaks(messageTextEl, parsed) {
         if (!pText) return;
 
         const isLeak = thoughtTexts.some(t => pText.includes(t) || t.includes(pText));
-        if (isLeak) {
-            p.remove();
-        }
+        if (isLeak) p.remove();
     });
 }
 
@@ -747,6 +754,10 @@ function UpdateSettingsText() {
     $("#ib_reprocess_chat").text(T("reprocess"));
     $("#ib_export_state").text(T("exportState"));
     $("#ib_import_state").text(T("importState"));
+    $("#ib_custom_css_label").text(T("customCssLabel"));
+    $("#ib_custom_css_help").text(T("customCssHelp"));
+    $("#ib_save_custom_css").text(T("saveCustomCss"));
+    $("#ib_clear_custom_css").text(T("clearCustomCss"));
 }
 
 function ProcessMessage(messageDiv, msgIndex) {
@@ -941,16 +952,19 @@ jQuery(async () => {
     gShowNsfw = localStorage.getItem(kShowNsfwKey) !== "false";
     gLang = localStorage.getItem(kLangKey) || "ru";
     gBarStyle = localStorage.getItem(kBarStyleKey) || "deep";
+    gCustomCss = localStorage.getItem(kCustomCssKey) || "";
 
     LoadState();
+    ApplyCustomCss();
 
-$("#ib_enabled").prop("checked", gEnabled);
-$("#ib_lang").val(gLang);
-$("#ib_theme").val(gTheme);
-$("#ib_bar_style").val(gBarStyle);
-$("#ib_hide_raw").prop("checked", gHideRaw);
-$("#ib_show_thoughts").prop("checked", gShowThoughts);
-$("#ib_show_nsfw").prop("checked", gShowNsfw);
+    $("#ib_enabled").prop("checked", gEnabled);
+    $("#ib_lang").val(gLang);
+    $("#ib_theme").val(gTheme);
+    $("#ib_bar_style").val(gBarStyle);
+    $("#ib_hide_raw").prop("checked", gHideRaw);
+    $("#ib_show_thoughts").prop("checked", gShowThoughts);
+    $("#ib_show_nsfw").prop("checked", gShowNsfw);
+    $("#ib_custom_css").val(gCustomCss);
 
     UpdateSettingsText();
     UpdateStatusDisplay();
@@ -961,12 +975,7 @@ $("#ib_show_nsfw").prop("checked", gShowNsfw);
         localStorage.setItem(kEnabledKey, String(gEnabled));
         UpdateStatusDisplay();
         InjectPrompt();
-
-        $("#ib_bar_style").on("change", function () {
-    gBarStyle = $(this).val();
-    localStorage.setItem(kBarStyleKey, gBarStyle);
-    ReprocessChat();
-});
+    });
 
     $("#ib_lang").on("change", function () {
         gLang = $(this).val();
@@ -981,6 +990,12 @@ $("#ib_show_nsfw").prop("checked", gShowNsfw);
     $("#ib_theme").on("change", function () {
         gTheme = $(this).val();
         localStorage.setItem(kThemeKey, gTheme);
+        ReprocessChat();
+    });
+
+    $("#ib_bar_style").on("change", function () {
+        gBarStyle = $(this).val();
+        localStorage.setItem(kBarStyleKey, gBarStyle);
         ReprocessChat();
     });
 
@@ -999,6 +1014,22 @@ $("#ib_show_nsfw").prop("checked", gShowNsfw);
     $("#ib_show_nsfw").on("change", function () {
         gShowNsfw = $(this).is(":checked");
         localStorage.setItem(kShowNsfwKey, String(gShowNsfw));
+        ReprocessChat();
+    });
+
+    $("#ib_save_custom_css").on("click", function () {
+        gCustomCss = $("#ib_custom_css").val() || "";
+        localStorage.setItem(kCustomCssKey, gCustomCss);
+        ApplyCustomCss();
+        ReprocessChat();
+    });
+
+    $("#ib_clear_custom_css").on("click", function () {
+        if (!confirm(T("clearCustomCssConfirm"))) return;
+        gCustomCss = "";
+        localStorage.setItem(kCustomCssKey, "");
+        $("#ib_custom_css").val("");
+        ApplyCustomCss();
         ReprocessChat();
     });
 
