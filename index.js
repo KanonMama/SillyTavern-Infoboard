@@ -656,8 +656,7 @@ function RenderBoard(state, isFresh = false) {
                 <span>📅 <b>${RenderMaybeUnknown(state.date)}</b></span>
                 <span class="ib-sep">│</span>
                 <span class="ib-weather-chip">🌧 ${RenderMaybeUnknown(state.weather)}</span>
-            </div>
-            <div class="ib-header-bottom">
+                <span class="ib-sep">│</span>
                 <span class="ib-loc-chip">📍 <b>${RenderMaybeUnknown(state.loc)}</b></span>
             </div>
         </div>
