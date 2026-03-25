@@ -270,7 +270,7 @@
 
 .ib-loc-chip {
     color: var(--ib-text);
-    font-weight: 700;
+    font-weight: 500;
     max-width: 280px;
     white-space: nowrap;
     overflow: hidden;
