@@ -1,4 +1,4 @@
-const kExtensionName = "SillyTavern-Infoboard";
+const kExtensionName = "Infoboard";
 const kExtensionFolderPath = `scripts/extensions/third-party/${kExtensionName}`;
 const kSettingsFile = `${kExtensionFolderPath}/settings.html`;
 
@@ -38,9 +38,11 @@ const kLang = {
         affection: "💚 Симпатия",
         trust: "💙 Доверие",
         love: "💜 Любовь",
+        aversion: "❤️‍🩹 Неприязнь",
+        distrust: "🧡 Недоверие",
+        hatred: "🩸 Ненависть",
         fetishes: "Фетиши",
         positions: "Позиции",
-        toYou: "тебе",
         resetState: "🗑 Сбросить состояние",
         reprocess: "🔄 Перепарсить чат",
         exportState: "📤 Экспорт состояния",
@@ -71,9 +73,11 @@ const kLang = {
         affection: "💚 Affection",
         trust: "💙 Trust",
         love: "💜 Love",
+        aversion: "❤️‍🩹 Aversion",
+        distrust: "🧡 Distrust",
+        hatred: "🩸 Hatred",
         fetishes: "Fetishes",
         positions: "Positions",
-        toYou: "you",
         resetState: "🗑 Reset State",
         reprocess: "🔄 Reprocess Chat",
         exportState: "📤 Export State",
@@ -108,10 +112,12 @@ Rules:
 - Add one <c /> for each NPC currently present in the scene.
 - tags must contain 1-3 short tags separated by |
 - Add one <rel /> for each present NPC describing their feelings toward {{user}}, never between NPCs
-- Use a, tr, l as values from 0 to 100
+- Use a, tr, l as values from -100 to 100
+- Negative affection means aversion or dislike
+- Negative trust means distrust, suspicion, or fear
+- Negative love means hatred, destructive obsession, or anti-attachment
 - Use ac, tc, lc as per-message changes, usually within -5..+5 unless a major event just happened
 - Relationship values must evolve logically and consistently
-- Love should not sharply increase without enough affection and trust
 - Put all NPC private thoughts into one <thk> block
 - In <thk>, each NPC starts on a new line in format: Имя: мысль
 - Never write thoughts, feelings, or internal state for {{user}} inside <thk>
@@ -140,10 +146,12 @@ Rules:
 - Add one <c /> for each NPC currently present in the scene.
 - tags must contain 1-3 short tags separated by |
 - Add one <rel /> for each present NPC describing their feelings toward {{user}}, never between NPCs
-- Use a, tr, l as values from 0 to 100
+- Use a, tr, l as values from -100 to 100
+- Negative affection means aversion or dislike
+- Negative trust means distrust, suspicion, or fear
+- Negative love means hatred, destructive obsession, or anti-attachment
 - Use ac, tc, lc as per-message changes, usually within -5..+5 unless a major event just happened
 - Relationship values must evolve logically and consistently
-- Love should not sharply increase without enough affection and trust
 - Put all NPC private thoughts into one <thk> block
 - In <thk>, each NPC starts on a new line in format: Name: thought
 - Never write thoughts, feelings, or internal state for {{user}} inside <thk>
@@ -166,6 +174,20 @@ let gState = JSON.parse(JSON.stringify(kDefaultState));
 
 function T(key) {
     return kLang[gLang]?.[key] ?? key;
+}
+
+function GetUserName() {
+    try {
+        const stContext = SillyTavern.getContext();
+        return (
+            stContext.name1 ||
+            stContext.chatMetadata?.persona ||
+            stContext.user?.name ||
+            "User"
+        );
+    } catch {
+        return "User";
+    }
 }
 
 function GetStorageKey() {
@@ -224,7 +246,8 @@ function IsUserLikeName(name) {
         n === "твой персонаж" ||
         n === "героиня" ||
         n === "герой" ||
-        n === "you";
+        n === "you" ||
+        n === NormalizeName(GetUserName());
 }
 
 function IsUnknownValue(val) {
@@ -308,18 +331,16 @@ function ParseInfoboard(text) {
     const relNodes = doc.querySelectorAll("rels > rel");
     relNodes.forEach(rel => {
         const source = rel.getAttribute("source") || "???";
-        const target = rel.getAttribute("target") || "{{user}}";
-
         if (IsUserLikeName(source)) return;
 
         result.rels.push({
             source,
-            target,
-            a: Clamp(parseInt(rel.getAttribute("a")) || 0, 0, 100),
+            target: GetUserName(),
+            a: Clamp(parseInt(rel.getAttribute("a")) || 0, -100, 100),
             ac: Clamp(parseInt(rel.getAttribute("ac")) || 0, -100, 100),
-            tr: Clamp(parseInt(rel.getAttribute("tr")) || 0, 0, 100),
+            tr: Clamp(parseInt(rel.getAttribute("tr")) || 0, -100, 100),
             tc: Clamp(parseInt(rel.getAttribute("tc")) || 0, -100, 100),
-            l: Clamp(parseInt(rel.getAttribute("l")) || 0, 0, 100),
+            l: Clamp(parseInt(rel.getAttribute("l")) || 0, -100, 100),
             lc: Clamp(parseInt(rel.getAttribute("lc")) || 0, -100, 100),
             status: rel.getAttribute("status") || T("noStatus")
         });
@@ -328,18 +349,16 @@ function ParseInfoboard(text) {
     if (!result.rels.length) {
         doc.querySelectorAll("rel").forEach(rel => {
             const source = rel.getAttribute("source") || "???";
-            const target = rel.getAttribute("target") || "{{user}}";
-
             if (IsUserLikeName(source)) return;
 
             result.rels.push({
                 source,
-                target,
-                a: Clamp(parseInt(rel.getAttribute("a")) || 0, 0, 100),
+                target: GetUserName(),
+                a: Clamp(parseInt(rel.getAttribute("a")) || 0, -100, 100),
                 ac: Clamp(parseInt(rel.getAttribute("ac")) || 0, -100, 100),
-                tr: Clamp(parseInt(rel.getAttribute("tr")) || 0, 0, 100),
+                tr: Clamp(parseInt(rel.getAttribute("tr")) || 0, -100, 100),
                 tc: Clamp(parseInt(rel.getAttribute("tc")) || 0, -100, 100),
-                l: Clamp(parseInt(rel.getAttribute("l")) || 0, 0, 100),
+                l: Clamp(parseInt(rel.getAttribute("l")) || 0, -100, 100),
                 lc: Clamp(parseInt(rel.getAttribute("lc")) || 0, -100, 100),
                 status: rel.getAttribute("status") || T("noStatus")
             });
@@ -475,7 +494,7 @@ function RenderDelta(num) {
 }
 
 function RenderBarWidth(value) {
-    const v = Clamp(parseInt(value) || 0, 0, 100);
+    const v = Math.abs(Clamp(parseInt(value) || 0, -100, 100));
     if (v <= 0) return "0%";
     return `${Math.max(v, 4)}%`;
 }
@@ -484,13 +503,35 @@ function GetStatusClass(status) {
     const s = NormalizeName(status);
 
     const romantic = ["роман", "любов", "влюб", "пара", "отношен", "свидан", "любовники", "муж", "жена", "соулмейт", "dating", "lover", "romantic", "married", "soulmate", "romance"];
-    const negative = ["враг", "ненав", "токс", "абьюз", "сопер", "rival", "enemy", "abusive", "toxic", "ex-", "бывш", "hostile"];
+    const negative = ["враг", "ненав", "токс", "абьюз", "сопер", "rival", "enemy", "abusive", "toxic", "ex-", "бывш", "hostile", "hatred", "hate"];
     const complex = ["сложн", "одерж", "защит", "ментор", "учен", "family", "нераздел", "complicated", "protective", "mentor", "unrequited", "obsession", "obsessed"];
 
     if (romantic.some(k => s.includes(k))) return "ib-status-romantic";
     if (negative.some(k => s.includes(k))) return "ib-status-negative";
     if (complex.some(k => s.includes(k))) return "ib-status-complex";
     return "ib-status-neutral";
+}
+
+function GetMetricMeta(type, value) {
+    const v = Clamp(parseInt(value) || 0, -100, 100);
+    const abs = Math.abs(v);
+    const intensity = 0.72 + abs / 220;
+
+    if (type === "a") {
+        return v >= 0
+            ? { label: T("affection"), barClass: "ib-bar-affection-pos", style: `filter:saturate(${intensity}) brightness(${1 + abs / 260}); box-shadow:0 0 ${6 + abs / 14}px rgba(84, 227, 154, ${0.18 + abs / 350});` }
+            : { label: T("aversion"), barClass: "ib-bar-affection-neg", style: `filter:saturate(${intensity}) brightness(${1 + abs / 260}); box-shadow:0 0 ${6 + abs / 14}px rgba(224, 92, 92, ${0.18 + abs / 350});` };
+    }
+
+    if (type === "tr") {
+        return v >= 0
+            ? { label: T("trust"), barClass: "ib-bar-trust-pos", style: `filter:saturate(${intensity}) brightness(${1 + abs / 260}); box-shadow:0 0 ${6 + abs / 14}px rgba(108, 180, 255, ${0.18 + abs / 350});` }
+            : { label: T("distrust"), barClass: "ib-bar-trust-neg", style: `filter:saturate(${intensity}) brightness(${1 + abs / 260}); box-shadow:0 0 ${6 + abs / 14}px rgba(224, 135, 67, ${0.18 + abs / 350});` };
+    }
+
+    return v >= 0
+        ? { label: T("love"), barClass: "ib-bar-love-pos", style: `filter:saturate(${intensity}) brightness(${1 + abs / 260}); box-shadow:0 0 ${6 + abs / 14}px rgba(180, 124, 255, ${0.18 + abs / 350});` }
+        : { label: T("hatred"), barClass: "ib-bar-love-neg", style: `filter:saturate(${intensity}) brightness(${1 + abs / 260}); box-shadow:0 0 ${6 + abs / 14}px rgba(179, 38, 69, ${0.18 + abs / 350});` };
 }
 
 function RenderChars(chars) {
@@ -517,36 +558,39 @@ function RenderChars(chars) {
 
 function RenderRelCard(r) {
     const statusClass = GetStatusClass(r.status);
+    const aMeta = GetMetricMeta("a", r.a);
+    const trMeta = GetMetricMeta("tr", r.tr);
+    const lMeta = GetMetricMeta("l", r.l);
 
     return `
     <div class="ib-rel-card">
         <div class="ib-rel-head">
-            <span>💕 ${EscapeHtml(r.source)} → ${T("toYou")}</span>
+            <span>💕 ${EscapeHtml(r.source)} → ${EscapeHtml(r.target)}</span>
             <span class="ib-status-chip ${statusClass}">${EscapeHtml(r.status)}</span>
         </div>
 
         <div class="ib-meter">
             <div class="ib-meter-top">
-                <span class="ib-meter-label" style="color:var(--ib-green)">${T("affection")}</span>
+                <span class="ib-meter-label" style="color:var(--ib-green)">${aMeta.label}</span>
                 <span class="ib-meter-value">${r.a}/100 (${RenderDelta(r.ac)})</span>
             </div>
-            <div class="ib-bar"><div class="ib-bar-fill ib-bar-affection" style="width:${RenderBarWidth(r.a)}"></div></div>
+            <div class="ib-bar"><div class="ib-bar-fill ${aMeta.barClass}" style="width:${RenderBarWidth(r.a)}; ${aMeta.style}"></div></div>
         </div>
 
         <div class="ib-meter">
             <div class="ib-meter-top">
-                <span class="ib-meter-label" style="color:var(--ib-blue)">${T("trust")}</span>
+                <span class="ib-meter-label" style="color:var(--ib-blue)">${trMeta.label}</span>
                 <span class="ib-meter-value">${r.tr}/100 (${RenderDelta(r.tc)})</span>
             </div>
-            <div class="ib-bar"><div class="ib-bar-fill ib-bar-trust" style="width:${RenderBarWidth(r.tr)}"></div></div>
+            <div class="ib-bar"><div class="ib-bar-fill ${trMeta.barClass}" style="width:${RenderBarWidth(r.tr)}; ${trMeta.style}"></div></div>
         </div>
 
         <div class="ib-meter">
             <div class="ib-meter-top">
-                <span class="ib-meter-label" style="color:var(--ib-purple)">${T("love")}</span>
+                <span class="ib-meter-label" style="color:var(--ib-purple)">${lMeta.label}</span>
                 <span class="ib-meter-value">${r.l}/100 (${RenderDelta(r.lc)})</span>
             </div>
-            <div class="ib-bar"><div class="ib-bar-fill ib-bar-love" style="width:${RenderBarWidth(r.l)}"></div></div>
+            <div class="ib-bar"><div class="ib-bar-fill ${lMeta.barClass}" style="width:${RenderBarWidth(r.l)}; ${lMeta.style}"></div></div>
         </div>
     </div>`;
 }
@@ -606,14 +650,14 @@ function RenderBoard(state, isFresh = false) {
         <div class="ib-title">${T("title")}</div>
 
         <div class="ib-header">
-            <div class="ib-header-left">
+            <div class="ib-header-top">
                 <span>⏰ <b>${RenderMaybeUnknown(state.time)}</b></span>
                 <span class="ib-sep">│</span>
                 <span>📅 <b>${RenderMaybeUnknown(state.date)}</b></span>
                 <span class="ib-sep">│</span>
                 <span class="ib-weather-chip">🌧 ${RenderMaybeUnknown(state.weather)}</span>
             </div>
-            <div class="ib-header-right">
+            <div class="ib-header-bottom">
                 <span class="ib-loc-chip">📍 <b>${RenderMaybeUnknown(state.loc)}</b></span>
             </div>
         </div>
@@ -626,6 +670,26 @@ function RenderBoard(state, isFresh = false) {
     </div>`;
 }
 
+function RemoveThoughtLeaks(messageTextEl, parsed) {
+    if (!messageTextEl || !parsed?.thoughts?.length) return;
+
+    const thoughtTexts = parsed.thoughts
+        .map(t => NormalizeName(t.text))
+        .filter(Boolean);
+
+    if (!thoughtTexts.length) return;
+
+    messageTextEl.querySelectorAll("p").forEach(p => {
+        const pText = NormalizeName(p.textContent || "");
+        if (!pText) return;
+
+        const isLeak = thoughtTexts.some(t => pText.includes(t) || t.includes(pText));
+        if (isLeak) {
+            p.remove();
+        }
+    });
+}
+
 function RemoveRawXmlFromText(messageTextEl, parsed) {
     if (!gHideRaw) return;
     if (!messageTextEl || !parsed?.rawXml) return;
@@ -636,9 +700,11 @@ function RemoveRawXmlFromText(messageTextEl, parsed) {
 
     html = html
         .replace(/<nsfw\s+f="[\s\S]*?"\s+p="[\s\S]*?"\s*\/?>/gi, "")
+        .replace(/<thk>[\s\S]*?<\/thk>/gi, "")
         .replace(/(?:<br\s*\/?>\s*){2,}/gi, "<br>");
 
     messageTextEl.innerHTML = html;
+    RemoveThoughtLeaks(messageTextEl, parsed);
 }
 
 function UpdateLastUpdateDisplay() {
