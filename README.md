@@ -32,29 +32,29 @@ Clean, persistent, and built for roleplay.
 Install it like a regular **SillyTavern third-party extension**.
 
 ## What it tracks
-time
-date
-weather
-location
-NPCs in scene
-NPC → user relationships
-NPC private thoughts
-optional NSFW context
-Settings
+- time
+- date
+- weather
+- location
+- NPCs in scene
+- NPC → user relationships
+- NPC private thoughts
+- optional NSFW context
+- Settings
 
 ## Infoboard includes:
 
-enable / disable toggle
-language switch
-theme selector
-bar style selector
-hide raw XML
-show thoughts
-show NSFW
-reset state
-reprocess chat
-export / import state
-custom CSS overrides
+- enable / disable toggle
+- language switch
+- theme selector
+- bar style selector
+- hide raw XML
+- show thoughts
+- show NSFW
+- reset state
+- reprocess chat
+- export / import state
+- custom CSS overrides
 
 ## Custom CSS
 You can override the design without editing extension files.
@@ -75,7 +75,7 @@ You can override the design without editing extension files.
 }
 
 ## Notes
-one <infoboard> block is expected in every assistant reply
-state is stored per chat
-old chats can be rebuilt with Reprocess Chat
-language switching affects both UI and injected prompt
+- one <infoboard> block is expected in every assistant reply
+- state is stored per chat
+- old chats can be rebuilt with Reprocess Chat
+- language switching affects both UI and injected prompt
