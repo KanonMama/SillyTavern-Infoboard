@@ -1,0 +1,10 @@
+{
+  "display_name": "Infoboard",
+  "loading_order": 200,
+  "requires": [],
+  "optional": [],
+  "js": "index.js",
+  "css": "style.css",
+  "version": "1.0.0",
+  "minimum_client_version": "1.10.0"
+}
