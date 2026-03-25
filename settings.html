@@ -31,14 +31,15 @@
             </div>
 
             <div class="ib-setting-row">
-    <label for="ib_bar_style"><b>Bar Style</b></label>
-    <select id="ib_bar_style">
-        <option value="classic">Classic</option>
-        <option value="deep">Deep Neon</option>
-        <option value="glass">Glass Needle</option>
-        <option value="soft">Soft Matte</option>
-    </select>
-</div>
+                <label for="ib_bar_style"><b>Bar Style</b></label>
+                <select id="ib_bar_style">
+                    <option value="classic">Classic</option>
+                    <option value="deep">Deep Neon</option>
+                    <option value="glass">Glass Needle</option>
+                    <option value="soft">Soft Matte</option>
+                </select>
+            </div>
+
             <div class="ib-setting-row">
                 <input type="checkbox" id="ib_hide_raw" />
                 <label for="ib_hide_raw">Hide raw XML from messages</label>
@@ -75,6 +76,18 @@
             <div class="ib-button-row">
                 <div class="menu_button" id="ib_export_state">📤 Export State</div>
                 <div class="menu_button" id="ib_import_state">📥 Import State</div>
+            </div>
+
+            <div class="ib-custom-css-wrap">
+                <label for="ib_custom_css"><b id="ib_custom_css_label">Custom CSS Overrides</b></label>
+                <textarea id="ib_custom_css" class="text_pole" rows="10" placeholder=".ib-board { border-radius: 20px; }"></textarea>
+                <div class="ib-custom-css-help" id="ib_custom_css_help">
+                    Applied after built-in styles. Use to override colors, spacing, bars, or any Infoboard classes.
+                </div>
+                <div class="ib-button-row">
+                    <div class="menu_button" id="ib_save_custom_css">💾 Save Custom CSS</div>
+                    <div class="menu_button" id="ib_clear_custom_css">🧹 Clear Custom CSS</div>
+                </div>
             </div>
 
             <input type="file" id="ib_import_file" accept=".json,application/json" style="display:none;" />
