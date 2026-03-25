@@ -1,0 +1,52 @@
+<div class="ib-settings">
+    <div class="inline-drawer">
+        <div class="inline-drawer-toggle inline-drawer-header">
+            <b>Infoboard</b>
+            <div class="inline-drawer-icon fa-solid fa-circle-chevron-down down"></div>
+        </div>
+
+        <div class="inline-drawer-content">
+            <div class="ib-setting-row">
+                <input type="checkbox" id="ib_enabled" />
+                <label for="ib_enabled"><b>Enable Infoboard</b></label>
+            </div>
+
+            <div class="ib-setting-row">
+                <label for="ib_theme"><b>Theme</b></label>
+                <select id="ib_theme">
+                    <option value="nocturne">Nocturne</option>
+                    <option value="burgundy">Burgundy</option>
+                    <option value="ashrose">Ash Rose</option>
+                    <option value="coldsteel">Cold Steel</option>
+                </select>
+            </div>
+
+            <div class="ib-setting-row">
+                <input type="checkbox" id="ib_hide_raw" />
+                <label for="ib_hide_raw">Hide raw XML from messages</label>
+            </div>
+
+            <div class="ib-setting-row">
+                <input type="checkbox" id="ib_show_thoughts" />
+                <label for="ib_show_thoughts">Show thoughts section</label>
+            </div>
+
+            <div class="ib-setting-row">
+                <input type="checkbox" id="ib_show_nsfw" />
+                <label for="ib_show_nsfw">Show NSFW section</label>
+            </div>
+
+            <div id="ib_status" class="ib-status">
+                Extension is inactive.
+            </div>
+
+            <div id="ib_state_display" class="ib-state-display">
+                <b>Current State:</b>
+                <div id="ib_state_summary" class="ib-state-summary">No state loaded.</div>
+            </div>
+
+            <div class="menu_button" id="ib_reset_state">🗑 Reset State</div>
+            <div class="menu_button" id="ib_reprocess_chat">🔄 Reprocess Chat</div>
+        </div>
+    </div>
+</div>
