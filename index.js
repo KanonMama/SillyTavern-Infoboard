@@ -55,10 +55,11 @@ const kDefaultState = {
     chars: [],
     rels: [],
     thoughts: [],
-    nsfw: null
+    nsfw: null,
+    lastUpdate: []
 };
 
-let gState = structuredClone(kDefaultState);
+let gState = JSON.parse(JSON.stringify(kDefaultState));
 
 function GetStorageKey() {
     const stContext = SillyTavern.getContext();
@@ -79,17 +80,18 @@ function LoadState() {
         const raw = localStorage.getItem(GetStorageKey());
         if (raw) {
             gState = JSON.parse(raw);
+            if (!gState.lastUpdate) gState.lastUpdate = [];
             return true;
         }
     } catch (e) {
         console.error("[IB] LoadState failed:", e);
     }
-    gState = structuredClone(kDefaultState);
+    gState = JSON.parse(JSON.stringify(kDefaultState));
     return false;
 }
 
 function Clamp(num, min, max) {
-    return Math.max(min, Math.min(max, num));
+    return Math.max(min, Math.min(num, max));
 }
 
 function EscapeHtml(str) {
@@ -101,11 +103,48 @@ function EscapeHtml(str) {
         .replaceAll("'", "&#039;");
 }
 
+function NormalizeName(str) {
+    return String(str ?? "").trim().toLowerCase();
+}
+
+function IsUserLikeName(name) {
+    const n = NormalizeName(name);
+    return !n ||
+        n === "{{user}}" ||
+        n === "user" ||
+        n === "ты" ||
+        n === "вы" ||
+        n === "твой персонаж" ||
+        n === "героиня" ||
+        n === "герой";
+}
+
+function ParseThoughtLine(line) {
+    const cleaned = String(line || "").trim();
+    if (!cleaned) return null;
+
+    let idx = cleaned.indexOf(":");
+    if (idx === -1) idx = cleaned.indexOf("—");
+    if (idx === -1) idx = cleaned.indexOf("-");
+
+    if (idx === -1) {
+        return { name: "NPC", text: cleaned };
+    }
+
+    const name = cleaned.slice(0, idx).trim();
+    const text = cleaned.slice(idx + 1).trim();
+
+    if (!text) return null;
+    return { name: name || "NPC", text };
+}
+
 function ParseInfoboard(text) {
     const boardMatch = text.match(/<infoboard[\s\S]*?<\/infoboard>/i);
     if (!boardMatch) return null;
 
+    const fullBoardMatch = text.match(/(<infoboard[\s\S]*?<\/infoboard>)([\s\S]*?)$/i);
     const xmlBlock = boardMatch[0];
+
     const parser = new DOMParser();
     const doc = parser.parseFromString(xmlBlock, "text/xml");
 
@@ -125,10 +164,14 @@ function ParseInfoboard(text) {
         chars: [],
         rels: [],
         thoughts: [],
-        nsfw: null
+        nsfw: null,
+        rawXml: fullBoardMatch ? fullBoardMatch[1] : xmlBlock
     };
 
     doc.querySelectorAll("chars > c").forEach(c => {
+        const name = c.getAttribute("name") || "???";
+        if (IsUserLikeName(name)) return;
+
         const tagsRaw = c.getAttribute("tags") || "";
         const tags = tagsRaw
             .split("|")
@@ -138,24 +181,54 @@ function ParseInfoboard(text) {
 
         result.chars.push({
             icon: c.getAttribute("icon") || "•",
-            name: c.getAttribute("name") || "???",
+            name,
             tags
         });
     });
 
-    doc.querySelectorAll("rels > rel").forEach(rel => {
+    const relNodes = doc.querySelectorAll("rels > rel");
+    relNodes.forEach(rel => {
+        const source = rel.getAttribute("source") || "???";
+        const target = rel.getAttribute("target") || "???";
+
+        if (IsUserLikeName(source)) return;
+        if (!target || (!target.includes("{{user}}") && NormalizeName(target) !== "user")) return;
+
         result.rels.push({
-            source: rel.getAttribute("source") || "???",
-            target: rel.getAttribute("target") || "???",
+            source,
+            target,
             a: Clamp(parseInt(rel.getAttribute("a")) || 0, 0, 100),
-            ac: parseInt(rel.getAttribute("ac")) || 0,
+            ac: Clamp(parseInt(rel.getAttribute("ac")) || 0, -100, 100),
             tr: Clamp(parseInt(rel.getAttribute("tr")) || 0, 0, 100),
-            tc: parseInt(rel.getAttribute("tc")) || 0,
+            tc: Clamp(parseInt(rel.getAttribute("tc")) || 0, -100, 100),
             l: Clamp(parseInt(rel.getAttribute("l")) || 0, 0, 100),
-            lc: parseInt(rel.getAttribute("lc")) || 0,
+            lc: Clamp(parseInt(rel.getAttribute("lc")) || 0, -100, 100),
             status: rel.getAttribute("status") || "не определено"
         });
     });
+
+    // fallback for old single <rel /> format
+    if (!result.rels.length) {
+        doc.querySelectorAll("rel").forEach(rel => {
+            const source = rel.getAttribute("source") || "???";
+            const target = rel.getAttribute("target") || "???";
+
+            if (IsUserLikeName(source)) return;
+            if (!target || (!target.includes("{{user}}") && NormalizeName(target) !== "user")) return;
+
+            result.rels.push({
+                source,
+                target,
+                a: Clamp(parseInt(rel.getAttribute("a")) || 0, 0, 100),
+                ac: Clamp(parseInt(rel.getAttribute("ac")) || 0, -100, 100),
+                tr: Clamp(parseInt(rel.getAttribute("tr")) || 0, 0, 100),
+                tc: Clamp(parseInt(rel.getAttribute("tc")) || 0, -100, 100),
+                l: Clamp(parseInt(rel.getAttribute("l")) || 0, 0, 100),
+                lc: Clamp(parseInt(rel.getAttribute("lc")) || 0, -100, 100),
+                status: rel.getAttribute("status") || "не определено"
+            });
+        });
+    }
 
     const thk = doc.querySelector("thk");
     if (thk) {
@@ -165,27 +238,59 @@ function ParseInfoboard(text) {
             .map(line => line.trim())
             .filter(Boolean);
 
-        result.thoughts = lines.map(line => {
-            const idx = line.indexOf(":");
-            if (idx === -1) {
-                return { name: "NPC", text: line };
-            }
-            return {
-                name: line.slice(0, idx).trim() || "NPC",
-                text: line.slice(idx + 1).trim()
-            };
-        }).filter(t => t.text);
+        result.thoughts = lines
+            .map(ParseThoughtLine)
+            .filter(Boolean)
+            .filter(t => !IsUserLikeName(t.name));
     }
 
-    const nsfwMatch = text.match(/<nsfw\s+f="(.*?)"\s+p="(.*?)"\s*\/?>/i);
-    if (nsfwMatch) {
+    const tailText = text.slice(text.indexOf(xmlBlock) + xmlBlock.length);
+    const nsfwParser = new DOMParser();
+    const nsfwDoc = nsfwParser.parseFromString(`<root>${tailText}</root>`, "text/xml");
+    const nsfwNode = nsfwDoc.querySelector("nsfw");
+
+    if (nsfwNode) {
         result.nsfw = {
-            f: nsfwMatch[1] || "",
-            p: nsfwMatch[2] || ""
+            f: nsfwNode.getAttribute("f") || "",
+            p: nsfwNode.getAttribute("p") || ""
         };
+    } else {
+        const nsfwMatch = text.match(/<nsfw\s+f="(.*?)"\s+p="(.*?)"\s*\/?>/i);
+        if (nsfwMatch) {
+            result.nsfw = {
+                f: nsfwMatch[1] || "",
+                p: nsfwMatch[2] || ""
+            };
+        }
+    }
+
+    const charNames = new Set(result.chars.map(c => NormalizeName(c.name)));
+    if (charNames.size > 0) {
+        result.thoughts = result.thoughts.filter(t => {
+            const n = NormalizeName(t.name);
+            return n === "npc" || charNames.has(n);
+        });
     }
 
     return result;
+}
+
+function BuildLastUpdate(parsed) {
+    const updates = [];
+    if (!parsed?.rels?.length) return updates;
+
+    for (const r of parsed.rels) {
+        const parts = [];
+        if ((parseInt(r.ac) || 0) !== 0) parts.push(`симпатия ${SignedText(r.ac)}`);
+        if ((parseInt(r.tc) || 0) !== 0) parts.push(`доверие ${SignedText(r.tc)}`);
+        if ((parseInt(r.lc) || 0) !== 0) parts.push(`любовь ${SignedText(r.lc)}`);
+
+        if (parts.length) {
+            updates.push(`${r.source}: ${parts.join(", ")}`);
+        }
+    }
+
+    return updates.slice(0, 6);
 }
 
 function UpdateStateFromParsed(parsed) {
@@ -199,6 +304,7 @@ function UpdateStateFromParsed(parsed) {
     gState.rels = parsed.rels || [];
     gState.thoughts = parsed.thoughts || [];
     gState.nsfw = parsed.nsfw || null;
+    gState.lastUpdate = BuildLastUpdate(parsed);
 
     SaveState();
 }
@@ -221,7 +327,7 @@ function BuildStateInjection() {
     if (gState.rels.length) {
         lines.push("NPC -> User Relations:");
         for (const r of gState.rels) {
-            lines.push(`- ${r.source} -> ${r.target}: Affection ${r.a} (${FormatDelta(r.ac)}), Trust ${r.tr} (${FormatDelta(r.tc)}), Love ${r.l} (${FormatDelta(r.lc)}), Status: ${r.status}`);
+            lines.push(`- ${r.source} -> ${r.target}: Affection ${r.a} (${SignedText(r.ac)}), Trust ${r.tr} (${SignedText(r.tc)}), Love ${r.l} (${SignedText(r.lc)}), Status: ${r.status}`);
         }
     }
 
@@ -240,9 +346,29 @@ function BuildStateInjection() {
     return lines.join("\n");
 }
 
-function FormatDelta(num) {
+function SignedText(num) {
     const n = parseInt(num) || 0;
     return n >= 0 ? `+${n}` : `${n}`;
+}
+
+function RenderDelta(num) {
+    const n = parseInt(num) || 0;
+    const cls = n > 0 ? "ib-delta-pos" : n < 0 ? "ib-delta-neg" : "ib-delta-zero";
+    const txt = n >= 0 ? `+${n}` : `${n}`;
+    return `<span class="${cls}">${txt}</span>`;
+}
+
+function GetStatusClass(status) {
+    const s = NormalizeName(status);
+
+    const romantic = ["роман", "любов", "влюб", "пара", "отношен", "свидан", "любовники", "муж", "жена", "соулмейт", "dating", "lover", "romantic", "married", "soulmate"];
+    const negative = ["враг", "ненав", "токс", "абьюз", "сопер", "rival", "enemy", "abusive", "toxic", "ex-", "бывш"];
+    const complex = ["сложн", "одерж", "защит", "ментор", "учен", "family", "нераздел", "complicated", "protective", "mentor", "unrequited", "obsession"];
+
+    if (romantic.some(k => s.includes(k))) return "ib-status-romantic";
+    if (negative.some(k => s.includes(k))) return "ib-status-negative";
+    if (complex.some(k => s.includes(k))) return "ib-status-complex";
+    return "ib-status-neutral";
 }
 
 function RenderChars(chars) {
@@ -255,11 +381,11 @@ function RenderChars(chars) {
             ${chars.map(c => `
                 <div class="ib-char">
                     <div class="ib-char-main">
-                        <span class="ib-char-icon">${EscapeHtml(c.icon)}</span>
+                        <span class="ib-char-icon-wrap"><span class="ib-char-icon">${EscapeHtml(c.icon)}</span></span>
                         <span class="ib-char-name">${EscapeHtml(c.name)}</span>
                     </div>
                     <div class="ib-char-tags">
-                        ${c.tags.map(tag => `<span class="ib-tag">${EscapeHtml(tag)}</span>`).join("")}
+                        ${(c.tags || []).map(tag => `<span class="ib-tag">${EscapeHtml(tag)}</span>`).join("")}
                     </div>
                 </div>
             `).join("")}
@@ -268,14 +394,19 @@ function RenderChars(chars) {
 }
 
 function RenderRelCard(r) {
+    const statusClass = GetStatusClass(r.status);
+
     return `
     <div class="ib-rel-card">
-        <div class="ib-rel-head">💕 ${EscapeHtml(r.source)} → ${EscapeHtml(r.target)}</div>
+        <div class="ib-rel-head">
+            <span>💕 ${EscapeHtml(r.source)} → ${EscapeHtml(r.target)}</span>
+            <span class="ib-status-chip ${statusClass}">${EscapeHtml(r.status)}</span>
+        </div>
 
         <div class="ib-meter">
             <div class="ib-meter-top">
                 <span class="ib-meter-label" style="color:var(--ib-green)">💚 Симпатия</span>
-                <span class="ib-meter-value">${r.a}/100 (${FormatDelta(r.ac)})</span>
+                <span class="ib-meter-value">${r.a}/100 (${RenderDelta(r.ac)})</span>
             </div>
             <div class="ib-bar"><div class="ib-bar-fill ib-bar-affection" style="width:${Clamp(r.a, 0, 100)}%"></div></div>
         </div>
@@ -283,7 +414,7 @@ function RenderRelCard(r) {
         <div class="ib-meter">
             <div class="ib-meter-top">
                 <span class="ib-meter-label" style="color:var(--ib-blue)">💙 Доверие</span>
-                <span class="ib-meter-value">${r.tr}/100 (${FormatDelta(r.tc)})</span>
+                <span class="ib-meter-value">${r.tr}/100 (${RenderDelta(r.tc)})</span>
             </div>
             <div class="ib-bar"><div class="ib-bar-fill ib-bar-trust" style="width:${Clamp(r.tr, 0, 100)}%"></div></div>
         </div>
@@ -291,12 +422,12 @@ function RenderRelCard(r) {
         <div class="ib-meter">
             <div class="ib-meter-top">
                 <span class="ib-meter-label" style="color:var(--ib-purple)">💜 Любовь</span>
-                <span class="ib-meter-value">${r.l}/100 (${FormatDelta(r.lc)})</span>
+                <span class="ib-meter-value">${r.l}/100 (${RenderDelta(r.lc)})</span>
             </div>
             <div class="ib-bar"><div class="ib-bar-fill ib-bar-love" style="width:${Clamp(r.l, 0, 100)}%"></div></div>
         </div>
 
-        <div class="ib-rel-status">📋 Статус: ${EscapeHtml(r.status)}</div>
+        <div class="ib-rel-status-note">📋 Динамика: ${EscapeHtml(r.status)}</div>
     </div>`;
 }
 
@@ -316,12 +447,17 @@ function RenderThoughts(thoughts) {
     return `
     <div class="ib-section">
         <div class="ib-section-title">💭 Скрытые мысли NPC</div>
-        ${thoughts.map(t => `
-            <div class="ib-thought-row">
-                <div class="ib-thought-name">${EscapeHtml(t.name)}:</div>
-                <div class="ib-thought-text">${EscapeHtml(t.text)}</div>
-            </div>
-        `).join("")}
+        <div class="ib-thought-list">
+            ${thoughts.map(t => `
+                <div class="ib-thought-card">
+                    <div class="ib-thought-head">
+                        <span class="ib-thought-dot">✦</span>
+                        <span class="ib-thought-name">${EscapeHtml(t.name)}</span>
+                    </div>
+                    <div class="ib-thought-text">${EscapeHtml(t.text)}</div>
+                </div>
+            `).join("")}
+        </div>
     </div>`;
 }
 
@@ -336,9 +472,17 @@ function RenderNsfw(nsfw) {
     </div>`;
 }
 
-function RenderBoard(state) {
+function RenderLastUpdate(lines) {
+    if (!lines?.length) return "";
     return `
-    <div class="ib-board ib-theme-${EscapeHtml(gTheme)}">
+    <div class="ib-update-line">
+        ${lines.map(line => `• ${EscapeHtml(line)}`).join("<br>")}
+    </div>`;
+}
+
+function RenderBoard(state, isFresh = false) {
+    return `
+    <div class="ib-board ib-theme-${EscapeHtml(gTheme)} ${isFresh ? "ib-fresh" : ""}">
         <div class="ib-title">✦ INFOBOARD ✦</div>
 
         <div class="ib-header">
@@ -347,10 +491,10 @@ function RenderBoard(state) {
                 <span class="ib-sep">│</span>
                 <span>📅 <b>${EscapeHtml(state.date)}</b></span>
                 <span class="ib-sep">│</span>
-                <span>🌧 ${EscapeHtml(state.weather)}</span>
+                <span class="ib-weather-chip">🌧 ${EscapeHtml(state.weather)}</span>
             </div>
             <div class="ib-header-right">
-                <span>📍 <b>${EscapeHtml(state.loc)}</b></span>
+                <span class="ib-loc-chip">📍 <b>${EscapeHtml(state.loc)}</b></span>
             </div>
         </div>
 
@@ -358,19 +502,32 @@ function RenderBoard(state) {
         ${RenderRelations(state.rels)}
         ${RenderThoughts(state.thoughts)}
         ${RenderNsfw(state.nsfw)}
+        ${RenderLastUpdate(state.lastUpdate)}
     </div>`;
 }
 
-function RemoveRawXmlFromText(messageTextEl) {
+function RemoveRawXmlFromText(messageTextEl, parsed) {
     if (!gHideRaw) return;
+    if (!messageTextEl || !parsed?.rawXml) return;
 
-    const html = messageTextEl.innerHTML;
-    const cleaned = html
-        .replace(/<infoboard[\s\S]*?<\/infoboard>/gi, "")
+    let html = messageTextEl.innerHTML;
+    const escapedRaw = parsed.rawXml.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    html = html.replace(new RegExp(escapedRaw, "g"), "");
+
+    html = html
         .replace(/<nsfw\s+f="[\s\S]*?"\s+p="[\s\S]*?"\s*\/?>/gi, "")
         .replace(/(?:<br\s*\/?>\s*){2,}/gi, "<br>");
 
-    messageTextEl.innerHTML = cleaned;
+    messageTextEl.innerHTML = html;
+}
+
+function UpdateLastUpdateDisplay() {
+    const $el = $("#ib_last_update");
+    if (!gState.lastUpdate?.length) {
+        $el.text("No recent updates.");
+        return;
+    }
+    $el.html(gState.lastUpdate.map(x => `• ${EscapeHtml(x)}`).join("<br>"));
 }
 
 function ProcessMessage(messageDiv, msgIndex) {
@@ -385,6 +542,8 @@ function ProcessMessage(messageDiv, msgIndex) {
     if (!parsed) return;
 
     UpdateStateFromParsed(parsed);
+    UpdateStatusDisplay();
+    UpdateLastUpdateDisplay();
 
     const mesTextEl = messageDiv.querySelector(".mes_text");
     if (!mesTextEl) return;
@@ -392,18 +551,23 @@ function ProcessMessage(messageDiv, msgIndex) {
     const existing = mesTextEl.querySelector(".ib-board");
     if (existing) existing.remove();
 
-    RemoveRawXmlFromText(mesTextEl);
+    RemoveRawXmlFromText(mesTextEl, parsed);
 
     const wrapper = document.createElement("div");
-    wrapper.innerHTML = RenderBoard(parsed);
-    mesTextEl.appendChild(wrapper.firstElementChild);
+    wrapper.innerHTML = RenderBoard({
+        ...parsed,
+        lastUpdate: BuildLastUpdate(parsed)
+    }, true);
+
+    const boardEl = wrapper.firstElementChild;
+    if (boardEl) mesTextEl.appendChild(boardEl);
 }
 
 function ReprocessChat() {
     const stContext = SillyTavern.getContext();
     if (!stContext.chat) return;
 
-    gState = structuredClone(kDefaultState);
+    gState = JSON.parse(JSON.stringify(kDefaultState));
 
     for (let i = 0; i < stContext.chat.length; i++) {
         const msg = stContext.chat[i];
@@ -418,16 +582,39 @@ function ReprocessChat() {
     document.querySelectorAll(".mes").forEach(node => {
         const msgId = Number(node.getAttribute("mesid"));
         if (!isNaN(msgId)) {
-            ProcessMessage(node, msgId);
+            const stMsg = stContext.chat[msgId];
+            const fresh = false;
+
+            if (!stMsg?.is_user) {
+                const parsed = ParseInfoboard(stMsg?.mes || "");
+                const mesTextEl = node.querySelector(".mes_text");
+                if (mesTextEl) {
+                    const existing = mesTextEl.querySelector(".ib-board");
+                    if (existing) existing.remove();
+
+                    if (parsed) {
+                        RemoveRawXmlFromText(mesTextEl, parsed);
+                        const wrapper = document.createElement("div");
+                        wrapper.innerHTML = RenderBoard({
+                            ...parsed,
+                            lastUpdate: BuildLastUpdate(parsed)
+                        }, fresh);
+                        const boardEl = wrapper.firstElementChild;
+                        if (boardEl) mesTextEl.appendChild(boardEl);
+                    }
+                }
+            }
         }
     });
 
     UpdateStatusDisplay();
+    UpdateLastUpdateDisplay();
 }
 
 function OnChatChanged() {
     LoadState();
     UpdateStatusDisplay();
+    UpdateLastUpdateDisplay();
 
     if (!gEnabled) return;
     setTimeout(ReprocessChat, 150);
@@ -448,6 +635,51 @@ function UpdateStatusDisplay() {
     } else {
         $status.html(`<span style="color:#888">Extension is inactive</span>`);
         $summary.text("Disabled — not injecting prompts.");
+    }
+}
+
+function ExportState() {
+    try {
+        const data = JSON.stringify(gState, null, 2);
+        const blob = new Blob([data], { type: "application/json" });
+        const url = URL.createObjectURL(blob);
+
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `infoboard-state-${Date.now()}.json`;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+
+        URL.revokeObjectURL(url);
+    } catch (e) {
+        console.error("[IB] Export failed:", e);
+    }
+}
+
+async function ImportStateFromFile(file) {
+    if (!file) return;
+
+    try {
+        const text = await file.text();
+        const parsed = JSON.parse(text);
+
+        gState = {
+            ...JSON.parse(JSON.stringify(kDefaultState)),
+            ...parsed,
+            chars: Array.isArray(parsed.chars) ? parsed.chars : [],
+            rels: Array.isArray(parsed.rels) ? parsed.rels : [],
+            thoughts: Array.isArray(parsed.thoughts) ? parsed.thoughts : [],
+            lastUpdate: Array.isArray(parsed.lastUpdate) ? parsed.lastUpdate : []
+        };
+
+        SaveState();
+        UpdateStatusDisplay();
+        UpdateLastUpdateDisplay();
+        ReprocessChat();
+    } catch (e) {
+        console.error("[IB] Import failed:", e);
+        alert("Import failed. Invalid JSON.");
     }
 }
 
@@ -498,6 +730,7 @@ jQuery(async () => {
     $("#ib_show_nsfw").prop("checked", gShowNsfw);
 
     UpdateStatusDisplay();
+    UpdateLastUpdateDisplay();
 
     $("#ib_enabled").on("change", function () {
         gEnabled = $(this).is(":checked");
@@ -532,14 +765,31 @@ jQuery(async () => {
 
     $("#ib_reset_state").on("click", function () {
         if (confirm("Reset Infoboard state for this chat?")) {
-            gState = structuredClone(kDefaultState);
+            gState = JSON.parse(JSON.stringify(kDefaultState));
             SaveState();
             UpdateStatusDisplay();
+            UpdateLastUpdateDisplay();
         }
     });
 
     $("#ib_reprocess_chat").on("click", function () {
         ReprocessChat();
+    });
+
+    $("#ib_export_state").on("click", function () {
+        ExportState();
+    });
+
+    $("#ib_import_state").on("click", function () {
+        $("#ib_import_file").trigger("click");
+    });
+
+    $("#ib_import_file").on("change", function (e) {
+        const file = e.target.files?.[0];
+        if (file) {
+            ImportStateFromFile(file);
+        }
+        e.target.value = "";
     });
 
     if (stContext.eventTypes.GENERATION_STARTED) {
