@@ -449,13 +449,13 @@
 
 .ib-bar {
     height: 7px;
-    background: rgba(0,0,0,0.18);
+    background: rgba(8, 12, 22, 0.28);
     border-radius: 999px;
     overflow: hidden;
 }
 
 .ib-theme-frostwhite .ib-bar {
-    background: rgba(35, 55, 80, 0.10);
+    background: rgba(18, 32, 52, 0.22);
 }
 
 .ib-bar-fill {
