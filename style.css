@@ -156,6 +156,28 @@
     color: #999;
 }
 
+.ib-custom-css-wrap {
+    margin-top: 12px;
+    padding-top: 10px;
+    border-top: 1px solid rgba(255,255,255,0.06);
+}
+
+.ib-custom-css-help {
+    margin-top: 6px;
+    font-size: 11px;
+    color: #888;
+    line-height: 1.4;
+}
+
+#ib_custom_css {
+    width: 100%;
+    margin-top: 8px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 12px;
+    min-height: 180px;
+    resize: vertical;
+}
+
 .ib-board {
     background:
         var(--ib-header-glow),
@@ -271,34 +293,6 @@
     border-radius: 999px;
     background: rgba(255,255,255,0.03);
     border: 1px solid var(--ib-soft-border);
-}
-
-.ib-weather-chip,
-.ib-loc-chip {
-    display: inline-flex;
-    align-items: center;
-    gap: 5px;
-    padding: 3px 8px;
-    border-radius: 999px;
-    background: var(--ib-chip-bg);
-    border: 1px solid var(--ib-chip-border);
-}
-
-.ib-weather-chip {
-    opacity: 0.88;
-}
-
-.ib-loc-chip {
-    color: var(--ib-text);
-    font-weight: 500;
-    max-width: 280px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    background: linear-gradient(135deg, rgba(86, 122, 170, 0.14), rgba(62, 92, 138, 0.10));
-    border: 1px solid rgba(140, 180, 230, 0.16);
-    box-shadow: 0 0 8px rgba(120, 170, 240, 0.035);
-    flex-shrink: 1;
 }
 
 .ib-section {
@@ -475,6 +469,7 @@
 }
 
 .ib-bar {
+    position: relative;
     height: 7px;
     background: rgba(8, 12, 22, 0.28);
     border-radius: 999px;
@@ -486,9 +481,23 @@
 }
 
 .ib-bar-fill {
+    position: relative;
     height: 100%;
     border-radius: 999px;
     transition: filter 0.2s ease, box-shadow 0.2s ease;
+}
+
+.ib-bar-fill::after {
+    content: "";
+    position: absolute;
+    right: 0;
+    top: 50%;
+    transform: translate(35%, -50%);
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    opacity: 0;
+    pointer-events: none;
 }
 
 .ib-bar-affection-pos {
@@ -595,32 +604,6 @@
    BAR STYLE PRESETS
 ========================= */
 
-/* shared bar improvements */
-.ib-bar {
-    position: relative;
-}
-
-.ib-bar-fill {
-    position: relative;
-}
-
-.ib-bar-fill::after {
-    content: "";
-    position: absolute;
-    right: 0;
-    top: 50%;
-    transform: translate(35%, -50%);
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    opacity: 0;
-    pointer-events: none;
-}
-
-/* =========================
-   CLASSIC
-========================= */
-
 .ib-bars-classic .ib-bar {
     height: 7px;
     background: rgba(10, 14, 24, 0.26);
@@ -629,10 +612,6 @@
 .ib-bars-classic .ib-bar-fill::after {
     opacity: 0;
 }
-
-/* =========================
-   DEEP NEON
-========================= */
 
 .ib-bars-deep .ib-bar {
     height: 7px;
@@ -660,10 +639,6 @@
     opacity: 0.75;
     box-shadow: 0 0 8px currentColor;
 }
-
-/* =========================
-   GLASS NEEDLE
-========================= */
 
 .ib-bars-glass .ib-bar {
     height: 6px;
@@ -696,10 +671,6 @@
     box-shadow: 0 0 10px currentColor, 0 0 3px currentColor;
 }
 
-/* =========================
-   SOFT MATTE
-========================= */
-
 .ib-bars-soft .ib-bar {
     height: 6px;
     background: rgba(12, 16, 26, 0.24);
@@ -719,11 +690,6 @@
     opacity: 0.92;
 }
 
-/* =========================
-   PER-STYLE COLOR TUNING
-========================= */
-
-/* Deep */
 .ib-bars-deep .ib-bar-affection-pos {
     background: linear-gradient(90deg, #5cab86, #2f9366 58%, #21694a);
     color: #53c895;
@@ -754,7 +720,6 @@
     color: #d96d8c;
 }
 
-/* Glass */
 .ib-bars-glass .ib-bar-affection-pos {
     background: linear-gradient(90deg, rgba(117, 226, 171, 0.88), rgba(47, 169, 111, 0.82));
     color: #7ae3b1;
@@ -785,7 +750,6 @@
     color: #ef92af;
 }
 
-/* Soft */
 .ib-bars-soft .ib-bar-affection-pos {
     background: linear-gradient(90deg, #5a9f7c, #3f7d62);
     color: #66bd93;
@@ -816,7 +780,6 @@
     color: #cc7d97;
 }
 
-/* Frostwhite compatibility */
 .ib-theme-frostwhite.ib-bars-deep .ib-bar {
     background:
         linear-gradient(180deg, rgba(255,255,255,0.03), rgba(0,0,0,0.04)),
