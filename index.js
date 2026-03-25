@@ -1,4 +1,4 @@
-const kExtensionName = "Infoboard";
+const kExtensionName = "SillyTavern-Infoboard";
 const kExtensionFolderPath = `scripts/extensions/third-party/${kExtensionName}`;
 const kSettingsFile = `${kExtensionFolderPath}/settings.html`;
 
