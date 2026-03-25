@@ -90,26 +90,26 @@
 }
 
 .ib-theme-frostwhite {
-    --ib-bg-1: #eef5ff;
-    --ib-bg-2: #e3efff;
-    --ib-bg-3: #d9e9ff;
-    --ib-border: rgba(130, 170, 220, 0.32);
-    --ib-soft-border: rgba(130, 170, 220, 0.18);
-    --ib-text: #19324d;
-    --ib-muted: #4f6d8e;
-    --ib-dim: #7189a5;
-    --ib-accent: #3d85d8;
-    --ib-accent-2: #7a8cff;
-    --ib-green: #2fbf7a;
-    --ib-blue: #4e92ff;
-    --ib-purple: #8a6dff;
-    --ib-warm: #d59a53;
-    --ib-danger: #d85b74;
-    --ib-chip-bg: rgba(110, 160, 220, 0.13);
-    --ib-chip-border: rgba(110, 160, 220, 0.26);
-    --ib-shadow: 0 12px 30px rgba(120, 150, 190, 0.20);
-    --ib-neon: 0 0 20px rgba(120, 180, 255, 0.14);
-    --ib-header-glow: radial-gradient(circle at top right, rgba(160, 220, 255, 0.20), transparent 45%);
+    --ib-bg-1: #cfdbe8;
+    --ib-bg-2: #bccbdb;
+    --ib-bg-3: #aebfd1;
+    --ib-border: rgba(108, 140, 176, 0.34);
+    --ib-soft-border: rgba(108, 140, 176, 0.18);
+    --ib-text: #162637;
+    --ib-muted: #41586d;
+    --ib-dim: #657d92;
+    --ib-accent: #3b78c7;
+    --ib-accent-2: #6f7ff0;
+    --ib-green: #24b56e;
+    --ib-blue: #417fff;
+    --ib-purple: #7f63f7;
+    --ib-warm: #d08b49;
+    --ib-danger: #c84f67;
+    --ib-chip-bg: rgba(118, 150, 188, 0.16);
+    --ib-chip-border: rgba(118, 150, 188, 0.30);
+    --ib-shadow: 0 12px 28px rgba(78, 102, 130, 0.22);
+    --ib-neon: 0 0 18px rgba(120, 170, 230, 0.10);
+    --ib-header-glow: radial-gradient(circle at top right, rgba(180, 220, 255, 0.14), transparent 48%);
 }
 
 .ib-settings .ib-setting-row {
@@ -220,11 +220,9 @@
 
 .ib-header {
     display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-    align-items: center;
-    justify-content: space-between;
-    padding: 8px 10px;
+    flex-direction: column;
+    gap: 8px;
+    padding: 9px 10px;
     margin-bottom: 10px;
     background: rgba(255,255,255,0.04);
     border: 1px solid var(--ib-soft-border);
@@ -233,14 +231,18 @@
     z-index: 1;
 }
 
-.ib-header-left,
-.ib-header-right {
+.ib-header-top {
     display: flex;
     flex-wrap: wrap;
     gap: 10px;
     align-items: center;
-    font-size: 12px;
     color: var(--ib-muted);
+    font-size: 12px;
+}
+
+.ib-header-bottom {
+    display: flex;
+    width: 100%;
 }
 
 .ib-sep {
@@ -261,6 +263,8 @@
 .ib-loc-chip {
     color: var(--ib-text);
     font-weight: 700;
+    width: fit-content;
+    max-width: 100%;
 }
 
 .ib-section {
@@ -444,27 +448,37 @@
 }
 
 .ib-theme-frostwhite .ib-bar {
-    background: rgba(40, 70, 110, 0.10);
+    background: rgba(35, 55, 80, 0.10);
 }
 
 .ib-bar-fill {
     height: 100%;
     border-radius: 999px;
+    transition: filter 0.2s ease, box-shadow 0.2s ease;
 }
 
-.ib-bar-affection {
-    background: linear-gradient(90deg, #54e39a, #1dcf74);
-    box-shadow: 0 0 8px rgba(84, 227, 154, 0.35);
+.ib-bar-affection-pos {
+    background: linear-gradient(90deg, #78e7ab, #19c86f);
 }
 
-.ib-bar-trust {
-    background: linear-gradient(90deg, #6cb4ff, #3772ff);
-    box-shadow: 0 0 8px rgba(108, 180, 255, 0.35);
+.ib-bar-affection-neg {
+    background: linear-gradient(90deg, #ffb0a1, #e05c5c);
 }
 
-.ib-bar-love {
-    background: linear-gradient(90deg, #b47cff, #7b3dff);
-    box-shadow: 0 0 8px rgba(180, 124, 255, 0.35);
+.ib-bar-trust-pos {
+    background: linear-gradient(90deg, #8ac7ff, #3574ff);
+}
+
+.ib-bar-trust-neg {
+    background: linear-gradient(90deg, #ffc989, #e08743);
+}
+
+.ib-bar-love-pos {
+    background: linear-gradient(90deg, #c39cff, #7b3dff);
+}
+
+.ib-bar-love-neg {
+    background: linear-gradient(90deg, #ff8aa8, #b32645);
 }
 
 .ib-thought-list {
