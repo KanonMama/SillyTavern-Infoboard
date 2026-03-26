@@ -918,6 +918,17 @@ function RemoveRawXmlFromText(messageTextEl, parsed) {
     RemoveThoughtLeaks(messageTextEl, parsed);
 }
 
+function StripInfoboardFromMessageText(text) {
+    if (!text) return "";
+
+    return String(text)
+        .replace(/<infoboard[\s\S]*?<\/infoboard>/gi, "")
+        .replace(/<nsfw[\s\S]*?\/?>/gi, "")
+        .replace(/<thk>[\s\S]*?<\/thk>/gi, "")
+        .replace(/\n{3,}/g, "\n\n")
+        .trim();
+}
+
 function UpdateLastUpdateDisplay() {
     const $el = $("#ib_last_update");
     const pulse = BuildScenePulse(gState);
@@ -967,9 +978,14 @@ function ProcessMessage(messageDiv, msgIndex) {
     const msg = stContext.chat[msgIndex];
     if (!msg || msg.is_user) return;
 
-    const text = msg.mes || "";
-    const parsed = ParseInfoboard(text);
+    const originalText = msg.mes || "";
+    const parsed = ParseInfoboard(originalText);
     if (!parsed) return;
+
+    const cleanedText = StripInfoboardFromMessageText(originalText);
+    if (cleanedText !== originalText) {
+        msg.mes = cleanedText;
+    }
 
     ApplyParsedToState(parsed);
     SaveState();
@@ -1004,10 +1020,54 @@ function ReprocessChat() {
     for (let i = 0; i < stContext.chat.length; i++) {
         const msg = stContext.chat[i];
         if (!msg?.is_user && msg.mes) {
-            const parsed = ParseInfoboard(msg.mes);
-            if (parsed) ApplyParsedToState(parsed);
+            const originalText = msg.mes;
+            const parsed = ParseInfoboard(originalText);
+
+            if (parsed) {
+                ApplyParsedToState(parsed);
+
+                const cleanedText = StripInfoboardFromMessageText(originalText);
+                if (cleanedText !== originalText) {
+                    msg.mes = cleanedText;
+                }
+            }
         }
     }
+
+    SaveState();
+
+    document.querySelectorAll(".mes").forEach(node => {
+        const msgId = Number(node.getAttribute("mesid"));
+        if (!isNaN(msgId)) {
+            const stMsg = stContext.chat[msgId];
+            if (!stMsg?.is_user) {
+                const parsed = ParseInfoboard(stMsg?.mes || "") || ParseInfoboard((stContext.chat[msgId]?.extra?.original_mes || ""));
+
+                const mesTextEl = node.querySelector(".mes_text");
+                if (mesTextEl) {
+                    const existing = mesTextEl.querySelector(".ib-board");
+                    if (existing) existing.remove();
+
+                    if (parsed) {
+                        RemoveRawXmlFromText(mesTextEl, parsed);
+
+                        const wrapper = document.createElement("div");
+                        wrapper.innerHTML = RenderBoard(parsed, false);
+
+                        const boardEl = wrapper.firstElementChild;
+                        if (boardEl) {
+                            mesTextEl.appendChild(boardEl);
+                            WireBoardControls(boardEl);
+                        }
+                    }
+                }
+            }
+        }
+    });
+
+    UpdateStatusDisplay();
+    UpdateLastUpdateDisplay();
+}
 
     SaveState();
 
