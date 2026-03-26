@@ -1408,7 +1408,7 @@ const chatContainer = document.getElementById("chat");
 if (chatContainer) {
     const pendingMesIds = new Set();
 
-    const scheduleProcess = (mesEl) => {
+    const scheduleProcessByMes = (mesEl, delay = 220) => {
         if (!mesEl?.classList?.contains("mes")) return;
 
         const msgId = Number(mesEl.getAttribute("mesid"));
@@ -1419,9 +1419,53 @@ if (chatContainer) {
 
         setTimeout(() => {
             pendingMesIds.delete(msgId);
-            ProcessMessage(mesEl, msgId);
-        }, 180);
+
+            const currentMes = document.querySelector(`.mes[mesid="${msgId}"]`);
+            if (!currentMes) return;
+
+            if (currentMes.querySelector(".mes_edit_done, textarea, .edit_textarea")) return;
+
+            ProcessMessage(currentMes, msgId);
+        }, delay);
     };
+
+    const observer = new MutationObserver(mutations => {
+        for (const m of mutations) {
+            if (m.type !== "childList") continue;
+
+            const targetEl = m.target instanceof HTMLElement ? m.target : null;
+            if (targetEl?.closest?.(".ib-board")) continue;
+
+            for (const node of m.addedNodes) {
+                if (!(node instanceof HTMLElement)) continue;
+                if (node.closest?.(".ib-board")) continue;
+
+                if (node.classList.contains("mes")) {
+                    scheduleProcessByMes(node);
+                    continue;
+                }
+
+                const mesEl = node.closest?.(".mes") || targetEl?.closest?.(".mes");
+                if (!mesEl) continue;
+
+                if (node.classList.contains("ib-board") || node.querySelector?.(".ib-board")) continue;
+
+                if (
+                    node.classList.contains("mes_text") ||
+                    targetEl?.classList.contains("mes_text") ||
+                    node.querySelector?.(".mes_text")
+                ) {
+                    scheduleProcessByMes(mesEl);
+                }
+            }
+        }
+    });
+
+    observer.observe(chatContainer, {
+        childList: true,
+        subtree: true,
+    });
+}
 
     const observer = new MutationObserver(mutations => {
         for (const m of mutations) {
