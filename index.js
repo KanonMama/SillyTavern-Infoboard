@@ -861,26 +861,31 @@ function WireBoardControls(boardEl) {
     }
 }
 
-function RemoveThoughtLeaks(messageTextEl, parsed) {
-    if (!messageTextEl || !parsed?.thoughts?.length) return;
+function RemoveThoughtLeaks(messageTextEl, boardEl, parsed) {
+    if (!messageTextEl || !boardEl || !parsed?.thoughts?.length) return;
 
-    const normalizedThoughts = parsed.thoughts.map(t => NormalizeName(`${t.name}: ${t.text}`));
+    const thoughtLines = parsed.thoughts.map(t => NormalizeName(`${t.name}: ${t.text}`));
 
-    messageTextEl.querySelectorAll("p, div").forEach(el => {
-        if (el.closest(".ib-board")) return;
+    let prev = boardEl.previousElementSibling;
+    let checked = 0;
 
-        const rawText = (el.textContent || "").trim();
-        const normalized = NormalizeName(rawText);
-        if (!normalized) return;
+    while (prev && checked < 3) {
+        const text = NormalizeName(prev.textContent || "");
 
-        const matchesThoughtBlock = normalizedThoughts.some(t => normalized.includes(t)) &&
-            parsed.thoughts.length > 0 &&
-            parsed.thoughts.filter(t => normalized.includes(NormalizeName(`${t.name}: ${t.text}`))).length >= Math.min(2, parsed.thoughts.length);
+        const isThoughtLeak =
+            prev.tagName === "P" &&
+            thoughtLines.some(t => text.includes(t) || t.includes(text));
 
-        if (matchesThoughtBlock) {
-            el.remove();
+        if (isThoughtLeak) {
+            const toRemove = prev;
+            prev = prev.previousElementSibling;
+            toRemove.remove();
+            checked++;
+            continue;
         }
-    });
+
+        break;
+    }
 }
 
 function RemoveRawXmlFromText(messageTextEl, parsed) {
@@ -899,7 +904,6 @@ function RemoveRawXmlFromText(messageTextEl, parsed) {
         .replace(/(?:<br\s*\/?>\s*){2,}/gi, "<br>");
 
     messageTextEl.innerHTML = html;
-    RemoveThoughtLeaks(messageTextEl, parsed);
 }
 
 function UpdateLastUpdateDisplay() {
@@ -973,10 +977,10 @@ function ProcessMessage(messageDiv, msgIndex) {
     wrapper.innerHTML = RenderBoard(parsed, true);
 
     const boardEl = wrapper.firstElementChild;
-    if (boardEl) {
-        mesTextEl.appendChild(boardEl);
-        WireBoardControls(boardEl);
-    }
+if (boardEl) {
+    mesTextEl.appendChild(boardEl);
+    RemoveThoughtLeaks(mesTextEl, boardEl, parsed);
+    WireBoardControls(boardEl);
 }
 
 function ReprocessChat() {
