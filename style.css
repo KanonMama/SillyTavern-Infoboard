@@ -3,6 +3,7 @@
     --ib-bg-2: #1c2232;
     --ib-bg-3: #10141e;
     --ib-border: rgba(120, 140, 190, 0.18);
+    --ib-border-neon: rgba(150, 190, 255, 0.18);
     --ib-soft-border: rgba(120, 140, 190, 0.10);
     --ib-text: #dbe3ff;
     --ib-muted: #95a3c7;
@@ -26,6 +27,7 @@
     --ib-bg-2: #1c2232;
     --ib-bg-3: #10141e;
     --ib-border: rgba(120, 140, 190, 0.18);
+    --ib-border-neon: rgba(150, 190, 255, 0.18);
     --ib-soft-border: rgba(120, 140, 190, 0.10);
     --ib-text: #dbe3ff;
     --ib-muted: #95a3c7;
@@ -43,6 +45,7 @@
     --ib-bg-2: #311c24;
     --ib-bg-3: #180f13;
     --ib-border: rgba(190, 120, 140, 0.20);
+    --ib-border-neon: rgba(255, 140, 170, 0.18);
     --ib-soft-border: rgba(190, 120, 140, 0.11);
     --ib-text: #ffe2ea;
     --ib-muted: #d0a3b0;
@@ -60,6 +63,7 @@
     --ib-bg-2: #2d242c;
     --ib-bg-3: #171217;
     --ib-border: rgba(180, 145, 165, 0.20);
+    --ib-border-neon: rgba(240, 180, 220, 0.18);
     --ib-soft-border: rgba(180, 145, 165, 0.11);
     --ib-text: #f3dfe8;
     --ib-muted: #c6a8b7;
@@ -77,6 +81,7 @@
     --ib-bg-2: #20272d;
     --ib-bg-3: #101417;
     --ib-border: rgba(130, 150, 160, 0.20);
+    --ib-border-neon: rgba(160, 190, 210, 0.18);
     --ib-soft-border: rgba(130, 150, 160, 0.11);
     --ib-text: #dde6eb;
     --ib-muted: #9eb0bb;
@@ -94,6 +99,7 @@
     --ib-bg-2: #2d4158;
     --ib-bg-3: #213244;
     --ib-border: rgba(150, 190, 230, 0.20);
+    --ib-border-neon: rgba(120, 180, 255, 0.16);
     --ib-soft-border: rgba(150, 190, 230, 0.10);
     --ib-text: #e3eefc;
     --ib-muted: #9eb4cf;
@@ -186,7 +192,10 @@
     border-radius: 14px;
     padding: 12px;
     margin: 12px 0;
-    box-shadow: var(--ib-shadow), var(--ib-neon);
+    box-shadow:
+        var(--ib-shadow),
+        var(--ib-neon),
+        0 0 0 1px rgba(255,255,255,0.012);
     color: var(--ib-text);
     position: relative;
     overflow: hidden;
@@ -203,8 +212,25 @@
     opacity: 0.75;
 }
 
+.ib-board::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    pointer-events: none;
+    box-shadow:
+        inset 0 0 0 1px var(--ib-border-neon),
+        inset 0 0 14px rgba(255,255,255,0.015),
+        0 0 14px var(--ib-border-neon);
+    opacity: 0.38;
+}
+
 .ib-board.ib-fresh {
     animation: ib-soft-pulse 1.6s ease-out 1;
+}
+
+.ib-board.ib-fresh::after {
+    opacity: 0.56;
 }
 
 @keyframes ib-soft-pulse {
