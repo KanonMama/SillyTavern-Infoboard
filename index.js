@@ -166,7 +166,13 @@ Rules:
 - In <thk>, each NPC starts on a new line in format: Имя: мысль
 - Never write thoughts, feelings, or internal state for {{user}} inside <thk>
 - If scene is not intimate, omit <nsfw /> completely
-- Do not add any extra XML tags or commentary outside this format`;
+- Do not add any extra XML tags or commentary outside this format
+- Strict formatting rules for <thk>:
+- Every thought line must start with the exact full NPC name exactly as written in <chars>
+- Never shorten names
+- Never wrap thought lines in asterisks, quotes, markdown, or brackets
+- Use only this format: Полное Имя: мысль
+- One NPC per line`;
 
 const kSystemPromptEn = `Infoboard:
 Always append exactly one XML block at the end of every assistant response. Fill all field values in English. Keep entries concise, scene-accurate, and updated every message. Use this format strictly:
@@ -200,7 +206,13 @@ Rules:
 - In <thk>, each NPC starts on a new line in format: Name: thought
 - Never write thoughts, feelings, or internal state for {{user}} inside <thk>
 - If scene is not intimate, omit <nsfw /> completely
-- Do not add any extra XML tags or commentary outside this format`;
+- Do not add any extra XML tags or commentary outside this format
+- Strict formatting rules for <thk>:
+- Every thought line must start with the exact full NPC name exactly as written in <chars>
+- Never shorten names
+- Never wrap thought lines in asterisks, quotes, markdown, or brackets
+- Use only this format: Full Name: thought
+- One NPC per line`;
 
 const kDefaultState = {
     time: "???",
@@ -288,6 +300,57 @@ function NormalizeName(str) {
     return String(str ?? "").trim().toLowerCase();
 }
 
+function NormalizeLooseText(str) {
+    return String(str ?? "")
+        .toLowerCase()
+        .replace(/[*_~`"]/g, "")
+        .replace(/[—–-]/g, ":")
+        .replace(/\s+/g, " ")
+        .trim();
+}
+
+function GetNameAliases(name) {
+    const raw = String(name ?? "").trim();
+    if (!raw) return [];
+
+    const clean = raw
+        .replace(/[*_~`"]/g, "")
+        .replace(/\s+/g, " ")
+        .trim();
+
+    const lower = clean.toLowerCase();
+    const parts = clean.split(/\s+/).filter(Boolean);
+
+    const aliases = new Set();
+    aliases.add(lower);
+
+    if (parts.length > 1) {
+        aliases.add(parts[0].toLowerCase());
+        aliases.add(parts[parts.length - 1].toLowerCase());
+        aliases.add(parts.slice(-2).join(" ").toLowerCase());
+    }
+
+    const noPunct = lower.replace(/[^\p{L}\p{N}\s-]/gu, "").trim();
+    if (noPunct) aliases.add(noPunct);
+
+    return [...aliases].filter(Boolean);
+}
+
+function NamesLikelyMatch(a, b) {
+    const aAliases = GetNameAliases(a);
+    const bAliases = GetNameAliases(b);
+
+    for (const x of aAliases) {
+        for (const y of bAliases) {
+            if (!x || !y) continue;
+            if (x === y) return true;
+            if (x.includes(y) || y.includes(x)) return true;
+        }
+    }
+
+    return false;
+}
+
 function IsUserLikeName(name) {
     const n = NormalizeName(name);
     return !n ||
@@ -316,8 +379,13 @@ function RenderMaybeUnknown(val) {
 }
 
 function ParseThoughtLine(line) {
-    const cleaned = String(line || "").trim();
+    let cleaned = String(line || "").trim();
     if (!cleaned) return null;
+
+    cleaned = cleaned
+        .replace(/^\s*[*_~`]+/, "")
+        .replace(/[*_~`]+\s*$/, "")
+        .trim();
 
     let idx = cleaned.indexOf(":");
     if (idx === -1) idx = cleaned.indexOf("—");
@@ -331,7 +399,14 @@ function ParseThoughtLine(line) {
     const text = cleaned.slice(idx + 1).trim();
 
     if (!text) return null;
-    return { name: name || "NPC", text };
+
+    return {
+        name: name || "NPC",
+        text: text
+            .replace(/^\s*[*_~`]+/, "")
+            .replace(/[*_~`]+\s*$/, "")
+            .trim()
+    };
 }
 
 function ParseInfoboard(text) {
@@ -451,13 +526,14 @@ function ParseInfoboard(text) {
         }
     }
 
-    const charNames = new Set(result.chars.map(c => NormalizeName(c.name)));
-    if (charNames.size > 0) {
-        result.thoughts = result.thoughts.filter(t => {
-            const n = NormalizeName(t.name);
-            return n === "npc" || charNames.has(n);
-        });
-    }
+    if (result.chars.length > 0) {
+    result.thoughts = result.thoughts.filter(t => {
+        const n = NormalizeName(t.name);
+        if (n === "npc") return true;
+
+        return result.chars.some(c => NamesLikelyMatch(c.name, t.name));
+    });
+}
 
     return result;
 }
@@ -884,13 +960,11 @@ function RemoveRawXmlFromText(messageTextEl) {
 function RemoveThoughtLeaksInContainer(messageTextEl, parsed) {
     if (!messageTextEl || !parsed?.thoughts?.length) return;
 
-    const normalize = (s) =>
-        NormalizeName(String(s || "").replace(/\s+/g, " ").trim());
-
     const thoughtEntries = parsed.thoughts.map(t => ({
-        full: normalize(`${t.name}: ${t.text}`),
-        text: normalize(t.text),
-        name: normalize(t.name),
+        full: NormalizeLooseText(`${t.name}: ${t.text}`),
+        text: NormalizeLooseText(t.text),
+        name: NormalizeLooseText(t.name),
+        aliases: GetNameAliases(t.name).map(NormalizeLooseText),
     }));
 
     const children = [...messageTextEl.children];
@@ -898,15 +972,18 @@ function RemoveThoughtLeaksInContainer(messageTextEl, parsed) {
     for (const el of children) {
         if (el.classList?.contains("ib-board")) continue;
 
-        const text = normalize(el.textContent || "");
+        const text = NormalizeLooseText(el.textContent || "");
         if (!text) continue;
 
-        const isThoughtLeak = thoughtEntries.some(t =>
-            (t.full && text.includes(t.full)) ||
-            (t.text && text.includes(t.text)) ||
-            (t.text && t.text.includes(text) && text.length > 20) ||
-            (t.name && t.text && text.includes(t.name) && text.includes(t.text.slice(0, 20)))
-        );
+        const isThoughtLeak = thoughtEntries.some(t => {
+            const aliasHit = t.aliases.some(a => a && text.includes(a));
+            const textHit =
+                (t.full && text.includes(t.full)) ||
+                (t.text && text.includes(t.text)) ||
+                (t.text && t.text.includes(text) && text.length > 20);
+
+            return textHit || (aliasHit && t.text && text.includes(t.text.slice(0, 16)));
+        });
 
         if (isThoughtLeak) {
             el.remove();
