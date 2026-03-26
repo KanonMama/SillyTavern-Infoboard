@@ -595,67 +595,39 @@ function BuildScenePulse(state) {
     return pulse;
 }
 
-function GetMiniStat(type, value) {
+function GetOrbMeta(type, value) {
     const v = Clamp(parseInt(value) || 0, -100, 100);
 
     if (type === "a") {
         return {
-            cls: v >= 0 ? "ib-mini-aff-pos" : "ib-mini-aff-neg",
-            label: v >= 0 ? "A" : "A",
-            value: v
+            cls: v >= 0 ? "ib-orb-aff-pos" : "ib-orb-aff-neg",
+            label: "A",
+            value: `${v}/100`
         };
     }
 
     if (type === "tr") {
         return {
-            cls: v >= 0 ? "ib-mini-tr-pos" : "ib-mini-tr-neg",
-            label: v >= 0 ? "T" : "T",
-            value: v
+            cls: v >= 0 ? "ib-orb-tr-pos" : "ib-orb-tr-neg",
+            label: "T",
+            value: `${v}/100`
         };
     }
 
     return {
-        cls: v >= 0 ? "ib-mini-love-pos" : "ib-mini-love-neg",
-        label: v >= 0 ? "L" : "L",
-        value: v
+        cls: v >= 0 ? "ib-orb-love-pos" : "ib-orb-love-neg",
+        label: "L",
+        value: `${v}/100`
     };
 }
 
-function RenderMiniStats(state) {
-    const rel = GetPrimaryRel(state);
-    if (!rel) return "";
-
-    const a = GetMiniStat("a", rel.a);
-    const t = GetMiniStat("tr", rel.tr);
-    const l = GetMiniStat("l", rel.l);
-
+function RenderStatOrb(meta) {
     return `
-    <div class="ib-compact-stats">
-        <div class="ib-mini-stat ${a.cls}">
-            <span class="ib-mini-stat-dot"></span>
-            <span class="ib-mini-stat-meta">
-                <span class="ib-mini-stat-label">${a.label}</span>
-                <span class="ib-mini-stat-value">${a.value}</span>
-            </span>
+    <div class="ib-stat-orb ${meta.cls}">
+        <div class="ib-stat-orb-inner">
+            <div class="ib-stat-orb-label">${meta.label}</div>
+            <div class="ib-stat-orb-value">${EscapeHtml(meta.value)}</div>
         </div>
-
-        <div class="ib-mini-stat ${t.cls}">
-            <span class="ib-mini-stat-dot"></span>
-            <span class="ib-mini-stat-meta">
-                <span class="ib-mini-stat-label">${t.label}</span>
-                <span class="ib-mini-stat-value">${t.value}</span>
-            </span>
-        </div>
-
-        <div class="ib-mini-stat ${l.cls}">
-            <span class="ib-mini-stat-dot"></span>
-            <span class="ib-mini-stat-meta">
-                <span class="ib-mini-stat-label">${l.label}</span>
-                <span class="ib-mini-stat-value">${l.value}</span>
-            </span>
-        </div>
-
-        <div class="ib-compact-loc">📍 ${EscapeHtml(state.loc || "???")}</div>
     </div>`;
 }
 
@@ -776,79 +748,116 @@ function RenderPulse(state) {
 }
 
 function RenderBoard(state, isFresh = false) {
+    const rel = GetPrimaryRel(state);
+    const orbA = rel ? RenderStatOrb(GetOrbMeta("a", rel.a)) : "";
+    const orbT = rel ? RenderStatOrb(GetOrbMeta("tr", rel.tr)) : "";
+    const orbL = rel ? RenderStatOrb(GetOrbMeta("l", rel.l)) : "";
+
     return `
-    <div class="ib-board ib-theme-${EscapeHtml(gTheme)} ib-bars-${EscapeHtml(gBarStyle)} ${gHoverFx ? "ib-hoverfx" : ""} ${isFresh ? "ib-fresh" : ""}">
+    <div class="ib-board ib-theme-${EscapeHtml(gTheme)} ib-bars-${EscapeHtml(gBarStyle)} ${gHoverFx ? "ib-hoverfx" : ""} ib-mode-full ${isFresh ? "ib-fresh" : ""}">
         <div class="ib-title">${T("title")}</div>
 
-        <div class="ib-collapsed-tag">✦ ${T("title")}</div>
+        <div class="ib-collapsed-wrap">
+            <div class="ib-collapsed-tag">
+                <span></span>
+                <span class="ib-collapsed-title">✦ ${T("title")}</span>
+                <span class="ib-collapsed-action">OPEN</span>
+            </div>
+        </div>
 
-        <div class="ib-header">
-            <div class="ib-header-main">
-                <div class="ib-header-location">
-                    <span class="ib-header-location-icon">📍</span>
-                    <span class="ib-header-location-text">${RenderMaybeUnknown(state.loc)}</span>
+        <div class="ib-compact-wrap">
+            <div class="ib-compact-main">
+                <div class="ib-orb-row">
+                    ${orbA}
+                    ${orbT}
+                    ${orbL}
                 </div>
 
-                <div class="ib-panel-controls">
-                    <div class="ib-control-btn ib-btn-compact" title="Compact">▤</div>
+                <div class="ib-compact-controls">
+                    <div class="ib-control-btn ib-btn-full" title="Full">◫</div>
                     <div class="ib-control-btn ib-btn-collapse" title="Collapse">—</div>
                 </div>
             </div>
+            <div class="ib-compact-loc">📍 ${RenderMaybeUnknown(state.loc)}</div>
+        </div>
 
-            <div class="ib-header-meta">
-                <span class="ib-meta-pill">⏰ ${RenderMaybeUnknown(state.time)}</span>
-                <span class="ib-meta-pill">📅 ${RenderMaybeUnknown(state.date)}</span>
-                <span class="ib-meta-pill">☁ ${RenderMaybeUnknown(state.weather)}</span>
+        <div class="ib-full-wrap">
+            <div class="ib-header">
+                <div class="ib-header-main">
+                    <div class="ib-header-location">
+                        <span class="ib-header-location-icon">📍</span>
+                        <span class="ib-header-location-text">${RenderMaybeUnknown(state.loc)}</span>
+                    </div>
+
+                    <div class="ib-panel-controls">
+                        <div class="ib-control-btn ib-btn-compact" title="Compact">▤</div>
+                        <div class="ib-control-btn ib-btn-collapse" title="Collapse">—</div>
+                    </div>
+                </div>
+
+                <div class="ib-header-meta">
+                    <span class="ib-meta-pill">⏰ ${RenderMaybeUnknown(state.time)}</span>
+                    <span class="ib-meta-pill">📅 ${RenderMaybeUnknown(state.date)}</span>
+                    <span class="ib-meta-pill">☁ ${RenderMaybeUnknown(state.weather)}</span>
+                </div>
+            </div>
+
+            <div class="ib-content">
+                ${RenderChars(state.chars)}
+                ${RenderRelations(state.rels)}
+                ${RenderThoughts(state.thoughts)}
+                ${RenderNsfw(state.nsfw)}
+                ${RenderPulse(state)}
             </div>
         </div>
-
-        ${RenderMiniStats(state)}
-
-        <div class="ib-content">
-            ${RenderChars(state.chars)}
-            ${RenderRelations(state.rels)}
-            ${RenderThoughts(state.thoughts)}
-            ${RenderNsfw(state.nsfw)}
-            ${RenderPulse(state)}
-        </div>
     </div>`;
+}
+
+function SetBoardMode(boardEl, mode) {
+    boardEl.classList.remove("ib-mode-full", "ib-mode-compact", "ib-mode-collapsed");
+    boardEl.classList.add(`ib-mode-${mode}`);
+
+    boardEl.querySelectorAll(".ib-btn-compact, .ib-btn-collapse, .ib-btn-full").forEach(btn => {
+        btn.classList.remove("ib-active");
+    });
+
+    if (mode === "compact") {
+        boardEl.querySelectorAll(".ib-btn-compact").forEach(btn => btn.classList.add("ib-active"));
+    }
+
+    if (mode === "collapsed") {
+        boardEl.querySelectorAll(".ib-btn-collapse").forEach(btn => btn.classList.add("ib-active"));
+    }
 }
 
 function WireBoardControls(boardEl) {
     if (!boardEl) return;
 
-    const compactBtn = boardEl.querySelector(".ib-btn-compact");
-    const collapseBtn = boardEl.querySelector(".ib-btn-collapse");
+    boardEl.querySelectorAll(".ib-btn-compact").forEach(btn => {
+        btn.addEventListener("click", () => {
+            const isCompact = boardEl.classList.contains("ib-mode-compact");
+            SetBoardMode(boardEl, isCompact ? "full" : "compact");
+        });
+    });
+
+    boardEl.querySelectorAll(".ib-btn-collapse").forEach(btn => {
+        btn.addEventListener("click", () => {
+            const isCollapsed = boardEl.classList.contains("ib-mode-collapsed");
+            SetBoardMode(boardEl, isCollapsed ? "full" : "collapsed");
+        });
+    });
+
+    boardEl.querySelectorAll(".ib-btn-full").forEach(btn => {
+        btn.addEventListener("click", () => {
+            SetBoardMode(boardEl, "full");
+        });
+    });
+
     const collapsedTag = boardEl.querySelector(".ib-collapsed-tag");
-
-    if (compactBtn) {
-        compactBtn.addEventListener("click", () => {
-            const willCompact = !boardEl.classList.contains("ib-compact");
-            boardEl.classList.remove("ib-collapsed");
-            boardEl.classList.toggle("ib-compact", willCompact);
-
-            compactBtn.classList.toggle("ib-active", willCompact);
-            if (collapseBtn) collapseBtn.classList.remove("ib-active");
-        });
-    }
-
-    if (collapseBtn) {
-        collapseBtn.addEventListener("click", () => {
-            const willCollapse = !boardEl.classList.contains("ib-collapsed");
-            boardEl.classList.remove("ib-compact");
-            boardEl.classList.toggle("ib-collapsed", willCollapse);
-
-            collapseBtn.classList.toggle("ib-active", willCollapse);
-            if (compactBtn) compactBtn.classList.remove("ib-active");
-        });
-    }
-
     if (collapsedTag) {
         collapsedTag.addEventListener("click", () => {
-            boardEl.classList.remove("ib-collapsed");
-            if (collapseBtn) collapseBtn.classList.remove("ib-active");
+            SetBoardMode(boardEl, "full");
         });
-        collapsedTag.style.cursor = "pointer";
     }
 }
 
