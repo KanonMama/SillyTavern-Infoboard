@@ -861,23 +861,39 @@ function WireBoardControls(boardEl) {
     }
 }
 
-function RemoveThoughtLeaksNearBoard(boardEl, parsed) {
-    if (!boardEl || !parsed?.thoughts?.length) return;
-
-    const thoughtTexts = parsed.thoughts.map(t => NormalizeName(t.text));
-
     let prev = boardEl.previousElementSibling;
     let checked = 0;
 
-    while (prev && checked < 5) {
-        const raw = (prev.textContent || "").trim();
-        if (!raw) {
+    while (prev && checked < 8) {
+        const text = normalize(prev.textContent || "");
+
+        const isThoughtLeak = thoughtEntries.some(t =>
+            (t.full && text.includes(t.full)) ||
+            (t.text && text.includes(t.text)) ||
+            (t.text && t.text.includes(text) && text.length > 20) ||
+            (t.name && t.text && text.includes(t.name) && text.includes(t.text.slice(0, 20)))
+        );
+
+        if (isThoughtLeak) {
             const toRemove = prev;
             prev = prev.previousElementSibling;
             toRemove.remove();
             checked++;
             continue;
         }
+
+        // если это пустой/почти пустой блок перед бордом — тоже сносим
+        if (!text || text === '"' || text === "'" || text === "—") {
+            const toRemove = prev;
+            prev = prev.previousElementSibling;
+            toRemove.remove();
+            checked++;
+            continue;
+        }
+
+        break;
+    }
+}
 
         const cleaned = raw
             .replace(/^["«»"'„]+/, "")
@@ -911,13 +927,48 @@ function RemoveRawXmlFromText(messageTextEl) {
     html = html
         .replace(/&lt;infoboard[\s\S]*?&lt;\/infoboard&gt;/gi, "")
         .replace(/<infoboard[\s\S]*?<\/infoboard>/gi, "")
-        .replace(/&lt;thk&gt;[\s\S]*?&lt;\/thk&gt;/gi, "")
-        .replace(/<thk>[\s\S]*?<\/thk>/gi, "")
-        .replace(/&lt;nsfw[\s\S]*?\/&gt;/gi, "")
-        .replace(/<nsfw[\s\S]*?\/?>/gi, "")
-        .replace(/(?:<br\s*\/?>\s*){2,}/gi, "<br>");
+        .replace(/&lt;thk[\s\S]*?&lt;\/thk&gt;/gi, "")
+        .replace(/<thk[\s\S]*?<\/thk>/gi, "")
+        .replace(/&lt;nsfw\b[\s\S]*?\/?&gt;/gi, "")
+        .replace(/<nsfw\b[\s\S]*?\/?>/gi, "")
+        .replace(/(?:<br\s*\/?>\s*){2,}/gi, "<br>")
+        .replace(/<p>\s*<\/p>/gi, "")
+        .replace(/<p>(?:\s|&nbsp;|<br\s*\/?>)*<\/p>/gi, "");
 
     messageTextEl.innerHTML = html;
+}
+
+function RemoveThoughtLeaksInContainer(messageTextEl, parsed) {
+    if (!messageTextEl || !parsed?.thoughts?.length) return;
+
+    const normalize = (s) =>
+        NormalizeName(String(s || "").replace(/\s+/g, " ").trim());
+
+    const thoughtEntries = parsed.thoughts.map(t => ({
+        full: normalize(`${t.name}: ${t.text}`),
+        text: normalize(t.text),
+        name: normalize(t.name),
+    }));
+
+    const children = [...messageTextEl.children];
+
+    for (const el of children) {
+        if (el.classList?.contains("ib-board")) continue;
+
+        const text = normalize(el.textContent || "");
+        if (!text) continue;
+
+        const isThoughtLeak = thoughtEntries.some(t =>
+            (t.full && text.includes(t.full)) ||
+            (t.text && text.includes(t.text)) ||
+            (t.text && t.text.includes(text) && text.length > 20) ||
+            (t.name && t.text && text.includes(t.name) && text.includes(t.text.slice(0, 20)))
+        );
+
+        if (isThoughtLeak) {
+            el.remove();
+        }
+    }
 }
 
 function UpdateLastUpdateDisplay() {
@@ -987,13 +1038,13 @@ function ProcessMessage(messageDiv, msgIndex) {
 
     RemoveRawXmlFromText(mesTextEl);
 
-    const wrapper = document.createElement("div");
+        const wrapper = document.createElement("div");
     wrapper.innerHTML = RenderBoard(parsed, true);
 
     const boardEl = wrapper.firstElementChild;
     if (boardEl) {
+        RemoveThoughtLeaksInContainer(mesTextEl, parsed);
         mesTextEl.appendChild(boardEl);
-        RemoveThoughtLeaksNearBoard(boardEl, parsed);
         WireBoardControls(boardEl);
     }
 }
@@ -1035,8 +1086,8 @@ function ReprocessChat() {
 
                         const boardEl = wrapper.firstElementChild;
                         if (boardEl) {
+                            RemoveThoughtLeaksInContainer(mesTextEl, parsed);
                             mesTextEl.appendChild(boardEl);
-                            RemoveThoughtLeaksNearBoard(boardEl, parsed);
                             WireBoardControls(boardEl);
                         }
                     }
