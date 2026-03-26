@@ -67,17 +67,17 @@ const kLang = {
         saveCustomCss: "💾 Сохранить CSS",
         clearCustomCss: "🧹 Очистить CSS",
         clearCustomCssConfirm: "Очистить пользовательский CSS?",
-        pulseEscalating: "напряжение стремительно растёт",
-        pulseWarming: "между вами становится теплее",
-        pulseFragileTrust: "доверие держится на тонкой нитке",
-        pulseViolence: "кажется, сейчас кого-то убьют",
-        pulseObsession: "это уже становится опасно личным",
-        pulseRomance: "между вами уже не просто напряжение",
-        pulseConflict: "между вами опасная химия",
-        pulseCold: "атмосфера становится всё холоднее",
-        pulseStable: "сцена держится на хрупком равновесии",
-        pulseSubmission: "кто-то явно теряет контроль",
-        pulsePredatory: "в воздухе чувствуется хищный интерес"
+        pulseEscalating: "⚡",
+        pulseWarming: "💕",
+        pulseFragileTrust: "🤍",
+        pulseViolence: "💀",
+        pulseObsession: "💜",
+        pulseRomance: "❤️‍🔥",
+        pulseConflict: "🔥",
+        pulseCold: "💔",
+        pulseStable: "❤️‍🩹",
+        pulseSubmission: "🖤",
+        pulsePredatory: "🔪"
     },
     en: {
         enable: "Enable Infoboard",
@@ -120,17 +120,17 @@ const kLang = {
         saveCustomCss: "💾 Save Custom CSS",
         clearCustomCss: "🧹 Clear Custom CSS",
         clearCustomCssConfirm: "Clear custom CSS?",
-        pulseEscalating: "tension is rising fast",
-        pulseWarming: "things are slowly warming up",
-        pulseFragileTrust: "trust is hanging by a thread",
-        pulseViolence: "someone might die in a second",
-        pulseObsession: "this is becoming dangerously personal",
-        pulseRomance: "this is no longer just tension",
-        pulseConflict: "there is dangerous chemistry here",
-        pulseCold: "the atmosphere is turning colder",
-        pulseStable: "the scene sits on fragile balance",
-        pulseSubmission: "someone is clearly losing control",
-        pulsePredatory: "there is a predatory edge in the air"
+        pulseEscalating: "⚡",
+        pulseWarming: "💕",
+        pulseFragileTrust: "🤍",
+        pulseViolence: "💀",
+        pulseObsession: "💜",
+        pulseRomance: "❤️‍🔥",
+        pulseConflict: "🔥",
+        pulseCold: "💔",
+        pulseStable: "❤️‍🩹",
+        pulseSubmission: "🖤",
+        pulsePredatory: "🔪"
     }
 };
 
@@ -861,8 +861,8 @@ function WireBoardControls(boardEl) {
     }
 }
 
-function RemoveThoughtLeaks(messageTextEl, boardEl, parsed) {
-    if (!messageTextEl || !boardEl || !parsed?.thoughts?.length) return;
+function RemoveThoughtLeaksNearBoard(boardEl, parsed) {
+    if (!boardEl || !parsed?.thoughts?.length) return;
 
     const thoughtLines = parsed.thoughts.map(t => NormalizeName(`${t.name}: ${t.text}`));
 
@@ -871,7 +871,6 @@ function RemoveThoughtLeaks(messageTextEl, boardEl, parsed) {
 
     while (prev && checked < 3) {
         const text = NormalizeName(prev.textContent || "");
-
         const isThoughtLeak =
             prev.tagName === "P" &&
             thoughtLines.some(t => text.includes(t) || t.includes(text));
@@ -888,7 +887,7 @@ function RemoveThoughtLeaks(messageTextEl, boardEl, parsed) {
     }
 }
 
-function RemoveRawXmlFromText(messageTextEl, parsed) {
+function RemoveRawXmlFromText(messageTextEl) {
     if (!gHideRaw) return;
     if (!messageTextEl) return;
 
@@ -971,16 +970,17 @@ function ProcessMessage(messageDiv, msgIndex) {
     const existing = mesTextEl.querySelector(".ib-board");
     if (existing) existing.remove();
 
-    RemoveRawXmlFromText(mesTextEl, parsed);
+    RemoveRawXmlFromText(mesTextEl);
 
     const wrapper = document.createElement("div");
     wrapper.innerHTML = RenderBoard(parsed, true);
 
     const boardEl = wrapper.firstElementChild;
-if (boardEl) {
-    mesTextEl.appendChild(boardEl);
-    RemoveThoughtLeaks(mesTextEl, boardEl, parsed);
-    WireBoardControls(boardEl);
+    if (boardEl) {
+        mesTextEl.appendChild(boardEl);
+        RemoveThoughtLeaksNearBoard(boardEl, parsed);
+        WireBoardControls(boardEl);
+    }
 }
 
 function ReprocessChat() {
@@ -1013,12 +1013,15 @@ function ReprocessChat() {
                     if (existing) existing.remove();
 
                     if (parsed) {
-                        RemoveRawXmlFromText(mesTextEl, parsed);
+                        RemoveRawXmlFromText(mesTextEl);
+
                         const wrapper = document.createElement("div");
                         wrapper.innerHTML = RenderBoard(parsed, false);
+
                         const boardEl = wrapper.firstElementChild;
                         if (boardEl) {
                             mesTextEl.appendChild(boardEl);
+                            RemoveThoughtLeaksNearBoard(boardEl, parsed);
                             WireBoardControls(boardEl);
                         }
                     }
