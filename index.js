@@ -77,7 +77,16 @@ const kLang = {
         pulseCold: "атмосфера становится всё холоднее",
         pulseStable: "сцена держится на хрупком равновесии",
         pulseSubmission: "кто-то явно теряет контроль",
-        pulsePredatory: "в воздухе чувствуется хищный интерес"
+        pulsePredatory: "в воздухе чувствуется хищный интерес",
+        compactCold: "отношения становятся холоднее",
+        compactWarm: "отношения теплеют",
+        compactDanger: "сцена становится опаснее",
+        compactBrokenTrust: "доверие почти разрушено",
+        compactHatred: "это уже почти личная война",
+        compactRomance: "между вами уже больше, чем напряжение",
+        compactMixed: "между вами слишком опасная смесь",
+        compactStable: "ситуация пока держится",
+        compactNpcMany: "NPC"
     },
     en: {
         enable: "Enable Infoboard",
@@ -130,7 +139,16 @@ const kLang = {
         pulseCold: "the atmosphere is turning colder",
         pulseStable: "the scene sits on fragile balance",
         pulseSubmission: "someone is clearly losing control",
-        pulsePredatory: "there is a predatory edge in the air"
+        pulsePredatory: "there is a predatory edge in the air",
+        compactCold: "things are getting colder",
+        compactWarm: "things are warming up",
+        compactDanger: "the scene is growing more dangerous",
+        compactBrokenTrust: "trust is nearly broken",
+        compactHatred: "this is becoming personal war",
+        compactRomance: "this is more than tension now",
+        compactMixed: "the chemistry here is dangerous",
+        compactStable: "the situation is holding for now",
+        compactNpcMany: "NPCs"
     }
 };
 
@@ -555,15 +573,19 @@ function GetMetricMeta(type, value) {
         : { label: T("hatred"), barClass: "ib-bar-love-neg", style: `filter:saturate(${saturation}) brightness(${brightness}); box-shadow:0 0 ${glow}px rgba(169, 59, 88, ${alpha});` };
 }
 
+function GetPrimaryRel(state) {
+    if (!state?.rels?.length) return null;
+    return [...state.rels].sort((a, b) => {
+        const aa = Math.abs(a.a || 0) + Math.abs(a.tr || 0) + Math.abs(a.l || 0);
+        const bb = Math.abs(b.a || 0) + Math.abs(b.tr || 0) + Math.abs(b.l || 0);
+        return bb - aa;
+    })[0];
+}
+
 function BuildScenePulse(state) {
     if (!gShowPulse || !state?.rels?.length) return "";
 
-    const rel = [...state.rels].sort((a, b) => {
-        const aa = Math.abs((a.a || 0)) + Math.abs((a.tr || 0)) + Math.abs((a.l || 0));
-        const bb = Math.abs((b.a || 0)) + Math.abs((b.tr || 0)) + Math.abs((b.l || 0));
-        return bb - aa;
-    })[0];
-
+    const rel = GetPrimaryRel(state);
     if (!rel) return "";
 
     const a = rel.a || 0;
@@ -589,6 +611,42 @@ function BuildScenePulse(state) {
     else if (Math.abs(ac) + Math.abs(tc) + Math.abs(lc) > 8) pulse = T("pulseEscalating");
 
     return pulse;
+}
+
+function BuildCompactSummary(state) {
+    const rel = GetPrimaryRel(state);
+    const npcCount = state?.chars?.length || state?.rels?.length || 0;
+
+    if (!rel) {
+        if (npcCount > 1) return `${npcCount} ${T("compactNpcMany")} • ${T("compactStable")}`;
+        if (npcCount === 1) return `${state.chars?.[0]?.name || "NPC"} • ${T("compactStable")}`;
+        return T("compactStable");
+    }
+
+    const source = rel.source || "NPC";
+    const a = rel.a || 0;
+    const tr = rel.tr || 0;
+    const l = rel.l || 0;
+    const ac = rel.ac || 0;
+    const tc = rel.tc || 0;
+    const lc = rel.lc || 0;
+
+    let summary = T("compactStable");
+
+    if (tr < -65 && l < -45) summary = T("compactDanger");
+    else if (l < -70) summary = T("compactHatred");
+    else if (tr < -55) summary = T("compactBrokenTrust");
+    else if (a < -35 && tr < -25) summary = T("compactCold");
+    else if (a > 50 && tr > 45 && l > 30) summary = T("compactRomance");
+    else if (a > 25 && tr > 20) summary = T("compactWarm");
+    else if (a < 0 && l > 25) summary = T("compactMixed");
+    else if (Math.abs(ac) + Math.abs(tc) + Math.abs(lc) > 7) summary = T("compactDanger");
+
+    if (npcCount > 1) {
+        return `${npcCount} ${T("compactNpcMany")} • ${summary}`;
+    }
+
+    return `${source} • ${summary}`;
 }
 
 function RenderChars(chars) {
@@ -707,6 +765,19 @@ function RenderPulse(state) {
     </div>`;
 }
 
+function RenderCompactSummary(state) {
+    const text = BuildCompactSummary(state);
+    if (!text) return "";
+
+    return `
+    <div class="ib-compact-summary">
+        <div class="ib-compact-summary-line">
+            <span class="ib-compact-summary-icon">✦</span>
+            <span class="ib-compact-summary-text">${EscapeHtml(text)}</span>
+        </div>
+    </div>`;
+}
+
 function RenderBoard(state, isFresh = false) {
     return `
     <div class="ib-board ib-theme-${EscapeHtml(gTheme)} ib-bars-${EscapeHtml(gBarStyle)} ${gHoverFx ? "ib-hoverfx" : ""} ${isFresh ? "ib-fresh" : ""}">
@@ -732,6 +803,8 @@ function RenderBoard(state, isFresh = false) {
             </div>
         </div>
 
+        ${RenderCompactSummary(state)}
+
         <div class="ib-content">
             ${RenderChars(state.chars)}
             ${RenderRelations(state.rels)}
@@ -750,18 +823,22 @@ function WireBoardControls(boardEl) {
 
     if (compactBtn) {
         compactBtn.addEventListener("click", () => {
-            boardEl.classList.toggle("ib-compact");
+            const willCompact = !boardEl.classList.contains("ib-compact");
             boardEl.classList.remove("ib-collapsed");
-            compactBtn.classList.toggle("ib-active", boardEl.classList.contains("ib-compact"));
+            boardEl.classList.toggle("ib-compact", willCompact);
+
+            compactBtn.classList.toggle("ib-active", willCompact);
             if (collapseBtn) collapseBtn.classList.remove("ib-active");
         });
     }
 
     if (collapseBtn) {
         collapseBtn.addEventListener("click", () => {
-            boardEl.classList.toggle("ib-collapsed");
+            const willCollapse = !boardEl.classList.contains("ib-collapsed");
             boardEl.classList.remove("ib-compact");
-            collapseBtn.classList.toggle("ib-active", boardEl.classList.contains("ib-collapsed"));
+            boardEl.classList.toggle("ib-collapsed", willCollapse);
+
+            collapseBtn.classList.toggle("ib-active", willCollapse);
             if (compactBtn) compactBtn.classList.remove("ib-active");
         });
     }
@@ -833,6 +910,17 @@ function UpdateSettingsText() {
     $("#ib_clear_custom_css").text(T("clearCustomCss"));
 }
 
+function ApplyParsedToState(parsed) {
+    gState.time = parsed.time || gState.time;
+    gState.date = parsed.date || gState.date;
+    gState.weather = parsed.weather || gState.weather;
+    gState.loc = parsed.loc || gState.loc;
+    gState.chars = parsed.chars || [];
+    gState.rels = parsed.rels || [];
+    gState.thoughts = parsed.thoughts || [];
+    gState.nsfw = parsed.nsfw || null;
+}
+
 function ProcessMessage(messageDiv, msgIndex) {
     if (!gEnabled) return;
 
@@ -844,14 +932,7 @@ function ProcessMessage(messageDiv, msgIndex) {
     const parsed = ParseInfoboard(text);
     if (!parsed) return;
 
-    gState.time = parsed.time || gState.time;
-    gState.date = parsed.date || gState.date;
-    gState.weather = parsed.weather || gState.weather;
-    gState.loc = parsed.loc || gState.loc;
-    gState.chars = parsed.chars || [];
-    gState.rels = parsed.rels || [];
-    gState.thoughts = parsed.thoughts || [];
-    gState.nsfw = parsed.nsfw || null;
+    ApplyParsedToState(parsed);
     SaveState();
 
     UpdateStatusDisplay();
@@ -885,16 +966,7 @@ function ReprocessChat() {
         const msg = stContext.chat[i];
         if (!msg?.is_user && msg.mes) {
             const parsed = ParseInfoboard(msg.mes);
-            if (parsed) {
-                gState.time = parsed.time || gState.time;
-                gState.date = parsed.date || gState.date;
-                gState.weather = parsed.weather || gState.weather;
-                gState.loc = parsed.loc || gState.loc;
-                gState.chars = parsed.chars || [];
-                gState.rels = parsed.rels || [];
-                gState.thoughts = parsed.thoughts || [];
-                gState.nsfw = parsed.nsfw || null;
-            }
+            if (parsed) ApplyParsedToState(parsed);
         }
     }
 
