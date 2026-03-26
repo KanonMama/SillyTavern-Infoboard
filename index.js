@@ -861,63 +861,6 @@ function WireBoardControls(boardEl) {
     }
 }
 
-    let prev = boardEl.previousElementSibling;
-    let checked = 0;
-
-    while (prev && checked < 8) {
-        const text = normalize(prev.textContent || "");
-
-        const isThoughtLeak = thoughtEntries.some(t =>
-            (t.full && text.includes(t.full)) ||
-            (t.text && text.includes(t.text)) ||
-            (t.text && t.text.includes(text) && text.length > 20) ||
-            (t.name && t.text && text.includes(t.name) && text.includes(t.text.slice(0, 20)))
-        );
-
-        if (isThoughtLeak) {
-            const toRemove = prev;
-            prev = prev.previousElementSibling;
-            toRemove.remove();
-            checked++;
-            continue;
-        }
-
-        // если это пустой/почти пустой блок перед бордом — тоже сносим
-        if (!text || text === '"' || text === "'" || text === "—") {
-            const toRemove = prev;
-            prev = prev.previousElementSibling;
-            toRemove.remove();
-            checked++;
-            continue;
-        }
-
-        break;
-    }
-}
-
-        const cleaned = raw
-            .replace(/^["«»"'„]+/, "")
-            .replace(/["«»"'„]+$/, "")
-            .trim();
-
-        const normalized = NormalizeName(cleaned);
-
-        const isLeak = thoughtTexts.some(t =>
-            normalized.includes(t) || t.includes(normalized)
-        );
-
-        if (isLeak && prev.tagName === "P") {
-            const toRemove = prev;
-            prev = prev.previousElementSibling;
-            toRemove.remove();
-            checked++;
-            continue;
-        }
-
-        break;
-    }
-}
-
 function RemoveRawXmlFromText(messageTextEl) {
     if (!gHideRaw) return;
     if (!messageTextEl) return;
@@ -1038,7 +981,7 @@ function ProcessMessage(messageDiv, msgIndex) {
 
     RemoveRawXmlFromText(mesTextEl);
 
-        const wrapper = document.createElement("div");
+    const wrapper = document.createElement("div");
     wrapper.innerHTML = RenderBoard(parsed, true);
 
     const boardEl = wrapper.firstElementChild;
