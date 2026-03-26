@@ -1386,14 +1386,14 @@ jQuery(async () => {
         });
     }
 
-    if (stContext.eventTypes.MESSAGE_EDITED) {
-        stContext.eventSource.on(stContext.eventTypes.MESSAGE_EDITED, (msgIndex) => {
-            setTimeout(() => {
-                const msgDiv = document.querySelector(`.mes[mesid="${msgIndex}"]`);
-                if (msgDiv) ProcessMessage(msgDiv, msgIndex);
-            }, 150);
-        });
-    }
+if (stContext.eventTypes.MESSAGE_EDITED) {
+    stContext.eventSource.on(stContext.eventTypes.MESSAGE_EDITED, (msgIndex) => {
+        setTimeout(() => {
+            const msgDiv = document.querySelector(`.mes[mesid="${msgIndex}"]`);
+            if (msgDiv) ProcessMessage(msgDiv, msgIndex);
+        }, 250);
+    });
+}
 
     if (stContext.eventTypes.MESSAGE_SWIPED) {
         stContext.eventSource.on(stContext.eventTypes.MESSAGE_SWIPED, (msgIndex) => {
@@ -1404,22 +1404,54 @@ jQuery(async () => {
         });
     }
 
-    const chatContainer = document.getElementById("chat");
-    if (chatContainer) {
-        const observer = new MutationObserver(mutations => {
-            for (const m of mutations) {
+const chatContainer = document.getElementById("chat");
+if (chatContainer) {
+    const pendingMesIds = new Set();
+
+    const scheduleProcess = (mesEl) => {
+        if (!mesEl?.classList?.contains("mes")) return;
+
+        const msgId = Number(mesEl.getAttribute("mesid"));
+        if (isNaN(msgId)) return;
+        if (pendingMesIds.has(msgId)) return;
+
+        pendingMesIds.add(msgId);
+
+        setTimeout(() => {
+            pendingMesIds.delete(msgId);
+            ProcessMessage(mesEl, msgId);
+        }, 180);
+    };
+
+    const observer = new MutationObserver(mutations => {
+        for (const m of mutations) {
+            if (m.type === "childList") {
                 for (const node of m.addedNodes) {
-                    if (node.classList?.contains("mes")) {
-                        const msgId = Number(node.getAttribute("mesid"));
-                        if (!isNaN(msgId)) {
-                            setTimeout(() => ProcessMessage(node, msgId), 150);
-                        }
+                    if (!(node instanceof HTMLElement)) continue;
+
+                    if (node.classList.contains("mes")) {
+                        scheduleProcess(node);
+                    } else {
+                        const mes = node.closest?.(".mes") || node.querySelector?.(".mes");
+                        if (mes) scheduleProcess(mes);
                     }
                 }
             }
-        });
-        observer.observe(chatContainer, { childList: true, subtree: true });
-    }
+
+            if (m.type === "characterData") {
+                const parent = m.target.parentElement;
+                const mes = parent?.closest?.(".mes");
+                if (mes) scheduleProcess(mes);
+            }
+        }
+    });
+
+    observer.observe(chatContainer, {
+        childList: true,
+        subtree: true,
+        characterData: true,
+    });
+}
 
     document.querySelectorAll(".mes").forEach(node => {
         const msgId = Number(node.getAttribute("mesid"));
