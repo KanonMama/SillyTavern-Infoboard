@@ -67,14 +67,14 @@ const kLang = {
         saveCustomCss: "💾 Сохранить CSS",
         clearCustomCss: "🧹 Очистить CSS",
         clearCustomCssConfirm: "Очистить пользовательский CSS?",
-pulseDanger: "💀 Высокий риск",
-pulseConflict: "🔥 Конфликт активен",
-pulseCold: "🧊 Дистанция сохраняется",
-pulseFragile: "🤍 Контакт хрупкий",
-pulseWarm: "🌤 Контакт теплеет",
-pulseBond: "🧷 Связь укрепляется",
-pulseShifting: "⚡ Динамика меняется",
-pulseStable: "• Состояние стабильно"
+        pulseDanger: "💀 Высокий риск",
+        pulseConflict: "🔥 Конфликт активен",
+        pulseCold: "🧊 Дистанция сохраняется",
+        pulseFragile: "🤍 Контакт хрупкий",
+        pulseWarm: "🌤 Контакт теплеет",
+        pulseBond: "🧷 Связь укрепляется",
+        pulseShifting: "⚡ Динамика меняется",
+        pulseStable: "• Состояние стабильно"
     },
     en: {
         enable: "Enable Infoboard",
@@ -117,14 +117,14 @@ pulseStable: "• Состояние стабильно"
         saveCustomCss: "💾 Save Custom CSS",
         clearCustomCss: "🧹 Clear Custom CSS",
         clearCustomCssConfirm: "Clear custom CSS?",
-pulseDanger: "💀 High risk",
-pulseConflict: "🔥 Conflict active",
-pulseCold: "🧊 Distance remains",
-pulseFragile: "🤍 Contact is fragile",
-pulseWarm: "🌤 Contact warming",
-pulseBond: "🧷 Bond strengthening",
-pulseShifting: "⚡ Dynamic shifting",
-pulseStable: "• State is stable"
+        pulseDanger: "💀 High risk",
+        pulseConflict: "🔥 Conflict active",
+        pulseCold: "🧊 Distance remains",
+        pulseFragile: "🤍 Contact is fragile",
+        pulseWarm: "🌤 Contact warming",
+        pulseBond: "🧷 Bond strengthening",
+        pulseShifting: "⚡ Dynamic shifting",
+        pulseStable: "• State is stable"
     }
 };
 
@@ -521,13 +521,12 @@ function ParseInfoboard(text) {
     }
 
     if (result.chars.length > 0) {
-    result.thoughts = result.thoughts.filter(t => {
-        const n = NormalizeName(t.name);
-        if (n === "npc") return true;
-
-        return result.chars.some(c => NamesLikelyMatch(c.name, t.name));
-    });
-}
+        result.thoughts = result.thoughts.filter(t => {
+            const n = NormalizeName(t.name);
+            if (n === "npc") return true;
+            return result.chars.some(c => NamesLikelyMatch(c.name, t.name));
+        });
+    }
 
     return result;
 }
@@ -1386,14 +1385,14 @@ jQuery(async () => {
         });
     }
 
-if (stContext.eventTypes.MESSAGE_EDITED) {
-    stContext.eventSource.on(stContext.eventTypes.MESSAGE_EDITED, (msgIndex) => {
-        setTimeout(() => {
-            const msgDiv = document.querySelector(`.mes[mesid="${msgIndex}"]`);
-            if (msgDiv) ProcessMessage(msgDiv, msgIndex);
-        }, 250);
-    });
-}
+    if (stContext.eventTypes.MESSAGE_EDITED) {
+        stContext.eventSource.on(stContext.eventTypes.MESSAGE_EDITED, (msgIndex) => {
+            setTimeout(() => {
+                const msgDiv = document.querySelector(`.mes[mesid="${msgIndex}"]`);
+                if (msgDiv) ProcessMessage(msgDiv, msgIndex);
+            }, 300);
+        });
+    }
 
     if (stContext.eventTypes.MESSAGE_SWIPED) {
         stContext.eventSource.on(stContext.eventTypes.MESSAGE_SWIPED, (msgIndex) => {
@@ -1404,98 +1403,68 @@ if (stContext.eventTypes.MESSAGE_EDITED) {
         });
     }
 
-const chatContainer = document.getElementById("chat");
-if (chatContainer) {
-    const pendingMesIds = new Set();
+    const chatContainer = document.getElementById("chat");
+    if (chatContainer) {
+        const pendingMesIds = new Set();
 
-    const scheduleProcessByMes = (mesEl, delay = 220) => {
-        if (!mesEl?.classList?.contains("mes")) return;
+        const scheduleProcessByMes = (mesEl, delay = 220) => {
+            if (!mesEl?.classList?.contains("mes")) return;
 
-        const msgId = Number(mesEl.getAttribute("mesid"));
-        if (isNaN(msgId)) return;
-        if (pendingMesIds.has(msgId)) return;
+            const msgId = Number(mesEl.getAttribute("mesid"));
+            if (isNaN(msgId)) return;
+            if (pendingMesIds.has(msgId)) return;
 
-        pendingMesIds.add(msgId);
+            pendingMesIds.add(msgId);
 
-        setTimeout(() => {
-            pendingMesIds.delete(msgId);
+            setTimeout(() => {
+                pendingMesIds.delete(msgId);
 
-            const currentMes = document.querySelector(`.mes[mesid="${msgId}"]`);
-            if (!currentMes) return;
+                const currentMes = document.querySelector(`.mes[mesid="${msgId}"]`);
+                if (!currentMes) return;
 
-            if (currentMes.querySelector(".mes_edit_done, textarea, .edit_textarea")) return;
+                if (currentMes.querySelector(".mes_edit_done, textarea, .edit_textarea")) return;
 
-            ProcessMessage(currentMes, msgId);
-        }, delay);
-    };
+                ProcessMessage(currentMes, msgId);
+            }, delay);
+        };
 
-    const observer = new MutationObserver(mutations => {
-        for (const m of mutations) {
-            if (m.type !== "childList") continue;
+        const observer = new MutationObserver(mutations => {
+            for (const m of mutations) {
+                if (m.type !== "childList") continue;
 
-            const targetEl = m.target instanceof HTMLElement ? m.target : null;
-            if (targetEl?.closest?.(".ib-board")) continue;
+                const targetEl = m.target instanceof HTMLElement ? m.target : null;
+                if (targetEl?.closest?.(".ib-board")) continue;
 
-            for (const node of m.addedNodes) {
-                if (!(node instanceof HTMLElement)) continue;
-                if (node.closest?.(".ib-board")) continue;
-
-                if (node.classList.contains("mes")) {
-                    scheduleProcessByMes(node);
-                    continue;
-                }
-
-                const mesEl = node.closest?.(".mes") || targetEl?.closest?.(".mes");
-                if (!mesEl) continue;
-
-                if (node.classList.contains("ib-board") || node.querySelector?.(".ib-board")) continue;
-
-                if (
-                    node.classList.contains("mes_text") ||
-                    targetEl?.classList.contains("mes_text") ||
-                    node.querySelector?.(".mes_text")
-                ) {
-                    scheduleProcessByMes(mesEl);
-                }
-            }
-        }
-    });
-
-    observer.observe(chatContainer, {
-        childList: true,
-        subtree: true,
-    });
-}
-
-    const observer = new MutationObserver(mutations => {
-        for (const m of mutations) {
-            if (m.type === "childList") {
                 for (const node of m.addedNodes) {
                     if (!(node instanceof HTMLElement)) continue;
+                    if (node.closest?.(".ib-board")) continue;
 
                     if (node.classList.contains("mes")) {
-                        scheduleProcess(node);
-                    } else {
-                        const mes = node.closest?.(".mes") || node.querySelector?.(".mes");
-                        if (mes) scheduleProcess(mes);
+                        scheduleProcessByMes(node);
+                        continue;
+                    }
+
+                    const mesEl = node.closest?.(".mes") || targetEl?.closest?.(".mes");
+                    if (!mesEl) continue;
+
+                    if (node.classList.contains("ib-board") || node.querySelector?.(".ib-board")) continue;
+
+                    if (
+                        node.classList.contains("mes_text") ||
+                        targetEl?.classList.contains("mes_text") ||
+                        node.querySelector?.(".mes_text")
+                    ) {
+                        scheduleProcessByMes(mesEl);
                     }
                 }
             }
+        });
 
-            if (m.type === "characterData") {
-                const parent = m.target.parentElement;
-                const mes = parent?.closest?.(".mes");
-                if (mes) scheduleProcess(mes);
-            }
-        }
-    });
-
-    observer.observe(chatContainer, {
-        childList: true,
-        subtree: true,
-        characterData: true,
-    });
-}
+        observer.observe(chatContainer, {
+            childList: true,
+            subtree: true,
+        });
+    }
 
     document.querySelectorAll(".mes").forEach(node => {
         const msgId = Number(node.getAttribute("mesid"));
