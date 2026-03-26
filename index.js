@@ -803,7 +803,10 @@ function RenderBoard(state, isFresh = false) {
             </div>
         </div>
 
-        ${RenderCompactSummary(state)}
+                   ${RenderCompactSummary(state)}
+        </div>
+
+        <div class="ib-content">
 
         <div class="ib-content">
             ${RenderChars(state.chars)}
