@@ -440,6 +440,10 @@
     opacity: 0.92;
 }
 
+.ib-board.ib-compact .ib-header-location-text {
+    display: none;
+}
+
 .ib-mini-aff-pos .ib-mini-stat-dot { background: radial-gradient(circle at 35% 35%, #7ff0bb, #36ba79 68%, #24965f); box-shadow: 0 0 10px rgba(72, 196, 135, 0.34); }
 .ib-mini-aff-neg .ib-mini-stat-dot { background: radial-gradient(circle at 35% 35%, #f1a29c, #c95f5f 68%, #9b4040); box-shadow: 0 0 10px rgba(200, 96, 96, 0.32); }
 
