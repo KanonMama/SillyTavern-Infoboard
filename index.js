@@ -864,23 +864,36 @@ function WireBoardControls(boardEl) {
 function RemoveThoughtLeaks(messageTextEl, parsed) {
     if (!messageTextEl || !parsed?.thoughts?.length) return;
 
-    const normalizedThoughts = parsed.thoughts.map(t => {
-        const full = NormalizeName(`${t.name}: ${t.text}`);
-        const textOnly = NormalizeName(t.text);
-        return { full, textOnly };
-    });
+    const thoughtLines = parsed.thoughts.map(t => NormalizeName(`${t.name}: ${t.text}`));
+    const thoughtTexts = parsed.thoughts.map(t => NormalizeName(t.text));
 
     messageTextEl.querySelectorAll("p, div").forEach(el => {
+        if (el.closest(".ib-board")) return;
+
         const rawText = (el.textContent || "").trim();
-        const normalized = NormalizeName(rawText);
-        if (!normalized) return;
+        if (!rawText) return;
 
-        const isExactThoughtLeak = normalizedThoughts.some(t =>
-            normalized === t.full ||
-            normalized === t.textOnly
-        );
+        const normalizedBlock = NormalizeName(rawText);
+        const lines = rawText
+            .split("\n")
+            .map(x => NormalizeName(x.trim()))
+            .filter(Boolean);
 
-        if (isExactThoughtLeak) {
+        let matchedCount = 0;
+
+        for (const line of lines) {
+            const matched = thoughtLines.some(t => line.includes(t) || t.includes(line)) ||
+                            thoughtTexts.some(t => line.includes(t) || t.includes(line));
+
+            if (matched) matchedCount++;
+        }
+
+        const blockLooksLikeThoughtDump =
+            matchedCount >= 2 ||
+            thoughtLines.filter(t => normalizedBlock.includes(t)).length >= 2 ||
+            thoughtTexts.filter(t => normalizedBlock.includes(t)).length >= 2;
+
+        if (blockLooksLikeThoughtDump) {
             el.remove();
         }
     });
@@ -888,19 +901,21 @@ function RemoveThoughtLeaks(messageTextEl, parsed) {
 
 function RemoveRawXmlFromText(messageTextEl, parsed) {
     if (!gHideRaw) return;
-    if (!messageTextEl || !parsed?.rawXml) return;
+    if (!messageTextEl) return;
 
     let html = messageTextEl.innerHTML;
-    const escapedRaw = parsed.rawXml.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-    html = html.replace(new RegExp(escapedRaw, "g"), "");
 
     html = html
-        .replace(/<nsfw\s+f="[\s\S]*?"\s+p="[\s\S]*?"\s*\/?>/gi, "")
+        .replace(/&lt;infoboard[\s\S]*?&lt;\/infoboard&gt;/gi, "")
+        .replace(/<infoboard[\s\S]*?<\/infoboard>/gi, "")
+        .replace(/&lt;thk&gt;[\s\S]*?&lt;\/thk&gt;/gi, "")
         .replace(/<thk>[\s\S]*?<\/thk>/gi, "")
+        .replace(/&lt;nsfw[\s\S]*?\/&gt;/gi, "")
+        .replace(/<nsfw[\s\S]*?\/?>/gi, "")
         .replace(/(?:<br\s*\/?>\s*){2,}/gi, "<br>");
 
-messageTextEl.innerHTML = html;
-RemoveThoughtLeaks(messageTextEl, parsed);
+    messageTextEl.innerHTML = html;
+    RemoveThoughtLeaks(messageTextEl, parsed);
 }
 
 function UpdateLastUpdateDisplay() {
