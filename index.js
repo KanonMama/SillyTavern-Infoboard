@@ -129,8 +129,9 @@ const kLang = {
 };
 
 const kSystemPromptRu = `Infoboard:
-Always append exactly one XML block at the end of every assistant response. Fill all field values in Russian. Keep entries concise, scene-accurate, and updated every message. Use this format strictly:
+Append exactly one XML block at the end of every assistant response. Fill all values in Russian. Keep it concise, accurate, and updated every message.
 
+Format:
 <infoboard time="" date="" weather="" loc="">
 <chars>
 <c icon="" name="" tags="" />
@@ -141,36 +142,37 @@ Always append exactly one XML block at the end of every assistant response. Fill
 <thk></thk>
 </infoboard>
 
-Optional block only for explicitly intimate or aroused scenes:
+Optional only for explicitly intimate scenes:
 <nsfw f="" p="" />
 
 Rules:
-- Always output exactly one <infoboard> block in every message.
-- Fill all values in Russian.
-- Add one <c /> for each NPC currently present in the scene.
-- tags must contain 1-3 short tags separated by |
-- Add one <rel /> for each present NPC describing their feelings toward {{user}}, never between NPCs
-- Use a, tr, l as values from -100 to 100
-- Negative affection means aversion or dislike
-- Negative trust means distrust, suspicion, or fear
-- Negative love means hatred, destructive obsession, or anti-attachment
-- Use ac, tc, lc as per-message changes, usually within -5..+5 unless a major event just happened
-- Relationship values must evolve logically and consistently
+- Output exactly one <infoboard> block in every message
+- Fill all values in Russian
+- Add one <c /> for each NPC currently present
+- tags: 1-3 short tags separated by |
+- Add one <rel /> per present NPC describing feelings toward {{user}} only
+- a, tr, l: from -100 to 100
+- ac, tc, lc: per-message change, usually within -5..+5 unless major event
+- Negative affection = aversion/dislike
+- Negative trust = distrust/suspicion/fear
+- Negative love = hatred/destructive obsession/anti-attachment
+- Relationship values must evolve logically
 - Put all NPC private thoughts into one <thk> block
-- In <thk>, each NPC starts on a new line in format: Имя: мысль
-- Never write thoughts, feelings, or internal state for {{user}} inside <thk>
-- If scene is not intimate, omit <nsfw /> completely
-- Do not add any extra XML tags or commentary outside this format
-- Strict formatting rules for <thk>:
-- Every thought line must start with the exact full NPC name exactly as written in <chars>
+- One NPC per line in <thk>
+- Never include {{user}} thoughts in <thk>
+- Omit <nsfw /> if the scene is not intimate
+- No extra XML tags or commentary
+
+<thk> strict format:
+- Use the exact full NPC name exactly as in <chars>
 - Never shorten names
-- Never wrap thought lines in asterisks, quotes, markdown, or brackets
-- Use only this format: Полное Имя: мысль
-- One NPC per line`;
+- No markdown, quotes, asterisks, or brackets
+- Format only: Полное Имя: мысль`;
 
 const kSystemPromptEn = `Infoboard:
-Always append exactly one XML block at the end of every assistant response. Fill all field values in English. Keep entries concise, scene-accurate, and updated every message. Use this format strictly:
+Append exactly one XML block at the end of every assistant response. Fill all values in English. Keep it concise, accurate, and updated every message.
 
+Format:
 <infoboard time="" date="" weather="" loc="">
 <chars>
 <c icon="" name="" tags="" />
@@ -181,32 +183,32 @@ Always append exactly one XML block at the end of every assistant response. Fill
 <thk></thk>
 </infoboard>
 
-Optional block only for explicitly intimate or aroused scenes:
+Optional only for explicitly intimate scenes:
 <nsfw f="" p="" />
 
 Rules:
-- Always output exactly one <infoboard> block in every message.
-- Fill all values in English.
-- Add one <c /> for each NPC currently present in the scene.
-- tags must contain 1-3 short tags separated by |
-- Add one <rel /> for each present NPC describing their feelings toward {{user}}, never between NPCs
-- Use a, tr, l as values from -100 to 100
-- Negative affection means aversion or dislike
-- Negative trust means distrust, suspicion, or fear
-- Negative love means hatred, destructive obsession, or anti-attachment
-- Use ac, tc, lc as per-message changes, usually within -5..+5 unless a major event just happened
-- Relationship values must evolve logically and consistently
+- Output exactly one <infoboard> block in every message
+- Fill all values in English
+- Add one <c /> for each NPC currently present
+- tags: 1-3 short tags separated by |
+- Add one <rel /> per present NPC describing feelings toward {{user}} only
+- a, tr, l: from -100 to 100
+- ac, tc, lc: per-message change, usually within -5..+5 unless major event
+- Negative affection = aversion/dislike
+- Negative trust = distrust/suspicion/fear
+- Negative love = hatred/destructive obsession/anti-attachment
+- Relationship values must evolve logically
 - Put all NPC private thoughts into one <thk> block
-- In <thk>, each NPC starts on a new line in format: Name: thought
-- Never write thoughts, feelings, or internal state for {{user}} inside <thk>
-- If scene is not intimate, omit <nsfw /> completely
-- Do not add any extra XML tags or commentary outside this format
-- Strict formatting rules for <thk>:
-- Every thought line must start with the exact full NPC name exactly as written in <chars>
+- One NPC per line in <thk>
+- Never include {{user}} thoughts in <thk>
+- Omit <nsfw /> if the scene is not intimate
+- No extra XML tags or commentary
+
+<thk> strict format:
+- Use the exact full NPC name exactly as in <chars>
 - Never shorten names
-- Never wrap thought lines in asterisks, quotes, markdown, or brackets
-- Use only this format: Full Name: thought
-- One NPC per line`;
+- No markdown, quotes, asterisks, or brackets
+- Format only: Full Name: thought`;
 
 const kDefaultState = {
     time: "???",
@@ -533,35 +535,36 @@ function ParseInfoboard(text) {
 
 function BuildStateInjection() {
     const lines = [];
-    lines.push("[INFOBOARD STATE — ground truth, always use as the current baseline]");
+    lines.push("[INFOBOARD STATE]");
     lines.push(`Time: ${gState.time}`);
     lines.push(`Date: ${gState.date}`);
     lines.push(`Weather: ${gState.weather}`);
     lines.push(`Location: ${gState.loc}`);
 
     if (gState.chars.length) {
-        lines.push("Present NPCs:");
+        lines.push("NPCs:");
         for (const c of gState.chars) {
-            lines.push(`- ${c.icon} ${c.name} [${c.tags.join(", ")}]`);
+            const tags = (c.tags || []).join(", ");
+            lines.push(`- ${c.name}${tags ? ` [${tags}]` : ""}`);
         }
     }
 
     if (gState.rels.length) {
-        lines.push("NPC -> User Relations:");
+        lines.push("Relations:");
         for (const r of gState.rels) {
-            lines.push(`- ${r.source} -> ${r.target}: Affection ${r.a} (${SignedText(r.ac)}), Trust ${r.tr} (${SignedText(r.tc)}), Love ${r.l} (${SignedText(r.lc)}), Status: ${r.status}`);
+            lines.push(`- ${r.source}: A ${r.a} (${SignedText(r.ac)}), T ${r.tr} (${SignedText(r.tc)}), L ${r.l} (${SignedText(r.lc)}), ${r.status}`);
         }
     }
 
     if (gState.thoughts.length) {
-        lines.push("NPC Private Thoughts:");
+        lines.push("Thoughts:");
         for (const t of gState.thoughts) {
             lines.push(`- ${t.name}: ${t.text}`);
         }
     }
 
     if (gState.nsfw) {
-        lines.push(`NSFW: Fetishes: ${gState.nsfw.f} | Positions: ${gState.nsfw.p}`);
+        lines.push(`NSFW: F ${gState.nsfw.f} | P ${gState.nsfw.p}`);
     }
 
     lines.push("[/INFOBOARD STATE]");
