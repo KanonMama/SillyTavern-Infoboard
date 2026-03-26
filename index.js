@@ -864,18 +864,25 @@ function WireBoardControls(boardEl) {
 function RemoveThoughtLeaks(messageTextEl, parsed) {
     if (!messageTextEl || !parsed?.thoughts?.length) return;
 
-    const thoughtTexts = parsed.thoughts
-        .map(t => NormalizeName(t.text))
-        .filter(Boolean);
+    const normalizedThoughts = parsed.thoughts.map(t => {
+        const full = NormalizeName(`${t.name}: ${t.text}`);
+        const textOnly = NormalizeName(t.text);
+        return { full, textOnly };
+    });
 
-    if (!thoughtTexts.length) return;
+    messageTextEl.querySelectorAll("p, div").forEach(el => {
+        const rawText = (el.textContent || "").trim();
+        const normalized = NormalizeName(rawText);
+        if (!normalized) return;
 
-    messageTextEl.querySelectorAll("p").forEach(p => {
-        const pText = NormalizeName(p.textContent || "");
-        if (!pText) return;
+        const isExactThoughtLeak = normalizedThoughts.some(t =>
+            normalized === t.full ||
+            normalized === t.textOnly
+        );
 
-        const isLeak = thoughtTexts.some(t => pText.includes(t) || t.includes(pText));
-        if (isLeak) p.remove();
+        if (isExactThoughtLeak) {
+            el.remove();
+        }
     });
 }
 
@@ -892,8 +899,8 @@ function RemoveRawXmlFromText(messageTextEl, parsed) {
         .replace(/<thk>[\s\S]*?<\/thk>/gi, "")
         .replace(/(?:<br\s*\/?>\s*){2,}/gi, "<br>");
 
-    messageTextEl.innerHTML = html;
-    RemoveThoughtLeaks(messageTextEl, parsed);
+messageTextEl.innerHTML = html;
+RemoveThoughtLeaks(messageTextEl, parsed);
 }
 
 function UpdateLastUpdateDisplay() {
