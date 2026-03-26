@@ -864,18 +864,33 @@ function WireBoardControls(boardEl) {
 function RemoveThoughtLeaksNearBoard(boardEl, parsed) {
     if (!boardEl || !parsed?.thoughts?.length) return;
 
-    const thoughtLines = parsed.thoughts.map(t => NormalizeName(`${t.name}: ${t.text}`));
+    const thoughtTexts = parsed.thoughts.map(t => NormalizeName(t.text));
 
     let prev = boardEl.previousElementSibling;
     let checked = 0;
 
-    while (prev && checked < 3) {
-        const text = NormalizeName(prev.textContent || "");
-        const isThoughtLeak =
-            prev.tagName === "P" &&
-            thoughtLines.some(t => text.includes(t) || t.includes(text));
+    while (prev && checked < 5) {
+        const raw = (prev.textContent || "").trim();
+        if (!raw) {
+            const toRemove = prev;
+            prev = prev.previousElementSibling;
+            toRemove.remove();
+            checked++;
+            continue;
+        }
 
-        if (isThoughtLeak) {
+        const cleaned = raw
+            .replace(/^["«»"'„]+/, "")
+            .replace(/["«»"'„]+$/, "")
+            .trim();
+
+        const normalized = NormalizeName(cleaned);
+
+        const isLeak = thoughtTexts.some(t =>
+            normalized.includes(t) || t.includes(normalized)
+        );
+
+        if (isLeak && prev.tagName === "P") {
             const toRemove = prev;
             prev = prev.previousElementSibling;
             toRemove.remove();
