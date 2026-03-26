@@ -411,88 +411,129 @@
     font-weight: 800;
     letter-spacing: 0.8px;
     text-transform: uppercase;
-    color: var(--ib-dim);
+    color: #8c98bb;
+    text-shadow: 0 0 6px rgba(255,255,255,0.04);
 }
 
 .ib-stat-orb-value {
     font-size: 11px;
     font-weight: 800;
-    color: var(--ib-text);
+    color: #f2f6ff;
+    text-shadow: 0 0 10px rgba(255,255,255,0.08);
 }
 
 .ib-orb-aff-pos {
     box-shadow:
         inset 0 1px 0 rgba(255,255,255,0.07),
-        0 0 14px rgba(72, 196, 135, 0.16),
+        0 0 18px rgba(72, 196, 135, 0.20),
         0 4px 14px rgba(0,0,0,0.18);
 }
 .ib-orb-aff-pos::after {
     content: "";
     position: absolute;
     inset: 0;
-    background: radial-gradient(circle at 35% 30%, rgba(127, 240, 187, 0.30), rgba(54, 186, 121, 0.10) 50%, transparent 72%);
+    background: radial-gradient(circle at 35% 30%, rgba(127, 240, 187, 0.34), rgba(54, 186, 121, 0.12) 50%, transparent 72%);
 }
+.ib-orb-aff-pos .ib-stat-orb-label {
+    color: #93dbb6;
+}
+.ib-orb-aff-pos .ib-stat-orb-value {
+    color: #f3fff9;
+}
+
 .ib-orb-aff-neg {
     box-shadow:
         inset 0 1px 0 rgba(255,255,255,0.07),
-        0 0 14px rgba(201, 95, 95, 0.16),
+        0 0 18px rgba(201, 95, 95, 0.22),
         0 4px 14px rgba(0,0,0,0.18);
 }
 .ib-orb-aff-neg::after {
     content: "";
     position: absolute;
     inset: 0;
-    background: radial-gradient(circle at 35% 30%, rgba(241, 162, 156, 0.26), rgba(201, 95, 95, 0.10) 50%, transparent 72%);
+    background: radial-gradient(circle at 35% 30%, rgba(241, 162, 156, 0.32), rgba(201, 95, 95, 0.14) 50%, transparent 72%);
+}
+.ib-orb-aff-neg .ib-stat-orb-label {
+    color: #e4a09b;
+}
+.ib-orb-aff-neg .ib-stat-orb-value {
+    color: #fff1f1;
 }
 
 .ib-orb-tr-pos {
     box-shadow:
         inset 0 1px 0 rgba(255,255,255,0.07),
-        0 0 14px rgba(90, 149, 243, 0.16),
+        0 0 18px rgba(90, 149, 243, 0.20),
         0 4px 14px rgba(0,0,0,0.18);
 }
 .ib-orb-tr-pos::after {
     content: "";
     position: absolute;
     inset: 0;
-    background: radial-gradient(circle at 35% 30%, rgba(140, 196, 255, 0.28), rgba(90, 149, 243, 0.10) 50%, transparent 72%);
+    background: radial-gradient(circle at 35% 30%, rgba(140, 196, 255, 0.32), rgba(90, 149, 243, 0.12) 50%, transparent 72%);
 }
+.ib-orb-tr-pos .ib-stat-orb-label {
+    color: #9bc3ff;
+}
+.ib-orb-tr-pos .ib-stat-orb-value {
+    color: #f3f8ff;
+}
+
 .ib-orb-tr-neg {
     box-shadow:
         inset 0 1px 0 rgba(255,255,255,0.07),
-        0 0 14px rgba(200, 136, 72, 0.16),
+        0 0 18px rgba(200, 136, 72, 0.22),
         0 4px 14px rgba(0,0,0,0.18);
 }
 .ib-orb-tr-neg::after {
     content: "";
     position: absolute;
     inset: 0;
-    background: radial-gradient(circle at 35% 30%, rgba(239, 192, 143, 0.26), rgba(200, 136, 72, 0.10) 50%, transparent 72%);
+    background: radial-gradient(circle at 35% 30%, rgba(239, 192, 143, 0.30), rgba(200, 136, 72, 0.14) 50%, transparent 72%);
+}
+.ib-orb-tr-neg .ib-stat-orb-label {
+    color: #e3bc8d;
+}
+.ib-orb-tr-neg .ib-stat-orb-value {
+    color: #fff5ea;
 }
 
 .ib-orb-love-pos {
     box-shadow:
         inset 0 1px 0 rgba(255,255,255,0.07),
-        0 0 14px rgba(144, 102, 243, 0.16),
+        0 0 18px rgba(144, 102, 243, 0.20),
         0 4px 14px rgba(0,0,0,0.18);
 }
 .ib-orb-love-pos::after {
     content: "";
     position: absolute;
     inset: 0;
-    background: radial-gradient(circle at 35% 30%, rgba(196, 160, 255, 0.28), rgba(144, 102, 243, 0.10) 50%, transparent 72%);
+    background: radial-gradient(circle at 35% 30%, rgba(196, 160, 255, 0.32), rgba(144, 102, 243, 0.12) 50%, transparent 72%);
 }
+.ib-orb-love-pos .ib-stat-orb-label {
+    color: #c4a8ff;
+}
+.ib-orb-love-pos .ib-stat-orb-value {
+    color: #fbf7ff;
+}
+
 .ib-orb-love-neg {
     box-shadow:
         inset 0 1px 0 rgba(255,255,255,0.07),
-        0 0 14px rgba(188, 72, 104, 0.16),
+        0 0 18px rgba(188, 72, 104, 0.24),
         0 4px 14px rgba(0,0,0,0.18);
 }
 .ib-orb-love-neg::after {
     content: "";
     position: absolute;
     inset: 0;
-    background: radial-gradient(circle at 35% 30%, rgba(239, 141, 168, 0.26), rgba(188, 72, 104, 0.10) 50%, transparent 72%);
+    background: radial-gradient(circle at 35% 30%, rgba(239, 141, 168, 0.32), rgba(188, 72, 104, 0.15) 50%, transparent 72%);
+}
+.ib-orb-love-neg .ib-stat-orb-label {
+    color: #eaa0b7;
+}
+.ib-orb-love-neg .ib-stat-orb-value {
+    color: #fff0f5;
 }
 
 .ib-compact-controls {
