@@ -633,21 +633,29 @@ function RenderMiniStats(state) {
     <div class="ib-compact-stats">
         <div class="ib-mini-stat ${a.cls}">
             <span class="ib-mini-stat-dot"></span>
-            <span class="ib-mini-stat-label">${a.label}</span>
-            <span class="ib-mini-stat-value">${a.value}</span>
+            <span class="ib-mini-stat-meta">
+                <span class="ib-mini-stat-label">${a.label}</span>
+                <span class="ib-mini-stat-value">${a.value}</span>
+            </span>
         </div>
 
         <div class="ib-mini-stat ${t.cls}">
             <span class="ib-mini-stat-dot"></span>
-            <span class="ib-mini-stat-label">${t.label}</span>
-            <span class="ib-mini-stat-value">${t.value}</span>
+            <span class="ib-mini-stat-meta">
+                <span class="ib-mini-stat-label">${t.label}</span>
+                <span class="ib-mini-stat-value">${t.value}</span>
+            </span>
         </div>
 
         <div class="ib-mini-stat ${l.cls}">
             <span class="ib-mini-stat-dot"></span>
-            <span class="ib-mini-stat-label">${l.label}</span>
-            <span class="ib-mini-stat-value">${l.value}</span>
+            <span class="ib-mini-stat-meta">
+                <span class="ib-mini-stat-label">${l.label}</span>
+                <span class="ib-mini-stat-value">${l.value}</span>
+            </span>
         </div>
+
+        <div class="ib-compact-loc">📍 ${EscapeHtml(state.loc || "???")}</div>
     </div>`;
 }
 
