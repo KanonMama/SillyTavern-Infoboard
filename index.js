@@ -11,6 +11,8 @@ const kShowNsfwKey = "IB_ShowNsfw";
 const kLangKey = "IB_Lang";
 const kBarStyleKey = "IB_BarStyle";
 const kCustomCssKey = "IB_CustomCss";
+const kHoverFxKey = "IB_HoverFx";
+const kShowPulseKey = "IB_ShowPulse";
 
 let gEnabled = false;
 let gTheme = "nocturne";
@@ -20,6 +22,8 @@ let gShowNsfw = true;
 let gLang = "ru";
 let gBarStyle = "deep";
 let gCustomCss = "";
+let gHoverFx = true;
+let gShowPulse = true;
 
 const kLang = {
     ru: {
@@ -30,6 +34,8 @@ const kLang = {
         hideRaw: "Скрывать сырой XML из сообщений",
         showThoughts: "Показывать блок мыслей",
         showNsfw: "Показывать NSFW блок",
+        hoverFx: "Включить hover-эффекты статов",
+        showPulse: "Показывать scene pulse",
         active: "✦ Расширение активно",
         inactive: "Расширение отключено",
         currentState: "Текущее состояние:",
@@ -60,7 +66,18 @@ const kLang = {
         customCssHelp: "Применяется после встроенных стилей. Можно переопределять цвета, отступы, полосы и любые классы Infoboard.",
         saveCustomCss: "💾 Сохранить CSS",
         clearCustomCss: "🧹 Очистить CSS",
-        clearCustomCssConfirm: "Очистить пользовательский CSS?"
+        clearCustomCssConfirm: "Очистить пользовательский CSS?",
+        pulseEscalating: "напряжение стремительно растёт",
+        pulseWarming: "между вами становится теплее",
+        pulseFragileTrust: "доверие держится на тонкой нитке",
+        pulseViolence: "кажется, сейчас кого-то убьют",
+        pulseObsession: "это уже становится опасно личным",
+        pulseRomance: "между вами уже не просто напряжение",
+        pulseConflict: "между вами опасная химия",
+        pulseCold: "атмосфера становится всё холоднее",
+        pulseStable: "сцена держится на хрупком равновесии",
+        pulseSubmission: "кто-то явно теряет контроль",
+        pulsePredatory: "в воздухе чувствуется хищный интерес"
     },
     en: {
         enable: "Enable Infoboard",
@@ -70,6 +87,8 @@ const kLang = {
         hideRaw: "Hide raw XML from messages",
         showThoughts: "Show thoughts section",
         showNsfw: "Show NSFW section",
+        hoverFx: "Enable stat hover effects",
+        showPulse: "Show scene pulse summary",
         active: "✦ Extension is active",
         inactive: "Extension is inactive",
         currentState: "Current State:",
@@ -100,7 +119,18 @@ const kLang = {
         customCssHelp: "Applied after built-in styles. Use to override colors, spacing, bars, or any Infoboard classes.",
         saveCustomCss: "💾 Save Custom CSS",
         clearCustomCss: "🧹 Clear Custom CSS",
-        clearCustomCssConfirm: "Clear custom CSS?"
+        clearCustomCssConfirm: "Clear custom CSS?",
+        pulseEscalating: "tension is rising fast",
+        pulseWarming: "things are slowly warming up",
+        pulseFragileTrust: "trust is hanging by a thread",
+        pulseViolence: "someone might die in a second",
+        pulseObsession: "this is becoming dangerously personal",
+        pulseRomance: "this is no longer just tension",
+        pulseConflict: "there is dangerous chemistry here",
+        pulseCold: "the atmosphere is turning colder",
+        pulseStable: "the scene sits on fragile balance",
+        pulseSubmission: "someone is clearly losing control",
+        pulsePredatory: "there is a predatory edge in the air"
     }
 };
 
@@ -180,8 +210,7 @@ const kDefaultState = {
     chars: [],
     rels: [],
     thoughts: [],
-    nsfw: null,
-    lastUpdate: []
+    nsfw: null
 };
 
 let gState = JSON.parse(JSON.stringify(kDefaultState));
@@ -233,7 +262,6 @@ function LoadState() {
         const raw = localStorage.getItem(GetStorageKey());
         if (raw) {
             gState = JSON.parse(raw);
-            if (!gState.lastUpdate) gState.lastUpdate = [];
             return true;
         }
     } catch (e) {
@@ -434,40 +462,6 @@ function ParseInfoboard(text) {
     return result;
 }
 
-function BuildLastUpdate(parsed) {
-    const updates = [];
-    if (!parsed?.rels?.length) return updates;
-
-    for (const r of parsed.rels) {
-        const parts = [];
-        if ((parseInt(r.ac) || 0) !== 0) parts.push(`${gLang === "ru" ? "симпатия" : "affection"} ${SignedText(r.ac)}`);
-        if ((parseInt(r.tc) || 0) !== 0) parts.push(`${gLang === "ru" ? "доверие" : "trust"} ${SignedText(r.tc)}`);
-        if ((parseInt(r.lc) || 0) !== 0) parts.push(`${gLang === "ru" ? "любовь" : "love"} ${SignedText(r.lc)}`);
-
-        if (parts.length) {
-            updates.push(`${r.source}: ${parts.join(", ")}`);
-        }
-    }
-
-    return updates.slice(0, 6);
-}
-
-function UpdateStateFromParsed(parsed) {
-    if (!parsed) return;
-
-    gState.time = parsed.time || gState.time;
-    gState.date = parsed.date || gState.date;
-    gState.weather = parsed.weather || gState.weather;
-    gState.loc = parsed.loc || gState.loc;
-    gState.chars = parsed.chars || [];
-    gState.rels = parsed.rels || [];
-    gState.thoughts = parsed.thoughts || [];
-    gState.nsfw = parsed.nsfw || null;
-    gState.lastUpdate = BuildLastUpdate(parsed);
-
-    SaveState();
-}
-
 function BuildStateInjection() {
     const lines = [];
     lines.push("[INFOBOARD STATE — ground truth, always use as the current baseline]");
@@ -559,6 +553,42 @@ function GetMetricMeta(type, value) {
     return v >= 0
         ? { label: T("love"), barClass: "ib-bar-love-pos", style: `filter:saturate(${saturation}) brightness(${brightness}); box-shadow:0 0 ${glow}px rgba(138, 88, 212, ${alpha});` }
         : { label: T("hatred"), barClass: "ib-bar-love-neg", style: `filter:saturate(${saturation}) brightness(${brightness}); box-shadow:0 0 ${glow}px rgba(169, 59, 88, ${alpha});` };
+}
+
+function BuildScenePulse(state) {
+    if (!gShowPulse || !state?.rels?.length) return "";
+
+    const rel = [...state.rels].sort((a, b) => {
+        const aa = Math.abs((a.a || 0)) + Math.abs((a.tr || 0)) + Math.abs((a.l || 0));
+        const bb = Math.abs((b.a || 0)) + Math.abs((b.tr || 0)) + Math.abs((b.l || 0));
+        return bb - aa;
+    })[0];
+
+    if (!rel) return "";
+
+    const a = rel.a || 0;
+    const tr = rel.tr || 0;
+    const l = rel.l || 0;
+    const ac = rel.ac || 0;
+    const tc = rel.tc || 0;
+    const lc = rel.lc || 0;
+
+    let pulse = T("pulseStable");
+
+    if (tr < -70 && l < -50) pulse = T("pulseViolence");
+    else if (l < -75) pulse = T("pulseObsession");
+    else if (a < -55 && tr < -45) pulse = T("pulseCold");
+    else if (a > 55 && tr > 45 && l > 35) pulse = T("pulseRomance");
+    else if (a > 35 && tr > 35) pulse = T("pulseWarming");
+    else if (a < 0 && l > 35) pulse = T("pulseConflict");
+    else if (tr < -45) pulse = T("pulseFragileTrust");
+    else if (lc > 4 || (l > 55 && tc > 2)) pulse = T("pulseObsession");
+    else if (ac > 3 && tc > 2) pulse = T("pulseWarming");
+    else if (ac < -3 && tc < -3) pulse = T("pulseEscalating");
+    else if (a > 20 && l < 0) pulse = T("pulsePredatory");
+    else if (Math.abs(ac) + Math.abs(tc) + Math.abs(lc) > 8) pulse = T("pulseEscalating");
+
+    return pulse;
 }
 
 function RenderChars(chars) {
@@ -663,23 +693,36 @@ function RenderNsfw(nsfw) {
     </div>`;
 }
 
-function RenderLastUpdate(lines) {
-    if (!lines?.length) return "";
+function RenderPulse(state) {
+    if (!gShowPulse) return "";
+    const pulse = BuildScenePulse(state);
+    if (!pulse) return "";
+
     return `
-    <div class="ib-update-line">
-        ${lines.map(line => `• ${EscapeHtml(line)}`).join("<br>")}
+    <div class="ib-pulse-wrap">
+        <div class="ib-pulse">
+            <span class="ib-pulse-icon">✦</span>
+            <span class="ib-pulse-text">${EscapeHtml(pulse)}</span>
+        </div>
     </div>`;
 }
 
 function RenderBoard(state, isFresh = false) {
     return `
-    <div class="ib-board ib-theme-${EscapeHtml(gTheme)} ib-bars-${EscapeHtml(gBarStyle)} ${isFresh ? "ib-fresh" : ""}">
+    <div class="ib-board ib-theme-${EscapeHtml(gTheme)} ib-bars-${EscapeHtml(gBarStyle)} ${gHoverFx ? "ib-hoverfx" : ""} ${isFresh ? "ib-fresh" : ""}">
         <div class="ib-title">${T("title")}</div>
 
         <div class="ib-header">
-            <div class="ib-header-location">
-                <span class="ib-header-location-icon">📍</span>
-                <span class="ib-header-location-text">${RenderMaybeUnknown(state.loc)}</span>
+            <div class="ib-header-main">
+                <div class="ib-header-location">
+                    <span class="ib-header-location-icon">📍</span>
+                    <span class="ib-header-location-text">${RenderMaybeUnknown(state.loc)}</span>
+                </div>
+
+                <div class="ib-panel-controls">
+                    <div class="ib-control-btn ib-btn-compact" title="Compact">▤</div>
+                    <div class="ib-control-btn ib-btn-collapse" title="Collapse">—</div>
+                </div>
             </div>
 
             <div class="ib-header-meta">
@@ -689,12 +732,39 @@ function RenderBoard(state, isFresh = false) {
             </div>
         </div>
 
-        ${RenderChars(state.chars)}
-        ${RenderRelations(state.rels)}
-        ${RenderThoughts(state.thoughts)}
-        ${RenderNsfw(state.nsfw)}
-        ${RenderLastUpdate(state.lastUpdate)}
+        <div class="ib-content">
+            ${RenderChars(state.chars)}
+            ${RenderRelations(state.rels)}
+            ${RenderThoughts(state.thoughts)}
+            ${RenderNsfw(state.nsfw)}
+            ${RenderPulse(state)}
+        </div>
     </div>`;
+}
+
+function WireBoardControls(boardEl) {
+    if (!boardEl) return;
+
+    const compactBtn = boardEl.querySelector(".ib-btn-compact");
+    const collapseBtn = boardEl.querySelector(".ib-btn-collapse");
+
+    if (compactBtn) {
+        compactBtn.addEventListener("click", () => {
+            boardEl.classList.toggle("ib-compact");
+            boardEl.classList.remove("ib-collapsed");
+            compactBtn.classList.toggle("ib-active", boardEl.classList.contains("ib-compact"));
+            if (collapseBtn) collapseBtn.classList.remove("ib-active");
+        });
+    }
+
+    if (collapseBtn) {
+        collapseBtn.addEventListener("click", () => {
+            boardEl.classList.toggle("ib-collapsed");
+            boardEl.classList.remove("ib-compact");
+            collapseBtn.classList.toggle("ib-active", boardEl.classList.contains("ib-collapsed"));
+            if (compactBtn) compactBtn.classList.remove("ib-active");
+        });
+    }
 }
 
 function RemoveThoughtLeaks(messageTextEl, parsed) {
@@ -734,11 +804,12 @@ function RemoveRawXmlFromText(messageTextEl, parsed) {
 
 function UpdateLastUpdateDisplay() {
     const $el = $("#ib_last_update");
-    if (!gState.lastUpdate?.length) {
+    const pulse = BuildScenePulse(gState);
+    if (!pulse) {
         $el.text(T("noRecentUpdates"));
         return;
     }
-    $el.html(gState.lastUpdate.map(x => `• ${EscapeHtml(x)}`).join("<br>"));
+    $el.text(pulse);
 }
 
 function UpdateSettingsText() {
@@ -749,6 +820,8 @@ function UpdateSettingsText() {
     $('label[for="ib_hide_raw"]').text(T("hideRaw"));
     $('label[for="ib_show_thoughts"]').text(T("showThoughts"));
     $('label[for="ib_show_nsfw"]').text(T("showNsfw"));
+    $('label[for="ib_hover_fx"]').text(T("hoverFx"));
+    $('label[for="ib_show_pulse"]').text(T("showPulse"));
     $("#ib_state_label").text(T("currentState"));
     $("#ib_reset_state").text(T("resetState"));
     $("#ib_reprocess_chat").text(T("reprocess"));
@@ -771,7 +844,16 @@ function ProcessMessage(messageDiv, msgIndex) {
     const parsed = ParseInfoboard(text);
     if (!parsed) return;
 
-    UpdateStateFromParsed(parsed);
+    gState.time = parsed.time || gState.time;
+    gState.date = parsed.date || gState.date;
+    gState.weather = parsed.weather || gState.weather;
+    gState.loc = parsed.loc || gState.loc;
+    gState.chars = parsed.chars || [];
+    gState.rels = parsed.rels || [];
+    gState.thoughts = parsed.thoughts || [];
+    gState.nsfw = parsed.nsfw || null;
+    SaveState();
+
     UpdateStatusDisplay();
     UpdateLastUpdateDisplay();
 
@@ -784,13 +866,13 @@ function ProcessMessage(messageDiv, msgIndex) {
     RemoveRawXmlFromText(mesTextEl, parsed);
 
     const wrapper = document.createElement("div");
-    wrapper.innerHTML = RenderBoard({
-        ...parsed,
-        lastUpdate: BuildLastUpdate(parsed)
-    }, true);
+    wrapper.innerHTML = RenderBoard(parsed, true);
 
     const boardEl = wrapper.firstElementChild;
-    if (boardEl) mesTextEl.appendChild(boardEl);
+    if (boardEl) {
+        mesTextEl.appendChild(boardEl);
+        WireBoardControls(boardEl);
+    }
 }
 
 function ReprocessChat() {
@@ -804,10 +886,19 @@ function ReprocessChat() {
         if (!msg?.is_user && msg.mes) {
             const parsed = ParseInfoboard(msg.mes);
             if (parsed) {
-                UpdateStateFromParsed(parsed);
+                gState.time = parsed.time || gState.time;
+                gState.date = parsed.date || gState.date;
+                gState.weather = parsed.weather || gState.weather;
+                gState.loc = parsed.loc || gState.loc;
+                gState.chars = parsed.chars || [];
+                gState.rels = parsed.rels || [];
+                gState.thoughts = parsed.thoughts || [];
+                gState.nsfw = parsed.nsfw || null;
             }
         }
     }
+
+    SaveState();
 
     document.querySelectorAll(".mes").forEach(node => {
         const msgId = Number(node.getAttribute("mesid"));
@@ -823,12 +914,12 @@ function ReprocessChat() {
                     if (parsed) {
                         RemoveRawXmlFromText(mesTextEl, parsed);
                         const wrapper = document.createElement("div");
-                        wrapper.innerHTML = RenderBoard({
-                            ...parsed,
-                            lastUpdate: BuildLastUpdate(parsed)
-                        }, false);
+                        wrapper.innerHTML = RenderBoard(parsed, false);
                         const boardEl = wrapper.firstElementChild;
-                        if (boardEl) mesTextEl.appendChild(boardEl);
+                        if (boardEl) {
+                            mesTextEl.appendChild(boardEl);
+                            WireBoardControls(boardEl);
+                        }
                     }
                 }
             }
@@ -898,8 +989,7 @@ async function ImportStateFromFile(file) {
             ...parsed,
             chars: Array.isArray(parsed.chars) ? parsed.chars : [],
             rels: Array.isArray(parsed.rels) ? parsed.rels : [],
-            thoughts: Array.isArray(parsed.thoughts) ? parsed.thoughts : [],
-            lastUpdate: Array.isArray(parsed.lastUpdate) ? parsed.lastUpdate : []
+            thoughts: Array.isArray(parsed.thoughts) ? parsed.thoughts : []
         };
 
         SaveState();
@@ -926,7 +1016,6 @@ jQuery(async () => {
             const systemPrompt = gLang === "en" ? kSystemPromptEn : kSystemPromptRu;
             const fullPrompt = `${systemPrompt}\n\n${BuildStateInjection()}`;
             stContext.setExtensionPrompt(injectionId, fullPrompt, 1, 0);
-            console.log("[IB] Prompt injected:", fullPrompt.length);
         } catch (e) {
             console.error("[IB] InjectPrompt failed:", e);
         }
@@ -953,6 +1042,8 @@ jQuery(async () => {
     gLang = localStorage.getItem(kLangKey) || "ru";
     gBarStyle = localStorage.getItem(kBarStyleKey) || "deep";
     gCustomCss = localStorage.getItem(kCustomCssKey) || "";
+    gHoverFx = localStorage.getItem(kHoverFxKey) !== "false";
+    gShowPulse = localStorage.getItem(kShowPulseKey) !== "false";
 
     LoadState();
     ApplyCustomCss();
@@ -964,6 +1055,8 @@ jQuery(async () => {
     $("#ib_hide_raw").prop("checked", gHideRaw);
     $("#ib_show_thoughts").prop("checked", gShowThoughts);
     $("#ib_show_nsfw").prop("checked", gShowNsfw);
+    $("#ib_hover_fx").prop("checked", gHoverFx);
+    $("#ib_show_pulse").prop("checked", gShowPulse);
     $("#ib_custom_css").val(gCustomCss);
 
     UpdateSettingsText();
@@ -996,6 +1089,19 @@ jQuery(async () => {
     $("#ib_bar_style").on("change", function () {
         gBarStyle = $(this).val();
         localStorage.setItem(kBarStyleKey, gBarStyle);
+        ReprocessChat();
+    });
+
+    $("#ib_hover_fx").on("change", function () {
+        gHoverFx = $(this).is(":checked");
+        localStorage.setItem(kHoverFxKey, String(gHoverFx));
+        ReprocessChat();
+    });
+
+    $("#ib_show_pulse").on("change", function () {
+        gShowPulse = $(this).is(":checked");
+        localStorage.setItem(kShowPulseKey, String(gShowPulse));
+        UpdateLastUpdateDisplay();
         ReprocessChat();
     });
 
