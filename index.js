@@ -77,16 +77,7 @@ const kLang = {
         pulseCold: "атмосфера становится всё холоднее",
         pulseStable: "сцена держится на хрупком равновесии",
         pulseSubmission: "кто-то явно теряет контроль",
-        pulsePredatory: "в воздухе чувствуется хищный интерес",
-        compactCold: "отношения становятся холоднее",
-        compactWarm: "отношения теплеют",
-        compactDanger: "сцена становится опаснее",
-        compactBrokenTrust: "доверие почти разрушено",
-        compactHatred: "это уже почти личная война",
-        compactRomance: "между вами уже больше, чем напряжение",
-        compactMixed: "между вами слишком опасная смесь",
-        compactStable: "ситуация пока держится",
-        compactNpcMany: "NPC"
+        pulsePredatory: "в воздухе чувствуется хищный интерес"
     },
     en: {
         enable: "Enable Infoboard",
@@ -139,16 +130,7 @@ const kLang = {
         pulseCold: "the atmosphere is turning colder",
         pulseStable: "the scene sits on fragile balance",
         pulseSubmission: "someone is clearly losing control",
-        pulsePredatory: "there is a predatory edge in the air",
-        compactCold: "things are getting colder",
-        compactWarm: "things are warming up",
-        compactDanger: "the scene is growing more dangerous",
-        compactBrokenTrust: "trust is nearly broken",
-        compactHatred: "this is becoming personal war",
-        compactRomance: "this is more than tension now",
-        compactMixed: "the chemistry here is dangerous",
-        compactStable: "the situation is holding for now",
-        compactNpcMany: "NPCs"
+        pulsePredatory: "there is a predatory edge in the air"
     }
 };
 
@@ -613,40 +595,60 @@ function BuildScenePulse(state) {
     return pulse;
 }
 
-function BuildCompactSummary(state) {
+function GetMiniStat(type, value) {
+    const v = Clamp(parseInt(value) || 0, -100, 100);
+
+    if (type === "a") {
+        return {
+            cls: v >= 0 ? "ib-mini-aff-pos" : "ib-mini-aff-neg",
+            label: v >= 0 ? "A" : "A",
+            value: v
+        };
+    }
+
+    if (type === "tr") {
+        return {
+            cls: v >= 0 ? "ib-mini-tr-pos" : "ib-mini-tr-neg",
+            label: v >= 0 ? "T" : "T",
+            value: v
+        };
+    }
+
+    return {
+        cls: v >= 0 ? "ib-mini-love-pos" : "ib-mini-love-neg",
+        label: v >= 0 ? "L" : "L",
+        value: v
+    };
+}
+
+function RenderMiniStats(state) {
     const rel = GetPrimaryRel(state);
-    const npcCount = state?.chars?.length || state?.rels?.length || 0;
+    if (!rel) return "";
 
-    if (!rel) {
-        if (npcCount > 1) return `${npcCount} ${T("compactNpcMany")} • ${T("compactStable")}`;
-        if (npcCount === 1) return `${state.chars?.[0]?.name || "NPC"} • ${T("compactStable")}`;
-        return T("compactStable");
-    }
+    const a = GetMiniStat("a", rel.a);
+    const t = GetMiniStat("tr", rel.tr);
+    const l = GetMiniStat("l", rel.l);
 
-    const source = rel.source || "NPC";
-    const a = rel.a || 0;
-    const tr = rel.tr || 0;
-    const l = rel.l || 0;
-    const ac = rel.ac || 0;
-    const tc = rel.tc || 0;
-    const lc = rel.lc || 0;
+    return `
+    <div class="ib-compact-stats">
+        <div class="ib-mini-stat ${a.cls}">
+            <span class="ib-mini-stat-dot"></span>
+            <span class="ib-mini-stat-label">${a.label}</span>
+            <span class="ib-mini-stat-value">${a.value}</span>
+        </div>
 
-    let summary = T("compactStable");
+        <div class="ib-mini-stat ${t.cls}">
+            <span class="ib-mini-stat-dot"></span>
+            <span class="ib-mini-stat-label">${t.label}</span>
+            <span class="ib-mini-stat-value">${t.value}</span>
+        </div>
 
-    if (tr < -65 && l < -45) summary = T("compactDanger");
-    else if (l < -70) summary = T("compactHatred");
-    else if (tr < -55) summary = T("compactBrokenTrust");
-    else if (a < -35 && tr < -25) summary = T("compactCold");
-    else if (a > 50 && tr > 45 && l > 30) summary = T("compactRomance");
-    else if (a > 25 && tr > 20) summary = T("compactWarm");
-    else if (a < 0 && l > 25) summary = T("compactMixed");
-    else if (Math.abs(ac) + Math.abs(tc) + Math.abs(lc) > 7) summary = T("compactDanger");
-
-    if (npcCount > 1) {
-        return `${npcCount} ${T("compactNpcMany")} • ${summary}`;
-    }
-
-    return `${source} • ${summary}`;
+        <div class="ib-mini-stat ${l.cls}">
+            <span class="ib-mini-stat-dot"></span>
+            <span class="ib-mini-stat-label">${l.label}</span>
+            <span class="ib-mini-stat-value">${l.value}</span>
+        </div>
+    </div>`;
 }
 
 function RenderChars(chars) {
@@ -765,23 +767,12 @@ function RenderPulse(state) {
     </div>`;
 }
 
-function RenderCompactSummary(state) {
-    const text = BuildCompactSummary(state);
-    if (!text) return "";
-
-    return `
-    <div class="ib-compact-summary">
-        <div class="ib-compact-summary-line">
-            <span class="ib-compact-summary-icon">✦</span>
-            <span class="ib-compact-summary-text">${EscapeHtml(text)}</span>
-        </div>
-    </div>`;
-}
-
 function RenderBoard(state, isFresh = false) {
     return `
     <div class="ib-board ib-theme-${EscapeHtml(gTheme)} ib-bars-${EscapeHtml(gBarStyle)} ${gHoverFx ? "ib-hoverfx" : ""} ${isFresh ? "ib-fresh" : ""}">
         <div class="ib-title">${T("title")}</div>
+
+        <div class="ib-collapsed-tag">✦ ${T("title")}</div>
 
         <div class="ib-header">
             <div class="ib-header-main">
@@ -803,10 +794,7 @@ function RenderBoard(state, isFresh = false) {
             </div>
         </div>
 
-                   ${RenderCompactSummary(state)}
-        </div>
-
-        <div class="ib-content">
+        ${RenderMiniStats(state)}
 
         <div class="ib-content">
             ${RenderChars(state.chars)}
@@ -823,6 +811,7 @@ function WireBoardControls(boardEl) {
 
     const compactBtn = boardEl.querySelector(".ib-btn-compact");
     const collapseBtn = boardEl.querySelector(".ib-btn-collapse");
+    const collapsedTag = boardEl.querySelector(".ib-collapsed-tag");
 
     if (compactBtn) {
         compactBtn.addEventListener("click", () => {
@@ -844,6 +833,14 @@ function WireBoardControls(boardEl) {
             collapseBtn.classList.toggle("ib-active", willCollapse);
             if (compactBtn) compactBtn.classList.remove("ib-active");
         });
+    }
+
+    if (collapsedTag) {
+        collapsedTag.addEventListener("click", () => {
+            boardEl.classList.remove("ib-collapsed");
+            if (collapseBtn) collapseBtn.classList.remove("ib-active");
+        });
+        collapsedTag.style.cursor = "pointer";
     }
 }
 
