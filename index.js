@@ -864,36 +864,20 @@ function WireBoardControls(boardEl) {
 function RemoveThoughtLeaks(messageTextEl, parsed) {
     if (!messageTextEl || !parsed?.thoughts?.length) return;
 
-    const thoughtLines = parsed.thoughts.map(t => NormalizeName(`${t.name}: ${t.text}`));
-    const thoughtTexts = parsed.thoughts.map(t => NormalizeName(t.text));
+    const normalizedThoughts = parsed.thoughts.map(t => NormalizeName(`${t.name}: ${t.text}`));
 
     messageTextEl.querySelectorAll("p, div").forEach(el => {
         if (el.closest(".ib-board")) return;
 
         const rawText = (el.textContent || "").trim();
-        if (!rawText) return;
+        const normalized = NormalizeName(rawText);
+        if (!normalized) return;
 
-        const normalizedBlock = NormalizeName(rawText);
-        const lines = rawText
-            .split("\n")
-            .map(x => NormalizeName(x.trim()))
-            .filter(Boolean);
+        const matchesThoughtBlock = normalizedThoughts.some(t => normalized.includes(t)) &&
+            parsed.thoughts.length > 0 &&
+            parsed.thoughts.filter(t => normalized.includes(NormalizeName(`${t.name}: ${t.text}`))).length >= Math.min(2, parsed.thoughts.length);
 
-        let matchedCount = 0;
-
-        for (const line of lines) {
-            const matched = thoughtLines.some(t => line.includes(t) || t.includes(line)) ||
-                            thoughtTexts.some(t => line.includes(t) || t.includes(line));
-
-            if (matched) matchedCount++;
-        }
-
-        const blockLooksLikeThoughtDump =
-            matchedCount >= 2 ||
-            thoughtLines.filter(t => normalizedBlock.includes(t)).length >= 2 ||
-            thoughtTexts.filter(t => normalizedBlock.includes(t)).length >= 2;
-
-        if (blockLooksLikeThoughtDump) {
+        if (matchesThoughtBlock) {
             el.remove();
         }
     });
@@ -916,17 +900,6 @@ function RemoveRawXmlFromText(messageTextEl, parsed) {
 
     messageTextEl.innerHTML = html;
     RemoveThoughtLeaks(messageTextEl, parsed);
-}
-
-function StripInfoboardFromMessageText(text) {
-    if (!text) return "";
-
-    return String(text)
-        .replace(/<infoboard[\s\S]*?<\/infoboard>/gi, "")
-        .replace(/<nsfw[\s\S]*?\/?>/gi, "")
-        .replace(/<thk>[\s\S]*?<\/thk>/gi, "")
-        .replace(/\n{3,}/g, "\n\n")
-        .trim();
 }
 
 function UpdateLastUpdateDisplay() {
@@ -978,14 +951,9 @@ function ProcessMessage(messageDiv, msgIndex) {
     const msg = stContext.chat[msgIndex];
     if (!msg || msg.is_user) return;
 
-    const originalText = msg.mes || "";
-    const parsed = ParseInfoboard(originalText);
+    const text = msg.mes || "";
+    const parsed = ParseInfoboard(text);
     if (!parsed) return;
-
-    const cleanedText = StripInfoboardFromMessageText(originalText);
-    if (cleanedText !== originalText) {
-        msg.mes = cleanedText;
-    }
 
     ApplyParsedToState(parsed);
     SaveState();
@@ -1020,54 +988,12 @@ function ReprocessChat() {
     for (let i = 0; i < stContext.chat.length; i++) {
         const msg = stContext.chat[i];
         if (!msg?.is_user && msg.mes) {
-            const originalText = msg.mes;
-            const parsed = ParseInfoboard(originalText);
-
+            const parsed = ParseInfoboard(msg.mes);
             if (parsed) {
                 ApplyParsedToState(parsed);
-
-                const cleanedText = StripInfoboardFromMessageText(originalText);
-                if (cleanedText !== originalText) {
-                    msg.mes = cleanedText;
-                }
             }
         }
     }
-
-    SaveState();
-
-    document.querySelectorAll(".mes").forEach(node => {
-        const msgId = Number(node.getAttribute("mesid"));
-        if (!isNaN(msgId)) {
-            const stMsg = stContext.chat[msgId];
-            if (!stMsg?.is_user) {
-                const parsed = ParseInfoboard(stMsg?.mes || "") || ParseInfoboard((stContext.chat[msgId]?.extra?.original_mes || ""));
-
-                const mesTextEl = node.querySelector(".mes_text");
-                if (mesTextEl) {
-                    const existing = mesTextEl.querySelector(".ib-board");
-                    if (existing) existing.remove();
-
-                    if (parsed) {
-                        RemoveRawXmlFromText(mesTextEl, parsed);
-
-                        const wrapper = document.createElement("div");
-                        wrapper.innerHTML = RenderBoard(parsed, false);
-
-                        const boardEl = wrapper.firstElementChild;
-                        if (boardEl) {
-                            mesTextEl.appendChild(boardEl);
-                            WireBoardControls(boardEl);
-                        }
-                    }
-                }
-            }
-        }
-    });
-
-    UpdateStatusDisplay();
-    UpdateLastUpdateDisplay();
-}
 
     SaveState();
 
