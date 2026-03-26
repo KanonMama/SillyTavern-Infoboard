@@ -67,17 +67,14 @@ const kLang = {
         saveCustomCss: "💾 Сохранить CSS",
         clearCustomCss: "🧹 Очистить CSS",
         clearCustomCssConfirm: "Очистить пользовательский CSS?",
-pulseEscalating: "⚡ Напряжение растёт",
-pulseWarming: "🌤 Контакт теплеет",
-pulseFragileTrust: "🤍 Доверие хрупкое",
-pulseViolence: "💀 Риск насилия",
-pulseObsession: "🌀 Опасная фиксация",
-pulseRomance: "❤️‍🔥 Сильная привязанность",
+pulseDanger: "💀 Высокий риск",
 pulseConflict: "🔥 Конфликт активен",
 pulseCold: "🧊 Дистанция сохраняется",
-pulseStable: "🧷 Равновесие удерживается",
-pulseSubmission: "🔒 Жёсткий контроль",
-pulsePredatory: "🗡 Опасный интерес"
+pulseFragile: "🤍 Контакт хрупкий",
+pulseWarm: "🌤 Контакт теплеет",
+pulseBond: "🧷 Связь укрепляется",
+pulseShifting: "⚡ Динамика меняется",
+pulseStable: "• Состояние стабильно"
     },
     en: {
         enable: "Enable Infoboard",
@@ -120,17 +117,14 @@ pulsePredatory: "🗡 Опасный интерес"
         saveCustomCss: "💾 Save Custom CSS",
         clearCustomCss: "🧹 Clear Custom CSS",
         clearCustomCssConfirm: "Clear custom CSS?",
-pulseEscalating: "⚡ Tension rising",
-pulseWarming: "🌤 Contact warming",
-pulseFragileTrust: "🤍 Trust is fragile",
-pulseViolence: "💀 Risk of violence",
-pulseObsession: "🌀 Dangerous fixation",
-pulseRomance: "❤️‍🔥 Strong attachment",
-pulseConflict: "🔥 Active conflict",
+pulseDanger: "💀 High risk",
+pulseConflict: "🔥 Conflict active",
 pulseCold: "🧊 Distance remains",
-pulseStable: "🧷 Balance holds",
-pulseSubmission: "🔒 Hard control",
-pulsePredatory: "🗡 Dangerous interest"
+pulseFragile: "🤍 Contact is fragile",
+pulseWarm: "🌤 Contact warming",
+pulseBond: "🧷 Bond strengthening",
+pulseShifting: "⚡ Dynamic shifting",
+pulseStable: "• State is stable"
     }
 };
 
@@ -646,29 +640,46 @@ function BuildScenePulse(state) {
     const rel = GetPrimaryRel(state);
     if (!rel) return "";
 
-    const a = rel.a || 0;
-    const tr = rel.tr || 0;
-    const l = rel.l || 0;
-    const ac = rel.ac || 0;
-    const tc = rel.tc || 0;
-    const lc = rel.lc || 0;
+    const a = Clamp(parseInt(rel.a) || 0, -100, 100);
+    const tr = Clamp(parseInt(rel.tr) || 0, -100, 100);
+    const l = Clamp(parseInt(rel.l) || 0, -100, 100);
+    const ac = Clamp(parseInt(rel.ac) || 0, -100, 100);
+    const tc = Clamp(parseInt(rel.tc) || 0, -100, 100);
+    const lc = Clamp(parseInt(rel.lc) || 0, -100, 100);
 
-    let pulse = T("pulseStable");
+    const volatility = Math.abs(ac) + Math.abs(tc) + Math.abs(lc);
 
-    if (tr < -70 && l < -50) pulse = T("pulseViolence");
-    else if (l < -75) pulse = T("pulseObsession");
-    else if (a < -55 && tr < -45) pulse = T("pulseCold");
-    else if (a > 55 && tr > 45 && l > 35) pulse = T("pulseRomance");
-    else if (a > 35 && tr > 35) pulse = T("pulseWarming");
-    else if (a < 0 && l > 35) pulse = T("pulseConflict");
-    else if (tr < -45) pulse = T("pulseFragileTrust");
-    else if (lc > 4 || (l > 55 && tc > 2)) pulse = T("pulseObsession");
-    else if (ac > 3 && tc > 2) pulse = T("pulseWarming");
-    else if (ac < -3 && tc < -3) pulse = T("pulseEscalating");
-    else if (a > 20 && l < 0) pulse = T("pulsePredatory");
-    else if (Math.abs(ac) + Math.abs(tc) + Math.abs(lc) > 8) pulse = T("pulseEscalating");
+    if (volatility >= 10) return T("pulseShifting");
 
-    return pulse;
+    if (tr <= -70 && (a <= -40 || l <= -40)) {
+        return T("pulseDanger");
+    }
+
+    if (
+        (a < 0 && l > 25) ||
+        (a < -25 && tr < 0) ||
+        (tr < -25 && a > 20)
+    ) {
+        return T("pulseConflict");
+    }
+
+    if (a <= -35 || tr <= -35 || l <= -35) {
+        return T("pulseCold");
+    }
+
+    if (tr < 10 || (a > 0 && tr < 20)) {
+        return T("pulseFragile");
+    }
+
+    if (a >= 55 && tr >= 55 && l >= 35) {
+        return T("pulseBond");
+    }
+
+    if (a >= 25 && tr >= 25) {
+        return T("pulseWarm");
+    }
+
+    return T("pulseStable");
 }
 
 function GetOrbMeta(type, value) {
