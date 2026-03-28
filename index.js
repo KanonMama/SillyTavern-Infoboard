@@ -6,7 +6,6 @@ const kStorageKeyPrefix = "IB_State_";
 const kEnabledKey = "IB_Enabled";
 const kThemeKey = "IB_Theme";
 const kHideRawKey = "IB_HideRaw";
-const kShowThoughtsKey = "IB_ShowThoughts";
 const kShowNsfwKey = "IB_ShowNsfw";
 const kLangKey = "IB_Lang";
 const kBarStyleKey = "IB_BarStyle";
@@ -17,7 +16,6 @@ const kShowBeatKey = "IB_ShowBeat";
 let gEnabled = false;
 let gTheme = "nocturne";
 let gHideRaw = true;
-let gShowThoughts = true;
 let gShowNsfw = true;
 let gLang = "ru";
 let gBarStyle = "deep";
@@ -32,7 +30,6 @@ const kLang = {
         theme: "Тема",
         barStyle: "Стиль полос",
         hideRaw: "Скрывать сырой XML из сообщений",
-        showThoughts: "Показывать блок мыслей",
         showNsfw: "Показывать NSFW блок",
         hoverFx: "Включить hover-эффекты статов",
         showBeat: "Показывать next beat",
@@ -43,7 +40,6 @@ const kLang = {
         disabledPrompt: "Отключено — промт не инжектится.",
         chars: "💖 Персонажи в сцене",
         rels: "🤍 Отношения к тебе",
-        thoughts: "💭 Скрытые мысли NPC",
         nsfw: "🔥 Интимный контекст",
         affection: "💚 Симпатия",
         trust: "💙 Доверие",
@@ -85,7 +81,6 @@ const kLang = {
         theme: "Theme",
         barStyle: "Bar Style",
         hideRaw: "Hide raw XML from messages",
-        showThoughts: "Show thoughts section",
         showNsfw: "Show NSFW section",
         hoverFx: "Enable stat hover effects",
         showBeat: "Show next beat",
@@ -96,7 +91,6 @@ const kLang = {
         disabledPrompt: "Disabled — not injecting prompts.",
         chars: "💖 Characters in Scene",
         rels: "🤍 Feelings Toward You",
-        thoughts: "💭 Hidden NPC Thoughts",
         nsfw: "🔥 Intimate Context",
         affection: "💚 Affection",
         trust: "💙 Trust",
@@ -286,6 +280,9 @@ function LoadState() {
         if (raw) {
             gState = JSON.parse(raw);
             if (typeof gState.beat !== "string") gState.beat = "";
+            if (!Array.isArray(gState.thoughts)) gState.thoughts = [];
+            if (!Array.isArray(gState.chars)) gState.chars = [];
+            if (!Array.isArray(gState.rels)) gState.rels = [];
             return true;
         }
     } catch (e) {
@@ -700,57 +697,59 @@ function SortRelationsByPriority(rels) {
     });
 }
 
-function GetPrimaryRel(state) {
-    if (!state?.rels?.length) return null;
-    return SortRelationsByPriority(state.rels)[0];
+function GetChangedMetrics(prevState, rel) {
+    if (!prevState?.rels?.length || !rel?.source) return { a: false, tr: false, l: false };
+
+    const prev = prevState.rels.find(r => NamesLikelyMatch(r.source, rel.source));
+    if (!prev) return { a: true, tr: true, l: true };
+
+    return {
+        a: parseInt(prev.a) !== parseInt(rel.a) || parseInt(rel.ac) !== 0,
+        tr: parseInt(prev.tr) !== parseInt(rel.tr) || parseInt(rel.tc) !== 0,
+        l: parseInt(prev.l) !== parseInt(rel.l) || parseInt(rel.lc) !== 0
+    };
 }
 
-function GetOrbMeta(type, value, delta = 0) {
+function GetCompactMetricMeta(type, value, delta = 0) {
     const v = Clamp(parseInt(value) || 0, -100, 100);
-    const abs = Math.abs(v);
 
     if (type === "a") {
         return {
-            cls: v >= 0 ? "ib-orb-aff-pos" : "ib-orb-aff-neg ib-orb-neg",
+            cls: v >= 0 ? "ib-mini-stat-aff-pos" : "ib-mini-stat-aff-neg ib-mini-stat-neg",
             label: "A",
             value: `${v}`,
-            delta: SignedText(delta),
-            deg: Math.round((abs / 100) * 360),
-            negative: v < 0
+            delta: parseInt(delta) || 0
         };
     }
 
     if (type === "tr") {
         return {
-            cls: v >= 0 ? "ib-orb-tr-pos" : "ib-orb-tr-neg ib-orb-neg",
+            cls: v >= 0 ? "ib-mini-stat-tr-pos" : "ib-mini-stat-tr-neg ib-mini-stat-neg",
             label: "T",
             value: `${v}`,
-            delta: SignedText(delta),
-            deg: Math.round((abs / 100) * 360),
-            negative: v < 0
+            delta: parseInt(delta) || 0
         };
     }
 
     return {
-        cls: v >= 0 ? "ib-orb-love-pos" : "ib-orb-love-neg ib-orb-neg",
+        cls: v >= 0 ? "ib-mini-stat-love-pos" : "ib-mini-stat-love-neg ib-mini-stat-neg",
         label: "L",
         value: `${v}`,
-        delta: SignedText(delta),
-        deg: Math.round((abs / 100) * 360),
-        negative: v < 0
+        delta: parseInt(delta) || 0
     };
 }
 
-function RenderStatOrb(meta, small = false, changed = false) {
+function RenderMiniStat(meta, changed = false) {
+    const deltaHtml = meta.delta !== 0
+        ? `<span class="ib-mini-stat-delta ${meta.delta > 0 ? "ib-delta-pos" : "ib-delta-neg"}">${EscapeHtml(SignedText(meta.delta))}</span>`
+        : "";
+
     return `
-    <div class="ib-stat-orb ${meta.cls} ${small ? "ib-stat-orb-small" : ""} ${changed ? "ib-orb-changed" : ""}" style="--ib-orb-deg:${meta.deg}deg;">
-        <div class="ib-stat-orb-ring"></div>
-        <div class="ib-stat-orb-inner">
-            <div class="ib-stat-orb-label">${meta.label}</div>
-            <div class="ib-stat-orb-value">${EscapeHtml(meta.value)}</div>
-            <div class="ib-stat-orb-delta">${EscapeHtml(meta.delta)}</div>
-        </div>
-        ${meta.negative ? `<div class="ib-orb-cracks" aria-hidden="true"></div>` : ""}
+    <div class="ib-mini-stat ${meta.cls} ${changed ? "ib-mini-stat-changed" : ""}">
+        <span class="ib-mini-stat-label">${meta.label}</span>
+        <span class="ib-mini-stat-value">${EscapeHtml(meta.value)}</span>
+        ${deltaHtml}
+        ${meta.cls.includes("ib-mini-stat-neg") ? `<span class="ib-mini-stat-cracks" aria-hidden="true"></span>` : ""}
     </div>`;
 }
 
@@ -775,19 +774,6 @@ function RenderChars(chars) {
             `).join("")}
         </div>
     </div>`;
-}
-
-function GetChangedMetrics(prevState, rel) {
-    if (!prevState?.rels?.length || !rel?.source) return { a: false, tr: false, l: false };
-
-    const prev = prevState.rels.find(r => NamesLikelyMatch(r.source, rel.source));
-    if (!prev) return { a: true, tr: true, l: true };
-
-    return {
-        a: parseInt(prev.a) !== parseInt(rel.a) || parseInt(rel.ac) !== 0,
-        tr: parseInt(prev.tr) !== parseInt(rel.tr) || parseInt(rel.tc) !== 0,
-        l: parseInt(prev.l) !== parseInt(rel.l) || parseInt(rel.lc) !== 0
-    };
 }
 
 function RenderRelMeter(type, value, delta, changed) {
@@ -831,9 +817,11 @@ function RenderRelCard(r, thoughts = [], prevState = null) {
             </div>
 
             <div class="ib-rel-toggle-preview">
-                ${RenderStatOrb(GetOrbMeta("a", r.a, r.ac), true, changed.a)}
-                ${RenderStatOrb(GetOrbMeta("tr", r.tr, r.tc), true, changed.tr)}
-                ${RenderStatOrb(GetOrbMeta("l", r.l, r.lc), true, changed.l)}
+                <div class="ib-rel-toggle-miniwrap">
+                    ${RenderMiniStat(GetCompactMetricMeta("a", r.a, r.ac), changed.a)}
+                    ${RenderMiniStat(GetCompactMetricMeta("tr", r.tr, r.tc), changed.tr)}
+                    ${RenderMiniStat(GetCompactMetricMeta("l", r.l, r.lc), changed.l)}
+                </div>
                 <span class="ib-rel-toggle-arrow">▾</span>
             </div>
         </div>
@@ -856,26 +844,6 @@ function RenderRelations(rels, thoughts = [], prevState = null) {
     <div class="ib-section">
         <div class="ib-section-title">${T("rels")}</div>
         ${sorted.map(r => RenderRelCard(r, thoughts, prevState)).join("")}
-    </div>`;
-}
-
-function RenderThoughts(thoughts) {
-    if (!gShowThoughts || !thoughts.length) return "";
-
-    return `
-    <div class="ib-section">
-        <div class="ib-section-title">${T("thoughts")}</div>
-        <div class="ib-thought-list">
-            ${thoughts.map(t => `
-                <div class="ib-thought-card">
-                    <div class="ib-thought-head">
-                        <span class="ib-thought-dot">✦</span>
-                        <span class="ib-thought-name">${EscapeHtml(t.name)}</span>
-                    </div>
-                    <div class="ib-thought-text">${EscapeHtml(t.text)}</div>
-                </div>
-            `).join("")}
-        </div>
     </div>`;
 }
 
@@ -909,7 +877,7 @@ function RenderCompactRelations(state, prevState = null) {
     const rels = SortRelationsByPriority(state?.rels || []);
     if (!rels.length) return "";
 
-    const top = rels.slice(0, 2);
+    const top = rels.slice(0, 3);
     const more = Math.max(0, rels.length - top.length);
 
     return `
@@ -922,14 +890,13 @@ function RenderCompactRelations(state, prevState = null) {
                     <span class="ib-compact-rel-name">${EscapeHtml(r.source)}</span>
                     <span class="ib-compact-rel-status ${GetStatusClass(r.status)}">${EscapeHtml(GetStatusIcon(r.status))}</span>
                 </div>
-                <div class="ib-orb-row">
-                    ${RenderStatOrb(GetOrbMeta("a", r.a, r.ac), true, changed.a)}
-                    ${RenderStatOrb(GetOrbMeta("tr", r.tr, r.tc), true, changed.tr)}
-                    ${RenderStatOrb(GetOrbMeta("l", r.l, r.lc), true, changed.l)}
+                <div class="ib-compact-minirow">
+                    ${RenderMiniStat(GetCompactMetricMeta("a", r.a, r.ac), changed.a)}
+                    ${RenderMiniStat(GetCompactMetricMeta("tr", r.tr, r.tc), changed.tr)}
+                    ${RenderMiniStat(GetCompactMetricMeta("l", r.l, r.lc), changed.l)}
                 </div>
             </div>`;
         }).join("")}
-
         ${more > 0 ? `<div class="ib-compact-more">+${more} ${EscapeHtml(T("compactMore"))}</div>` : ""}
     </div>`;
 }
@@ -985,7 +952,6 @@ function RenderBoard(state, isFresh = false, prevState = null) {
             <div class="ib-content">
                 ${RenderChars(state.chars)}
                 ${RenderRelations(state.rels, state.thoughts, prevState)}
-                ${RenderThoughts(state.thoughts)}
                 ${RenderNsfw(state.nsfw)}
                 ${RenderBeat(state)}
             </div>
@@ -1015,6 +981,8 @@ function WireAccordionControls(boardEl) {
         const card = toggle.closest(".ib-rel-accordion");
         const body = card?.querySelector(".ib-rel-body");
         const arrow = card?.querySelector(".ib-rel-toggle-arrow");
+        const miniwrap = card?.querySelector(".ib-rel-toggle-miniwrap");
+
         if (!card || !body) return;
 
         const apply = (open) => {
@@ -1022,6 +990,9 @@ function WireAccordionControls(boardEl) {
             toggle.setAttribute("aria-expanded", open ? "true" : "false");
             toggle.setAttribute("title", open ? T("closeNpc") : T("openNpc"));
             if (arrow) arrow.textContent = open ? "▴" : "▾";
+            if (miniwrap) {
+                miniwrap.style.display = open ? "none" : "flex";
+            }
         };
 
         apply(false);
@@ -1142,7 +1113,6 @@ function UpdateSettingsText() {
     $('label[for="ib_theme"]').html(`<b>${T("theme")}</b>`);
     $('label[for="ib_bar_style"]').html(`<b>${T("barStyle")}</b>`);
     $('label[for="ib_hide_raw"]').text(T("hideRaw"));
-    $('label[for="ib_show_thoughts"]').text(T("showThoughts"));
     $('label[for="ib_show_nsfw"]').text(T("showNsfw"));
     $('label[for="ib_hover_fx"]').text(T("hoverFx"));
     $('label[for="ib_show_beat"]').text(T("showBeat"));
@@ -1366,7 +1336,6 @@ jQuery(async () => {
     gEnabled = localStorage.getItem(kEnabledKey) === "true";
     gTheme = localStorage.getItem(kThemeKey) || "nocturne";
     gHideRaw = localStorage.getItem(kHideRawKey) !== "false";
-    gShowThoughts = localStorage.getItem(kShowThoughtsKey) !== "false";
     gShowNsfw = localStorage.getItem(kShowNsfwKey) !== "false";
     gLang = localStorage.getItem(kLangKey) || "ru";
     gBarStyle = localStorage.getItem(kBarStyleKey) || "deep";
@@ -1382,7 +1351,6 @@ jQuery(async () => {
     $("#ib_theme").val(gTheme);
     $("#ib_bar_style").val(gBarStyle);
     $("#ib_hide_raw").prop("checked", gHideRaw);
-    $("#ib_show_thoughts").prop("checked", gShowThoughts);
     $("#ib_show_nsfw").prop("checked", gShowNsfw);
     $("#ib_hover_fx").prop("checked", gHoverFx);
     $("#ib_show_beat").prop("checked", gShowBeat);
@@ -1437,12 +1405,6 @@ jQuery(async () => {
     $("#ib_hide_raw").on("change", function () {
         gHideRaw = $(this).is(":checked");
         localStorage.setItem(kHideRawKey, String(gHideRaw));
-        ReprocessChat();
-    });
-
-    $("#ib_show_thoughts").on("change", function () {
-        gShowThoughts = $(this).is(":checked");
-        localStorage.setItem(kShowThoughtsKey, String(gShowThoughts));
         ReprocessChat();
     });
 
@@ -1515,20 +1477,18 @@ jQuery(async () => {
     }
 
     if (stContext.eventTypes.MESSAGE_EDITED) {
-        stContext.eventSource.on(stContext.eventTypes.MESSAGE_EDITED, (msgIndex) => {
+        stContext.eventSource.on(stContext.eventTypes.MESSAGE_EDITED, () => {
             setTimeout(() => {
-                const msgDiv = document.querySelector(`.mes[mesid="${msgIndex}"]`);
-                if (msgDiv) ProcessMessage(msgDiv, msgIndex);
-            }, 300);
+                ReprocessChat();
+            }, 250);
         });
     }
 
     if (stContext.eventTypes.MESSAGE_SWIPED) {
-        stContext.eventSource.on(stContext.eventTypes.MESSAGE_SWIPED, (msgIndex) => {
+        stContext.eventSource.on(stContext.eventTypes.MESSAGE_SWIPED, () => {
             setTimeout(() => {
-                const msgDiv = document.querySelector(`.mes[mesid="${msgIndex}"]`);
-                if (msgDiv) ProcessMessage(msgDiv, msgIndex);
-            }, 150);
+                ReprocessChat();
+            }, 180);
         });
     }
 
