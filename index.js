@@ -12,7 +12,7 @@ const kLangKey = "IB_Lang";
 const kBarStyleKey = "IB_BarStyle";
 const kCustomCssKey = "IB_CustomCss";
 const kHoverFxKey = "IB_HoverFx";
-const kShowPulseKey = "IB_ShowPulse";
+const kShowBeatKey = "IB_ShowBeat";
 
 let gEnabled = false;
 let gTheme = "nocturne";
@@ -23,7 +23,7 @@ let gLang = "ru";
 let gBarStyle = "deep";
 let gCustomCss = "";
 let gHoverFx = true;
-let gShowPulse = true;
+let gShowBeat = true;
 
 const kLang = {
     ru: {
@@ -35,7 +35,7 @@ const kLang = {
         showThoughts: "Показывать блок мыслей",
         showNsfw: "Показывать NSFW блок",
         hoverFx: "Включить hover-эффекты статов",
-        showPulse: "Показывать scene pulse",
+        showBeat: "Показывать next beat",
         active: "✦ Расширение активно",
         inactive: "Расширение отключено",
         currentState: "Текущее состояние:",
@@ -67,14 +67,17 @@ const kLang = {
         saveCustomCss: "💾 Сохранить CSS",
         clearCustomCss: "🧹 Очистить CSS",
         clearCustomCssConfirm: "Очистить пользовательский CSS?",
-        pulseDanger: "💀 Высокий риск",
-        pulseConflict: "🔥 Конфликт активен",
-        pulseCold: "🧊 Дистанция сохраняется",
-        pulseFragile: "🤍 Контакт хрупкий",
-        pulseWarm: "🌤 Контакт теплеет",
-        pulseBond: "🧷 Связь укрепляется",
-        pulseShifting: "⚡ Динамика меняется",
-        pulseStable: "• Состояние стабильно"
+        nextBeat: "Следующий такт",
+        noBeat: "Нет прогноза сцены.",
+        compactMore: "ещё",
+        focus: "в фокусе",
+        activeHere: "активен",
+        nearby: "рядом",
+        watching: "наблюдает",
+        background: "на периферии",
+        leftScene: "вышел",
+        openNpc: "Открыть NPC",
+        closeNpc: "Скрыть NPC"
     },
     en: {
         enable: "Enable Infoboard",
@@ -85,7 +88,7 @@ const kLang = {
         showThoughts: "Show thoughts section",
         showNsfw: "Show NSFW section",
         hoverFx: "Enable stat hover effects",
-        showPulse: "Show scene pulse summary",
+        showBeat: "Show next beat",
         active: "✦ Extension is active",
         inactive: "Extension is inactive",
         currentState: "Current State:",
@@ -117,14 +120,17 @@ const kLang = {
         saveCustomCss: "💾 Save Custom CSS",
         clearCustomCss: "🧹 Clear Custom CSS",
         clearCustomCssConfirm: "Clear custom CSS?",
-        pulseDanger: "💀 High risk",
-        pulseConflict: "🔥 Conflict active",
-        pulseCold: "🧊 Distance remains",
-        pulseFragile: "🤍 Contact is fragile",
-        pulseWarm: "🌤 Contact warming",
-        pulseBond: "🧷 Bond strengthening",
-        pulseShifting: "⚡ Dynamic shifting",
-        pulseStable: "• State is stable"
+        nextBeat: "Next Beat",
+        noBeat: "No scene forecast.",
+        compactMore: "more",
+        focus: "focus",
+        activeHere: "active",
+        nearby: "nearby",
+        watching: "watching",
+        background: "background",
+        leftScene: "left",
+        openNpc: "Open NPC",
+        closeNpc: "Hide NPC"
     }
 };
 
@@ -140,6 +146,7 @@ Format:
 <rel source="" target="{{user}}" a="" ac="" tr="" tc="" l="" lc="" status="" />
 </rels>
 <thk></thk>
+<beat></beat>
 </infoboard>
 
 Optional only for explicitly intimate scenes:
@@ -149,7 +156,8 @@ Rules:
 - Output exactly one <infoboard> block in every message
 - Fill all values in Russian
 - Add one <c /> for each NPC currently present
-- tags: 1-3 short tags separated by |
+- tags: 1-4 short tags separated by |
+- Use tags to indicate scene presence when relevant, for example: focus | рядом | наблюдает | на периферии | вышел
 - Add one <rel /> per present NPC describing feelings toward {{user}} only
 - a, tr, l: from -100 to 100
 - ac, tc, lc: per-message change, usually within -5..+5 unless major event
@@ -160,6 +168,8 @@ Rules:
 - Put all NPC private thoughts into one <thk> block
 - One NPC per line in <thk>
 - Never include {{user}} thoughts in <thk>
+- <beat> must contain one short likely next beat of the scene based on current interaction
+- <beat> must be near-term, grounded, and concise
 - Omit <nsfw /> if the scene is not intimate
 - No extra XML tags or commentary
 
@@ -181,6 +191,7 @@ Format:
 <rel source="" target="{{user}}" a="" ac="" tr="" tc="" l="" lc="" status="" />
 </rels>
 <thk></thk>
+<beat></beat>
 </infoboard>
 
 Optional only for explicitly intimate scenes:
@@ -190,7 +201,8 @@ Rules:
 - Output exactly one <infoboard> block in every message
 - Fill all values in English
 - Add one <c /> for each NPC currently present
-- tags: 1-3 short tags separated by |
+- tags: 1-4 short tags separated by |
+- Use tags to indicate scene presence when relevant, for example: focus | near | watching | background | left
 - Add one <rel /> per present NPC describing feelings toward {{user}} only
 - a, tr, l: from -100 to 100
 - ac, tc, lc: per-message change, usually within -5..+5 unless major event
@@ -201,6 +213,8 @@ Rules:
 - Put all NPC private thoughts into one <thk> block
 - One NPC per line in <thk>
 - Never include {{user}} thoughts in <thk>
+- <beat> must contain one short likely next beat of the scene based on current interaction
+- <beat> must be near-term, grounded, and concise
 - Omit <nsfw /> if the scene is not intimate
 - No extra XML tags or commentary
 
@@ -218,7 +232,8 @@ const kDefaultState = {
     chars: [],
     rels: [],
     thoughts: [],
-    nsfw: null
+    nsfw: null,
+    beat: ""
 };
 
 let gState = JSON.parse(JSON.stringify(kDefaultState));
@@ -270,6 +285,7 @@ function LoadState() {
         const raw = localStorage.getItem(GetStorageKey());
         if (raw) {
             gState = JSON.parse(raw);
+            if (typeof gState.beat !== "string") gState.beat = "";
             return true;
         }
     } catch (e) {
@@ -405,6 +421,36 @@ function ParseThoughtLine(line) {
     };
 }
 
+function ParseFocusState(tags = []) {
+    const t = tags.map(x => NormalizeName(x));
+
+    if (t.some(x => ["focus", "в фокусе", "главный", "active focus"].includes(x))) {
+        return { key: "focus", cls: "ib-presence-focus" };
+    }
+
+    if (t.some(x => ["active", "активен", "говорит", "ведёт сцену"].includes(x))) {
+        return { key: "activeHere", cls: "ib-presence-active" };
+    }
+
+    if (t.some(x => ["near", "рядом", "nearby", "close"].includes(x))) {
+        return { key: "nearby", cls: "ib-presence-near" };
+    }
+
+    if (t.some(x => ["watching", "наблюдает", "смотрит", "следит"].includes(x))) {
+        return { key: "watching", cls: "ib-presence-watch" };
+    }
+
+    if (t.some(x => ["background", "на периферии", "в фоне", "пассивен"].includes(x))) {
+        return { key: "background", cls: "ib-presence-background" };
+    }
+
+    if (t.some(x => ["left", "вышел", "ушёл", "out"].includes(x))) {
+        return { key: "leftScene", cls: "ib-presence-left" };
+    }
+
+    return null;
+}
+
 function ParseInfoboard(text) {
     const boardMatch = text.match(/<infoboard[\s\S]*?<\/infoboard>/i);
     if (!boardMatch) return null;
@@ -430,6 +476,7 @@ function ParseInfoboard(text) {
         rels: [],
         thoughts: [],
         nsfw: null,
+        beat: "",
         rawXml: xmlBlock
     };
 
@@ -442,12 +489,13 @@ function ParseInfoboard(text) {
             .split("|")
             .map(t => t.trim())
             .filter(Boolean)
-            .slice(0, 3);
+            .slice(0, 4);
 
         result.chars.push({
             icon: c.getAttribute("icon") || "•",
             name,
-            tags
+            tags,
+            presence: ParseFocusState(tags)
         });
     });
 
@@ -500,6 +548,11 @@ function ParseInfoboard(text) {
             .map(ParseThoughtLine)
             .filter(Boolean)
             .filter(t => !IsUserLikeName(t.name));
+    }
+
+    const beatNode = doc.querySelector("beat");
+    if (beatNode) {
+        result.beat = String(beatNode.textContent || "").trim();
     }
 
     const tailText = text.slice(text.indexOf(xmlBlock) + xmlBlock.length);
@@ -563,6 +616,10 @@ function BuildStateInjection() {
         }
     }
 
+    if (gState.beat) {
+        lines.push(`Next Beat: ${gState.beat}`);
+    }
+
     if (gState.nsfw) {
         lines.push(`NSFW: F ${gState.nsfw.f} | P ${gState.nsfw.p}`);
     }
@@ -602,6 +659,14 @@ function GetStatusClass(status) {
     return "ib-status-neutral";
 }
 
+function GetStatusIcon(status) {
+    const cls = GetStatusClass(status);
+    if (cls === "ib-status-romantic") return "♥";
+    if (cls === "ib-status-negative") return "⚠";
+    if (cls === "ib-status-complex") return "✦";
+    return "•";
+}
+
 function GetMetricMeta(type, value) {
     const v = Clamp(parseInt(value) || 0, -100, 100);
     const abs = Math.abs(v);
@@ -612,111 +677,80 @@ function GetMetricMeta(type, value) {
 
     if (type === "a") {
         return v >= 0
-            ? { label: T("affection"), barClass: "ib-bar-affection-pos", style: `filter:saturate(${saturation}) brightness(${brightness}); box-shadow:0 0 ${glow}px rgba(45, 169, 111, ${alpha});` }
-            : { label: T("aversion"), barClass: "ib-bar-affection-neg", style: `filter:saturate(${saturation}) brightness(${brightness}); box-shadow:0 0 ${glow}px rgba(181, 82, 82, ${alpha});` };
+            ? { key: "a", label: T("affection"), barClass: "ib-bar-affection-pos", style: `filter:saturate(${saturation}) brightness(${brightness}); box-shadow:0 0 ${glow}px rgba(45, 169, 111, ${alpha});` }
+            : { key: "a", label: T("aversion"), barClass: "ib-bar-affection-neg", style: `filter:saturate(${saturation}) brightness(${brightness}); box-shadow:0 0 ${glow}px rgba(181, 82, 82, ${alpha});` };
     }
 
     if (type === "tr") {
         return v >= 0
-            ? { label: T("trust"), barClass: "ib-bar-trust-pos", style: `filter:saturate(${saturation}) brightness(${brightness}); box-shadow:0 0 ${glow}px rgba(74, 135, 216, ${alpha});` }
-            : { label: T("distrust"), barClass: "ib-bar-trust-neg", style: `filter:saturate(${saturation}) brightness(${brightness}); box-shadow:0 0 ${glow}px rgba(184, 116, 66, ${alpha});` };
+            ? { key: "tr", label: T("trust"), barClass: "ib-bar-trust-pos", style: `filter:saturate(${saturation}) brightness(${brightness}); box-shadow:0 0 ${glow}px rgba(74, 135, 216, ${alpha});` }
+            : { key: "tr", label: T("distrust"), barClass: "ib-bar-trust-neg", style: `filter:saturate(${saturation}) brightness(${brightness}); box-shadow:0 0 ${glow}px rgba(184, 116, 66, ${alpha});` };
     }
 
     return v >= 0
-        ? { label: T("love"), barClass: "ib-bar-love-pos", style: `filter:saturate(${saturation}) brightness(${brightness}); box-shadow:0 0 ${glow}px rgba(138, 88, 212, ${alpha});` }
-        : { label: T("hatred"), barClass: "ib-bar-love-neg", style: `filter:saturate(${saturation}) brightness(${brightness}); box-shadow:0 0 ${glow}px rgba(169, 59, 88, ${alpha});` };
+        ? { key: "l", label: T("love"), barClass: "ib-bar-love-pos", style: `filter:saturate(${saturation}) brightness(${brightness}); box-shadow:0 0 ${glow}px rgba(138, 88, 212, ${alpha});` }
+        : { key: "l", label: T("hatred"), barClass: "ib-bar-love-neg", style: `filter:saturate(${saturation}) brightness(${brightness}); box-shadow:0 0 ${glow}px rgba(169, 59, 88, ${alpha});` };
+}
+
+function SortRelationsByPriority(rels) {
+    return [...rels].sort((a, b) => {
+        const aa = Math.abs(a.a || 0) + Math.abs(a.tr || 0) + Math.abs(a.l || 0);
+        const bb = Math.abs(b.a || 0) + Math.abs(b.tr || 0) + Math.abs(b.l || 0);
+        return bb - aa;
+    });
 }
 
 function GetPrimaryRel(state) {
     if (!state?.rels?.length) return null;
-    return [...state.rels].sort((a, b) => {
-        const aa = Math.abs(a.a || 0) + Math.abs(a.tr || 0) + Math.abs(a.l || 0);
-        const bb = Math.abs(b.a || 0) + Math.abs(b.tr || 0) + Math.abs(b.l || 0);
-        return bb - aa;
-    })[0];
+    return SortRelationsByPriority(state.rels)[0];
 }
 
-function BuildScenePulse(state) {
-    if (!gShowPulse || !state?.rels?.length) return "";
-
-    const rel = GetPrimaryRel(state);
-    if (!rel) return "";
-
-    const a = Clamp(parseInt(rel.a) || 0, -100, 100);
-    const tr = Clamp(parseInt(rel.tr) || 0, -100, 100);
-    const l = Clamp(parseInt(rel.l) || 0, -100, 100);
-    const ac = Clamp(parseInt(rel.ac) || 0, -100, 100);
-    const tc = Clamp(parseInt(rel.tc) || 0, -100, 100);
-    const lc = Clamp(parseInt(rel.lc) || 0, -100, 100);
-
-    const volatility = Math.abs(ac) + Math.abs(tc) + Math.abs(lc);
-
-    if (volatility >= 10) return T("pulseShifting");
-
-    if (tr <= -70 && (a <= -40 || l <= -40)) {
-        return T("pulseDanger");
-    }
-
-    if (
-        (a < 0 && l > 25) ||
-        (a < -25 && tr < 0) ||
-        (tr < -25 && a > 20)
-    ) {
-        return T("pulseConflict");
-    }
-
-    if (a <= -35 || tr <= -35 || l <= -35) {
-        return T("pulseCold");
-    }
-
-    if (tr < 10 || (a > 0 && tr < 20)) {
-        return T("pulseFragile");
-    }
-
-    if (a >= 55 && tr >= 55 && l >= 35) {
-        return T("pulseBond");
-    }
-
-    if (a >= 25 && tr >= 25) {
-        return T("pulseWarm");
-    }
-
-    return T("pulseStable");
-}
-
-function GetOrbMeta(type, value) {
+function GetOrbMeta(type, value, delta = 0) {
     const v = Clamp(parseInt(value) || 0, -100, 100);
+    const abs = Math.abs(v);
 
     if (type === "a") {
         return {
-            cls: v >= 0 ? "ib-orb-aff-pos" : "ib-orb-aff-neg",
+            cls: v >= 0 ? "ib-orb-aff-pos" : "ib-orb-aff-neg ib-orb-neg",
             label: "A",
-            value: `${v}/100`
+            value: `${v}`,
+            delta: SignedText(delta),
+            deg: Math.round((abs / 100) * 360),
+            negative: v < 0
         };
     }
 
     if (type === "tr") {
         return {
-            cls: v >= 0 ? "ib-orb-tr-pos" : "ib-orb-tr-neg",
+            cls: v >= 0 ? "ib-orb-tr-pos" : "ib-orb-tr-neg ib-orb-neg",
             label: "T",
-            value: `${v}/100`
+            value: `${v}`,
+            delta: SignedText(delta),
+            deg: Math.round((abs / 100) * 360),
+            negative: v < 0
         };
     }
 
     return {
-        cls: v >= 0 ? "ib-orb-love-pos" : "ib-orb-love-neg",
+        cls: v >= 0 ? "ib-orb-love-pos" : "ib-orb-love-neg ib-orb-neg",
         label: "L",
-        value: `${v}/100`
+        value: `${v}`,
+        delta: SignedText(delta),
+        deg: Math.round((abs / 100) * 360),
+        negative: v < 0
     };
 }
 
-function RenderStatOrb(meta) {
+function RenderStatOrb(meta, small = false, changed = false) {
     return `
-    <div class="ib-stat-orb ${meta.cls}">
+    <div class="ib-stat-orb ${meta.cls} ${small ? "ib-stat-orb-small" : ""} ${changed ? "ib-orb-changed" : ""}" style="--ib-orb-deg:${meta.deg}deg;">
+        <div class="ib-stat-orb-ring"></div>
         <div class="ib-stat-orb-inner">
             <div class="ib-stat-orb-label">${meta.label}</div>
             <div class="ib-stat-orb-value">${EscapeHtml(meta.value)}</div>
+            <div class="ib-stat-orb-delta">${EscapeHtml(meta.delta)}</div>
         </div>
+        ${meta.negative ? `<div class="ib-orb-cracks" aria-hidden="true"></div>` : ""}
     </div>`;
 }
 
@@ -732,6 +766,7 @@ function RenderChars(chars) {
                     <div class="ib-char-main">
                         <span class="ib-char-icon-wrap"><span class="ib-char-icon">${EscapeHtml(c.icon)}</span></span>
                         <span class="ib-char-name">${RenderMaybeUnknown(c.name)}</span>
+                        ${c.presence ? `<span class="ib-presence-chip ${c.presence.cls}">${EscapeHtml(T(c.presence.key))}</span>` : ""}
                     </div>
                     <div class="ib-char-tags">
                         ${(c.tags || []).map(tag => `<span class="ib-tag">${EscapeHtml(tag)}</span>`).join("")}
@@ -742,52 +777,85 @@ function RenderChars(chars) {
     </div>`;
 }
 
-function RenderRelCard(r) {
-    const statusClass = GetStatusClass(r.status);
-    const aMeta = GetMetricMeta("a", r.a);
-    const trMeta = GetMetricMeta("tr", r.tr);
-    const lMeta = GetMetricMeta("l", r.l);
+function GetChangedMetrics(prevState, rel) {
+    if (!prevState?.rels?.length || !rel?.source) return { a: false, tr: false, l: false };
 
+    const prev = prevState.rels.find(r => NamesLikelyMatch(r.source, rel.source));
+    if (!prev) return { a: true, tr: true, l: true };
+
+    return {
+        a: parseInt(prev.a) !== parseInt(rel.a) || parseInt(rel.ac) !== 0,
+        tr: parseInt(prev.tr) !== parseInt(rel.tr) || parseInt(rel.tc) !== 0,
+        l: parseInt(prev.l) !== parseInt(rel.l) || parseInt(rel.lc) !== 0
+    };
+}
+
+function RenderRelMeter(type, value, delta, changed) {
+    const meta = GetMetricMeta(type, value);
     return `
-    <div class="ib-rel-card">
-        <div class="ib-rel-head">
-            <span>💕 ${EscapeHtml(r.source)} → ${EscapeHtml(r.target)}</span>
-            <span class="ib-status-chip ${statusClass}">${EscapeHtml(r.status)}</span>
+    <div class="ib-meter ${changed ? "ib-meter-changed" : ""}" data-metric="${meta.key}">
+        <div class="ib-meter-top">
+            <span class="ib-meter-label">${meta.label}</span>
+            <span class="ib-meter-value">${value}/100 (${RenderDelta(delta)})</span>
         </div>
-
-        <div class="ib-meter">
-            <div class="ib-meter-top">
-                <span class="ib-meter-label" style="color:var(--ib-green)">${aMeta.label}</span>
-                <span class="ib-meter-value">${r.a}/100 (${RenderDelta(r.ac)})</span>
-            </div>
-            <div class="ib-bar"><div class="ib-bar-fill ${aMeta.barClass}" style="width:${RenderBarWidth(r.a)}; ${aMeta.style}"></div></div>
-        </div>
-
-        <div class="ib-meter">
-            <div class="ib-meter-top">
-                <span class="ib-meter-label" style="color:var(--ib-blue)">${trMeta.label}</span>
-                <span class="ib-meter-value">${r.tr}/100 (${RenderDelta(r.tc)})</span>
-            </div>
-            <div class="ib-bar"><div class="ib-bar-fill ${trMeta.barClass}" style="width:${RenderBarWidth(r.tr)}; ${trMeta.style}"></div></div>
-        </div>
-
-        <div class="ib-meter">
-            <div class="ib-meter-top">
-                <span class="ib-meter-label" style="color:var(--ib-purple)">${lMeta.label}</span>
-                <span class="ib-meter-value">${r.l}/100 (${RenderDelta(r.lc)})</span>
-            </div>
-            <div class="ib-bar"><div class="ib-bar-fill ${lMeta.barClass}" style="width:${RenderBarWidth(r.l)}; ${lMeta.style}"></div></div>
+        <div class="ib-bar">
+            <div class="ib-bar-fill ${meta.barClass}" style="width:${RenderBarWidth(value)}; ${meta.style}"></div>
         </div>
     </div>`;
 }
 
-function RenderRelations(rels) {
+function RenderThoughtForNpc(thoughts, npcName) {
+    const found = thoughts.find(t => NamesLikelyMatch(t.name, npcName));
+    if (!found) return "";
+    return `
+    <div class="ib-rel-thought">
+        <div class="ib-rel-subtitle">💭</div>
+        <div class="ib-rel-thought-text">${EscapeHtml(found.text)}</div>
+    </div>`;
+}
+
+function RenderRelCard(r, thoughts = [], prevState = null) {
+    const statusClass = GetStatusClass(r.status);
+    const statusIcon = GetStatusIcon(r.status);
+    const changed = GetChangedMetrics(prevState, r);
+
+    return `
+    <div class="ib-rel-card ib-rel-accordion ${changed.a || changed.tr || changed.l ? "ib-rel-updated" : ""}">
+        <div class="ib-rel-toggle" role="button" tabindex="0" aria-expanded="false" title="${EscapeHtml(T("openNpc"))}">
+            <div class="ib-rel-toggle-main">
+                <span class="ib-rel-toggle-name">💕 ${EscapeHtml(r.source)} → ${EscapeHtml(r.target)}</span>
+                <span class="ib-status-chip ${statusClass}">
+                    <span class="ib-status-icon">${EscapeHtml(statusIcon)}</span>
+                    <span>${EscapeHtml(r.status)}</span>
+                </span>
+            </div>
+
+            <div class="ib-rel-toggle-preview">
+                ${RenderStatOrb(GetOrbMeta("a", r.a, r.ac), true, changed.a)}
+                ${RenderStatOrb(GetOrbMeta("tr", r.tr, r.tc), true, changed.tr)}
+                ${RenderStatOrb(GetOrbMeta("l", r.l, r.lc), true, changed.l)}
+                <span class="ib-rel-toggle-arrow">▾</span>
+            </div>
+        </div>
+
+        <div class="ib-rel-body">
+            ${RenderRelMeter("a", r.a, r.ac, changed.a)}
+            ${RenderRelMeter("tr", r.tr, r.tc, changed.tr)}
+            ${RenderRelMeter("l", r.l, r.lc, changed.l)}
+            ${RenderThoughtForNpc(thoughts, r.source)}
+        </div>
+    </div>`;
+}
+
+function RenderRelations(rels, thoughts = [], prevState = null) {
     if (!rels.length) return "";
+
+    const sorted = SortRelationsByPriority(rels);
 
     return `
     <div class="ib-section">
         <div class="ib-section-title">${T("rels")}</div>
-        ${rels.map(RenderRelCard).join("")}
+        ${sorted.map(r => RenderRelCard(r, thoughts, prevState)).join("")}
     </div>`;
 }
 
@@ -822,26 +890,51 @@ function RenderNsfw(nsfw) {
     </div>`;
 }
 
-function RenderPulse(state) {
-    if (!gShowPulse) return "";
-    const pulse = BuildScenePulse(state);
-    if (!pulse) return "";
+function RenderBeat(state) {
+    if (!gShowBeat) return "";
+    const beat = String(state?.beat || "").trim();
+    if (!beat) return "";
 
     return `
-    <div class="ib-pulse-wrap">
-        <div class="ib-pulse">
-            <span class="ib-pulse-icon">✦</span>
-            <span class="ib-pulse-text">${EscapeHtml(pulse)}</span>
+    <div class="ib-beat-wrap">
+        <div class="ib-beat">
+            <span class="ib-beat-icon">➜</span>
+            <span class="ib-beat-label">${EscapeHtml(T("nextBeat"))}:</span>
+            <span class="ib-beat-text">${EscapeHtml(beat)}</span>
         </div>
     </div>`;
 }
 
-function RenderBoard(state, isFresh = false) {
-    const rel = GetPrimaryRel(state);
-    const orbA = rel ? RenderStatOrb(GetOrbMeta("a", rel.a)) : "";
-    const orbT = rel ? RenderStatOrb(GetOrbMeta("tr", rel.tr)) : "";
-    const orbL = rel ? RenderStatOrb(GetOrbMeta("l", rel.l)) : "";
+function RenderCompactRelations(state, prevState = null) {
+    const rels = SortRelationsByPriority(state?.rels || []);
+    if (!rels.length) return "";
 
+    const top = rels.slice(0, 2);
+    const more = Math.max(0, rels.length - top.length);
+
+    return `
+    <div class="ib-compact-rel-list">
+        ${top.map(r => {
+            const changed = GetChangedMetrics(prevState, r);
+            return `
+            <div class="ib-compact-rel-item">
+                <div class="ib-compact-rel-name-row">
+                    <span class="ib-compact-rel-name">${EscapeHtml(r.source)}</span>
+                    <span class="ib-compact-rel-status ${GetStatusClass(r.status)}">${EscapeHtml(GetStatusIcon(r.status))}</span>
+                </div>
+                <div class="ib-orb-row">
+                    ${RenderStatOrb(GetOrbMeta("a", r.a, r.ac), true, changed.a)}
+                    ${RenderStatOrb(GetOrbMeta("tr", r.tr, r.tc), true, changed.tr)}
+                    ${RenderStatOrb(GetOrbMeta("l", r.l, r.lc), true, changed.l)}
+                </div>
+            </div>`;
+        }).join("")}
+
+        ${more > 0 ? `<div class="ib-compact-more">+${more} ${EscapeHtml(T("compactMore"))}</div>` : ""}
+    </div>`;
+}
+
+function RenderBoard(state, isFresh = false, prevState = null) {
     return `
     <div class="ib-board ib-theme-${EscapeHtml(gTheme)} ib-bars-${EscapeHtml(gBarStyle)} ${gHoverFx ? "ib-hoverfx" : ""} ib-mode-full ${isFresh ? "ib-fresh" : ""}">
         <div class="ib-title">${T("title")}</div>
@@ -856,10 +949,8 @@ function RenderBoard(state, isFresh = false) {
 
         <div class="ib-compact-wrap">
             <div class="ib-compact-main">
-                <div class="ib-orb-row">
-                    ${orbA}
-                    ${orbT}
-                    ${orbL}
+                <div class="ib-compact-content">
+                    ${RenderCompactRelations(state, prevState)}
                 </div>
 
                 <div class="ib-compact-controls">
@@ -893,10 +984,10 @@ function RenderBoard(state, isFresh = false) {
 
             <div class="ib-content">
                 ${RenderChars(state.chars)}
-                ${RenderRelations(state.rels)}
+                ${RenderRelations(state.rels, state.thoughts, prevState)}
                 ${RenderThoughts(state.thoughts)}
                 ${RenderNsfw(state.nsfw)}
-                ${RenderPulse(state)}
+                ${RenderBeat(state)}
             </div>
         </div>
     </div>`;
@@ -917,6 +1008,33 @@ function SetBoardMode(boardEl, mode) {
     if (mode === "collapsed") {
         boardEl.querySelectorAll(".ib-btn-collapse").forEach(btn => btn.classList.add("ib-active"));
     }
+}
+
+function WireAccordionControls(boardEl) {
+    boardEl.querySelectorAll(".ib-rel-toggle").forEach(toggle => {
+        const card = toggle.closest(".ib-rel-accordion");
+        const body = card?.querySelector(".ib-rel-body");
+        const arrow = card?.querySelector(".ib-rel-toggle-arrow");
+        if (!card || !body) return;
+
+        const apply = (open) => {
+            card.classList.toggle("ib-open", open);
+            toggle.setAttribute("aria-expanded", open ? "true" : "false");
+            toggle.setAttribute("title", open ? T("closeNpc") : T("openNpc"));
+            if (arrow) arrow.textContent = open ? "▴" : "▾";
+        };
+
+        apply(false);
+
+        const handle = () => apply(!card.classList.contains("ib-open"));
+        toggle.addEventListener("click", handle);
+        toggle.addEventListener("keydown", (e) => {
+            if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                handle();
+            }
+        });
+    });
 }
 
 function WireBoardControls(boardEl) {
@@ -948,6 +1066,8 @@ function WireBoardControls(boardEl) {
             SetBoardMode(boardEl, "full");
         });
     }
+
+    WireAccordionControls(boardEl);
 }
 
 function RemoveRawXmlFromText(messageTextEl) {
@@ -961,6 +1081,8 @@ function RemoveRawXmlFromText(messageTextEl) {
         .replace(/<infoboard[\s\S]*?<\/infoboard>/gi, "")
         .replace(/&lt;thk[\s\S]*?&lt;\/thk&gt;/gi, "")
         .replace(/<thk[\s\S]*?<\/thk>/gi, "")
+        .replace(/&lt;beat[\s\S]*?&lt;\/beat&gt;/gi, "")
+        .replace(/<beat[\s\S]*?<\/beat>/gi, "")
         .replace(/&lt;nsfw\b[\s\S]*?\/?&gt;/gi, "")
         .replace(/<nsfw\b[\s\S]*?\/?>/gi, "")
         .replace(/(?:<br\s*\/?>\s*){2,}/gi, "<br>")
@@ -1006,12 +1128,12 @@ function RemoveThoughtLeaksInContainer(messageTextEl, parsed) {
 
 function UpdateLastUpdateDisplay() {
     const $el = $("#ib_last_update");
-    const pulse = BuildScenePulse(gState);
-    if (!pulse) {
+    const beat = String(gState.beat || "").trim();
+    if (!gShowBeat || !beat) {
         $el.text(T("noRecentUpdates"));
         return;
     }
-    $el.text(pulse);
+    $el.text(beat);
 }
 
 function UpdateSettingsText() {
@@ -1023,7 +1145,7 @@ function UpdateSettingsText() {
     $('label[for="ib_show_thoughts"]').text(T("showThoughts"));
     $('label[for="ib_show_nsfw"]').text(T("showNsfw"));
     $('label[for="ib_hover_fx"]').text(T("hoverFx"));
-    $('label[for="ib_show_pulse"]').text(T("showPulse"));
+    $('label[for="ib_show_beat"]').text(T("showBeat"));
     $("#ib_state_label").text(T("currentState"));
     $("#ib_reset_state").text(T("resetState"));
     $("#ib_reprocess_chat").text(T("reprocess"));
@@ -1044,6 +1166,7 @@ function ApplyParsedToState(parsed) {
     gState.rels = parsed.rels || [];
     gState.thoughts = parsed.thoughts || [];
     gState.nsfw = parsed.nsfw || null;
+    gState.beat = parsed.beat || "";
 }
 
 function ProcessMessage(messageDiv, msgIndex) {
@@ -1056,6 +1179,8 @@ function ProcessMessage(messageDiv, msgIndex) {
     const text = msg.mes || "";
     const parsed = ParseInfoboard(text);
     if (!parsed) return;
+
+    const prevState = JSON.parse(JSON.stringify(gState));
 
     ApplyParsedToState(parsed);
     SaveState();
@@ -1072,7 +1197,7 @@ function ProcessMessage(messageDiv, msgIndex) {
     RemoveRawXmlFromText(mesTextEl);
 
     const wrapper = document.createElement("div");
-    wrapper.innerHTML = RenderBoard(parsed, true);
+    wrapper.innerHTML = RenderBoard(parsed, true, prevState);
 
     const boardEl = wrapper.firstElementChild;
     if (boardEl) {
@@ -1115,7 +1240,7 @@ function ReprocessChat() {
                         RemoveRawXmlFromText(mesTextEl);
 
                         const wrapper = document.createElement("div");
-                        wrapper.innerHTML = RenderBoard(parsed, false);
+                        wrapper.innerHTML = RenderBoard(parsed, false, null);
 
                         const boardEl = wrapper.firstElementChild;
                         if (boardEl) {
@@ -1192,7 +1317,8 @@ async function ImportStateFromFile(file) {
             ...parsed,
             chars: Array.isArray(parsed.chars) ? parsed.chars : [],
             rels: Array.isArray(parsed.rels) ? parsed.rels : [],
-            thoughts: Array.isArray(parsed.thoughts) ? parsed.thoughts : []
+            thoughts: Array.isArray(parsed.thoughts) ? parsed.thoughts : [],
+            beat: typeof parsed.beat === "string" ? parsed.beat : ""
         };
 
         SaveState();
@@ -1246,7 +1372,7 @@ jQuery(async () => {
     gBarStyle = localStorage.getItem(kBarStyleKey) || "deep";
     gCustomCss = localStorage.getItem(kCustomCssKey) || "";
     gHoverFx = localStorage.getItem(kHoverFxKey) !== "false";
-    gShowPulse = localStorage.getItem(kShowPulseKey) !== "false";
+    gShowBeat = localStorage.getItem(kShowBeatKey) !== "false";
 
     LoadState();
     ApplyCustomCss();
@@ -1259,7 +1385,7 @@ jQuery(async () => {
     $("#ib_show_thoughts").prop("checked", gShowThoughts);
     $("#ib_show_nsfw").prop("checked", gShowNsfw);
     $("#ib_hover_fx").prop("checked", gHoverFx);
-    $("#ib_show_pulse").prop("checked", gShowPulse);
+    $("#ib_show_beat").prop("checked", gShowBeat);
     $("#ib_custom_css").val(gCustomCss);
 
     UpdateSettingsText();
@@ -1301,9 +1427,9 @@ jQuery(async () => {
         ReprocessChat();
     });
 
-    $("#ib_show_pulse").on("change", function () {
-        gShowPulse = $(this).is(":checked");
-        localStorage.setItem(kShowPulseKey, String(gShowPulse));
+    $("#ib_show_beat").on("change", function () {
+        gShowBeat = $(this).is(":checked");
+        localStorage.setItem(kShowBeatKey, String(gShowBeat));
         UpdateLastUpdateDisplay();
         ReprocessChat();
     });
