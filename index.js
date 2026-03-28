@@ -712,13 +712,16 @@ function GetChangedMetrics(prevState, rel) {
 
 function GetCompactMetricMeta(type, value, delta = 0) {
     const v = Clamp(parseInt(value) || 0, -100, 100);
+    const abs = Math.abs(v);
+    const width = Math.max(6, Math.round((abs / 100) * 100));
 
     if (type === "a") {
         return {
             cls: v >= 0 ? "ib-mini-stat-aff-pos" : "ib-mini-stat-aff-neg ib-mini-stat-neg",
             label: "A",
             value: `${v}`,
-            delta: parseInt(delta) || 0
+            delta: parseInt(delta) || 0,
+            fill: width
         };
     }
 
@@ -727,7 +730,8 @@ function GetCompactMetricMeta(type, value, delta = 0) {
             cls: v >= 0 ? "ib-mini-stat-tr-pos" : "ib-mini-stat-tr-neg ib-mini-stat-neg",
             label: "T",
             value: `${v}`,
-            delta: parseInt(delta) || 0
+            delta: parseInt(delta) || 0,
+            fill: width
         };
     }
 
@@ -735,7 +739,8 @@ function GetCompactMetricMeta(type, value, delta = 0) {
         cls: v >= 0 ? "ib-mini-stat-love-pos" : "ib-mini-stat-love-neg ib-mini-stat-neg",
         label: "L",
         value: `${v}`,
-        delta: parseInt(delta) || 0
+        delta: parseInt(delta) || 0,
+        fill: width
     };
 }
 
@@ -745,7 +750,8 @@ function RenderMiniStat(meta, changed = false) {
         : "";
 
     return `
-    <div class="ib-mini-stat ${meta.cls} ${changed ? "ib-mini-stat-changed" : ""}">
+    <div class="ib-mini-stat ${meta.cls} ${changed ? "ib-mini-stat-changed" : ""}" style="--ib-mini-fill:${meta.fill}%;">
+        <span class="ib-mini-stat-progress" aria-hidden="true"></span>
         <span class="ib-mini-stat-label">${meta.label}</span>
         <span class="ib-mini-stat-value">${EscapeHtml(meta.value)}</span>
         ${deltaHtml}
@@ -807,7 +813,7 @@ function RenderRelCard(r, thoughts = [], prevState = null) {
 
     return `
     <div class="ib-rel-card ib-rel-accordion ${changed.a || changed.tr || changed.l ? "ib-rel-updated" : ""}">
-        <div class="ib-rel-toggle" role="button" tabindex="0" aria-expanded="false" title="${EscapeHtml(T("openNpc"))}">
+        <div class="ib-rel-toggle" role="button" tabindex="0" aria-expanded="true" title="${EscapeHtml(T("closeNpc"))}">
             <div class="ib-rel-toggle-main">
                 <span class="ib-rel-toggle-name">💕 ${EscapeHtml(r.source)} → ${EscapeHtml(r.target)}</span>
                 <span class="ib-status-chip ${statusClass}">
@@ -822,7 +828,7 @@ function RenderRelCard(r, thoughts = [], prevState = null) {
                     ${RenderMiniStat(GetCompactMetricMeta("tr", r.tr, r.tc), changed.tr)}
                     ${RenderMiniStat(GetCompactMetricMeta("l", r.l, r.lc), changed.l)}
                 </div>
-                <span class="ib-rel-toggle-arrow">▾</span>
+                <span class="ib-rel-toggle-arrow" aria-hidden="true"></span>
             </div>
         </div>
 
@@ -921,8 +927,8 @@ function RenderBoard(state, isFresh = false, prevState = null) {
                 </div>
 
                 <div class="ib-compact-controls">
-                    <div class="ib-control-btn ib-btn-full" title="Full">◫</div>
-                    <div class="ib-control-btn ib-btn-collapse" title="Collapse">—</div>
+                    <div class="ib-control-btn ib-btn-full" title="Full">▣</div>
+                    <div class="ib-control-btn ib-btn-collapse" title="Collapse">✕</div>
                 </div>
             </div>
             <div class="ib-compact-loc">📍 ${RenderMaybeUnknown(state.loc)}</div>
@@ -980,7 +986,6 @@ function WireAccordionControls(boardEl) {
     boardEl.querySelectorAll(".ib-rel-toggle").forEach(toggle => {
         const card = toggle.closest(".ib-rel-accordion");
         const body = card?.querySelector(".ib-rel-body");
-        const arrow = card?.querySelector(".ib-rel-toggle-arrow");
         const miniwrap = card?.querySelector(".ib-rel-toggle-miniwrap");
 
         if (!card || !body) return;
@@ -989,13 +994,12 @@ function WireAccordionControls(boardEl) {
             card.classList.toggle("ib-open", open);
             toggle.setAttribute("aria-expanded", open ? "true" : "false");
             toggle.setAttribute("title", open ? T("closeNpc") : T("openNpc"));
-            if (arrow) arrow.textContent = open ? "▴" : "▾";
             if (miniwrap) {
                 miniwrap.style.display = open ? "none" : "flex";
             }
         };
 
-        apply(false);
+        apply(true);
 
         const handle = () => apply(!card.classList.contains("ib-open"));
         toggle.addEventListener("click", handle);
@@ -1472,7 +1476,7 @@ jQuery(async () => {
             setTimeout(() => {
                 const msgDiv = document.querySelector(`.mes[mesid="${msgIndex}"]`);
                 if (msgDiv) ProcessMessage(msgDiv, msgIndex);
-            }, 150);
+            }, 180);
         });
     }
 
@@ -1480,7 +1484,7 @@ jQuery(async () => {
         stContext.eventSource.on(stContext.eventTypes.MESSAGE_EDITED, () => {
             setTimeout(() => {
                 ReprocessChat();
-            }, 250);
+            }, 320);
         });
     }
 
@@ -1488,7 +1492,7 @@ jQuery(async () => {
         stContext.eventSource.on(stContext.eventTypes.MESSAGE_SWIPED, () => {
             setTimeout(() => {
                 ReprocessChat();
-            }, 180);
+            }, 280);
         });
     }
 
@@ -1496,7 +1500,7 @@ jQuery(async () => {
     if (chatContainer) {
         const pendingMesIds = new Set();
 
-        const scheduleProcessByMes = (mesEl, delay = 220) => {
+        const scheduleProcessByMes = (mesEl, delay = 240) => {
             if (!mesEl?.classList?.contains("mes")) return;
 
             const msgId = Number(mesEl.getAttribute("mesid"));
