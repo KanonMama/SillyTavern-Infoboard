@@ -360,6 +360,19 @@ function NamesLikelyMatch(a, b) {
     return false;
 }
 
+function NamesStrictMatch(a, b) {
+    const aa = NormalizeName(a).replace(/\s+/g, " ").trim();
+    const bb = NormalizeName(b).replace(/\s+/g, " ").trim();
+
+    if (!aa || !bb) return false;
+    if (aa === bb) return true;
+
+    const aClean = aa.replace(/[^\p{L}\p{N}\s-]/gu, "").trim();
+    const bClean = bb.replace(/[^\p{L}\p{N}\s-]/gu, "").trim();
+
+    return !!aClean && !!bClean && aClean === bClean;
+}
+
 function IsUserLikeName(name) {
     const n = NormalizeName(name);
     return !n ||
@@ -797,8 +810,20 @@ function RenderRelMeter(type, value, delta, changed) {
 }
 
 function RenderThoughtForNpc(thoughts, npcName) {
-    const found = thoughts.find(t => NamesLikelyMatch(t.name, npcName));
+    if (!Array.isArray(thoughts) || !npcName) return "";
+
+    let found = thoughts.find(t => NamesStrictMatch(t.name, npcName));
+
+    if (!found) {
+        const exactLoose = NormalizeName(npcName);
+        const candidates = thoughts.filter(t => NormalizeName(t.name) === exactLoose);
+        if (candidates.length === 1) {
+            found = candidates[0];
+        }
+    }
+
     if (!found) return "";
+
     return `
     <div class="ib-rel-thought">
         <div class="ib-rel-subtitle">💭</div>
