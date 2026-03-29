@@ -23,6 +23,9 @@ let gCustomCss = "";
 let gHoverFx = true;
 let gShowBeat = true;
 
+const gRenderTimers = new Map();
+let gMutationObserver = null;
+
 const kLang = {
     ru: {
         enable: "Enable Infoboard",
@@ -1045,26 +1048,88 @@ function WireBoardControls(boardEl) {
     WireAccordionControls(boardEl);
 }
 
+function GetOrCreateBoardHost(mesTextEl) {
+    let host = mesTextEl.querySelector(".ib-board-host");
+    if (!host) {
+        host = document.createElement("div");
+        host.className = "ib-board-host";
+        mesTextEl.appendChild(host);
+    }
+    return host;
+}
+
+function CleanupBoardHosts(mesTextEl) {
+    const hosts = mesTextEl.querySelectorAll(".ib-board-host");
+    if (hosts.length <= 1) return;
+
+    hosts.forEach((host, index) => {
+        if (index === hosts.length - 1) return;
+        host.remove();
+    });
+}
+
 function RemoveRawXmlFromText(messageTextEl) {
-    if (!gHideRaw) return;
-    if (!messageTextEl) return;
+    if (!gHideRaw || !messageTextEl) return;
 
-    let html = messageTextEl.innerHTML;
+    const walker = document.createTreeWalker(
+        messageTextEl,
+        NodeFilter.SHOW_TEXT,
+        {
+            acceptNode(node) {
+                if (!node?.parentElement) return NodeFilter.FILTER_REJECT;
+                if (node.parentElement.closest(".ib-board-host, .ib-board")) {
+                    return NodeFilter.FILTER_REJECT;
+                }
+                const txt = node.textContent || "";
+                if (
+                    txt.includes("<infoboard") ||
+                    txt.includes("</infoboard>") ||
+                    txt.includes("<thk") ||
+                    txt.includes("</thk>") ||
+                    txt.includes("<beat") ||
+                    txt.includes("</beat>") ||
+                    txt.includes("<nsfw")
+                ) {
+                    return NodeFilter.FILTER_ACCEPT;
+                }
+                return NodeFilter.FILTER_SKIP;
+            }
+        }
+    );
 
-    html = html
-        .replace(/&lt;infoboard[\s\S]*?&lt;\/infoboard&gt;/gi, "")
-        .replace(/<infoboard[\s\S]*?<\/infoboard>/gi, "")
-        .replace(/&lt;thk[\s\S]*?&lt;\/thk&gt;/gi, "")
-        .replace(/<thk[\s\S]*?<\/thk>/gi, "")
-        .replace(/&lt;beat[\s\S]*?&lt;\/beat&gt;/gi, "")
-        .replace(/<beat[\s\S]*?<\/beat>/gi, "")
-        .replace(/&lt;nsfw\b[\s\S]*?\/?&gt;/gi, "")
-        .replace(/<nsfw\b[\s\S]*?\/?>/gi, "")
-        .replace(/(?:<br\s*\/?>\s*){2,}/gi, "<br>")
-        .replace(/<p>\s*<\/p>/gi, "")
-        .replace(/<p>(?:\s|&nbsp;|<br\s*\/?>)*<\/p>/gi, "");
+    const targets = [];
+    let current = walker.nextNode();
+    while (current) {
+        targets.push(current);
+        current = walker.nextNode();
+    }
 
-    messageTextEl.innerHTML = html;
+    for (const node of targets) {
+        let text = node.textContent || "";
+        const next = text
+            .replace(/<infoboard[\s\S]*?<\/infoboard>/gi, "")
+            .replace(/<thk[\s\S]*?<\/thk>/gi, "")
+            .replace(/<beat[\s\S]*?<\/beat>/gi, "")
+            .replace(/<nsfw\b[\s\S]*?\/?>/gi, "")
+            .replace(/\n{3,}/g, "\n\n");
+
+        if (next !== text) {
+            node.textContent = next;
+        }
+    }
+
+    messageTextEl.querySelectorAll("p, div, span").forEach(el => {
+        if (el.closest(".ib-board-host, .ib-board")) return;
+        const txt = (el.textContent || "").trim();
+        if (!txt) {
+            const hasMeaningfulChildren = [...el.children].some(child => {
+                return !child.classList.contains("ib-board-host") && (child.textContent || "").trim();
+            });
+            if (!hasMeaningfulChildren && el.children.length === 0) {
+                el.remove();
+            }
+        }
+    });
 }
 
 function RemoveThoughtLeaksInContainer(messageTextEl, parsed) {
@@ -1080,7 +1145,8 @@ function RemoveThoughtLeaksInContainer(messageTextEl, parsed) {
     const children = [...messageTextEl.children];
 
     for (const el of children) {
-        if (el.classList?.contains("ib-board")) continue;
+        if (el.classList?.contains("ib-board-host") || el.classList?.contains("ib-board")) continue;
+        if (el.closest?.(".ib-board-host") || el.closest?.(".ib-board")) continue;
 
         const text = NormalizeLooseText(el.textContent || "");
         if (!text) continue;
@@ -1143,6 +1209,35 @@ function ApplyParsedToState(parsed) {
     gState.beat = parsed.beat || "";
 }
 
+function ForceRepaint(el) {
+    if (!el) return;
+    requestAnimationFrame(() => {
+        el.style.transform = "translateZ(0)";
+        void el.offsetHeight;
+        requestAnimationFrame(() => {
+            el.style.transform = "";
+        });
+    });
+}
+
+function RenderBoardIntoMessage(mesTextEl, parsed, isFresh, prevState) {
+    if (!mesTextEl || !parsed) return;
+
+    RemoveRawXmlFromText(mesTextEl);
+    RemoveThoughtLeaksInContainer(mesTextEl, parsed);
+
+    const host = GetOrCreateBoardHost(mesTextEl);
+    host.innerHTML = RenderBoard(parsed, isFresh, prevState);
+
+    const boardEl = host.firstElementChild;
+    if (boardEl) {
+        WireBoardControls(boardEl);
+        ForceRepaint(boardEl);
+    }
+
+    CleanupBoardHosts(mesTextEl);
+}
+
 function ProcessMessage(messageDiv, msgIndex) {
     if (!gEnabled) return;
 
@@ -1165,20 +1260,7 @@ function ProcessMessage(messageDiv, msgIndex) {
     const mesTextEl = messageDiv.querySelector(".mes_text");
     if (!mesTextEl) return;
 
-    const existing = mesTextEl.querySelector(".ib-board");
-    if (existing) existing.remove();
-
-    RemoveRawXmlFromText(mesTextEl);
-
-    const wrapper = document.createElement("div");
-    wrapper.innerHTML = RenderBoard(parsed, true, prevState);
-
-    const boardEl = wrapper.firstElementChild;
-    if (boardEl) {
-        RemoveThoughtLeaksInContainer(mesTextEl, parsed);
-        mesTextEl.appendChild(boardEl);
-        WireBoardControls(boardEl);
-    }
+    RenderBoardIntoMessage(mesTextEl, parsed, true, prevState);
 }
 
 function ReprocessChat() {
@@ -1201,30 +1283,20 @@ function ReprocessChat() {
 
     document.querySelectorAll(".mes").forEach(node => {
         const msgId = Number(node.getAttribute("mesid"));
-        if (!isNaN(msgId)) {
-            const stMsg = stContext.chat[msgId];
-            if (!stMsg?.is_user) {
-                const parsed = ParseInfoboard(stMsg?.mes || "");
-                const mesTextEl = node.querySelector(".mes_text");
-                if (mesTextEl) {
-                    const existing = mesTextEl.querySelector(".ib-board");
-                    if (existing) existing.remove();
+        if (isNaN(msgId)) return;
 
-                    if (parsed) {
-                        RemoveRawXmlFromText(mesTextEl);
+        const stMsg = stContext.chat[msgId];
+        if (stMsg?.is_user) return;
 
-                        const wrapper = document.createElement("div");
-                        wrapper.innerHTML = RenderBoard(parsed, false, null);
+        const parsed = ParseInfoboard(stMsg?.mes || "");
+        const mesTextEl = node.querySelector(".mes_text");
+        if (!mesTextEl) return;
 
-                        const boardEl = wrapper.firstElementChild;
-                        if (boardEl) {
-                            RemoveThoughtLeaksInContainer(mesTextEl, parsed);
-                            mesTextEl.appendChild(boardEl);
-                            WireBoardControls(boardEl);
-                        }
-                    }
-                }
-            }
+        if (parsed) {
+            RenderBoardIntoMessage(mesTextEl, parsed, false, null);
+        } else {
+            const host = mesTextEl.querySelector(".ib-board-host");
+            if (host) host.remove();
         }
     });
 
@@ -1239,7 +1311,7 @@ function OnChatChanged() {
     UpdateLastUpdateDisplay();
 
     if (!gEnabled) return;
-    setTimeout(ReprocessChat, 150);
+    setTimeout(ReprocessChat, 180);
 }
 
 function UpdateStatusDisplay() {
@@ -1303,6 +1375,72 @@ async function ImportStateFromFile(file) {
         console.error("[IB] Import failed:", e);
         alert(T("importFail"));
     }
+}
+
+function ScheduleProcessMessage(msgId, delay = 260) {
+    if (isNaN(msgId)) return;
+    const prev = gRenderTimers.get(msgId);
+    if (prev) clearTimeout(prev);
+
+    const timer = setTimeout(() => {
+        gRenderTimers.delete(msgId);
+        const msgDiv = document.querySelector(`.mes[mesid="${msgId}"]`);
+        if (!msgDiv) return;
+
+        if (msgDiv.querySelector(".mes_edit_done, textarea, .edit_textarea")) return;
+        ProcessMessage(msgDiv, msgId);
+    }, delay);
+
+    gRenderTimers.set(msgId, timer);
+}
+
+function ObserveChatContainer() {
+    if (gMutationObserver) {
+        gMutationObserver.disconnect();
+        gMutationObserver = null;
+    }
+
+    const chatContainer = document.getElementById("chat");
+    if (!chatContainer) return;
+
+    gMutationObserver = new MutationObserver(mutations => {
+        for (const m of mutations) {
+            if (m.type !== "childList") continue;
+
+            const targetEl = m.target instanceof HTMLElement ? m.target : null;
+            if (targetEl?.closest?.(".ib-board")) continue;
+
+            for (const node of m.addedNodes) {
+                if (!(node instanceof HTMLElement)) continue;
+                if (node.closest?.(".ib-board")) continue;
+
+                if (node.classList.contains("mes")) {
+                    const msgId = Number(node.getAttribute("mesid"));
+                    ScheduleProcessMessage(msgId, 320);
+                    continue;
+                }
+
+                const mesEl = node.closest?.(".mes") || targetEl?.closest?.(".mes");
+                if (!mesEl) continue;
+
+                if (node.classList.contains("ib-board") || node.querySelector?.(".ib-board")) continue;
+
+                if (
+                    node.classList.contains("mes_text") ||
+                    targetEl?.classList.contains("mes_text") ||
+                    node.querySelector?.(".mes_text")
+                ) {
+                    const msgId = Number(mesEl.getAttribute("mesid"));
+                    ScheduleProcessMessage(msgId, 320);
+                }
+            }
+        }
+    });
+
+    gMutationObserver.observe(chatContainer, {
+        childList: true,
+        subtree: true,
+    });
 }
 
 jQuery(async () => {
@@ -1369,6 +1507,11 @@ jQuery(async () => {
         localStorage.setItem(kEnabledKey, String(gEnabled));
         UpdateStatusDisplay();
         InjectPrompt();
+        if (gEnabled) {
+            ReprocessChat();
+        } else {
+            document.querySelectorAll(".ib-board-host").forEach(el => el.remove());
+        }
     });
 
     $("#ib_lang").on("change", function () {
@@ -1440,6 +1583,7 @@ jQuery(async () => {
             SaveState();
             UpdateStatusDisplay();
             UpdateLastUpdateDisplay();
+            ReprocessChat();
         }
     });
 
@@ -1473,10 +1617,7 @@ jQuery(async () => {
 
     if (stContext.eventTypes.MESSAGE_RECEIVED) {
         stContext.eventSource.on(stContext.eventTypes.MESSAGE_RECEIVED, (msgIndex) => {
-            setTimeout(() => {
-                const msgDiv = document.querySelector(`.mes[mesid="${msgIndex}"]`);
-                if (msgDiv) ProcessMessage(msgDiv, msgIndex);
-            }, 180);
+            ScheduleProcessMessage(msgIndex, 300);
         });
     }
 
@@ -1496,73 +1637,12 @@ jQuery(async () => {
         });
     }
 
-    const chatContainer = document.getElementById("chat");
-    if (chatContainer) {
-        const pendingMesIds = new Set();
-
-        const scheduleProcessByMes = (mesEl, delay = 240) => {
-            if (!mesEl?.classList?.contains("mes")) return;
-
-            const msgId = Number(mesEl.getAttribute("mesid"));
-            if (isNaN(msgId)) return;
-            if (pendingMesIds.has(msgId)) return;
-
-            pendingMesIds.add(msgId);
-
-            setTimeout(() => {
-                pendingMesIds.delete(msgId);
-
-                const currentMes = document.querySelector(`.mes[mesid="${msgId}"]`);
-                if (!currentMes) return;
-
-                if (currentMes.querySelector(".mes_edit_done, textarea, .edit_textarea")) return;
-
-                ProcessMessage(currentMes, msgId);
-            }, delay);
-        };
-
-        const observer = new MutationObserver(mutations => {
-            for (const m of mutations) {
-                if (m.type !== "childList") continue;
-
-                const targetEl = m.target instanceof HTMLElement ? m.target : null;
-                if (targetEl?.closest?.(".ib-board")) continue;
-
-                for (const node of m.addedNodes) {
-                    if (!(node instanceof HTMLElement)) continue;
-                    if (node.closest?.(".ib-board")) continue;
-
-                    if (node.classList.contains("mes")) {
-                        scheduleProcessByMes(node);
-                        continue;
-                    }
-
-                    const mesEl = node.closest?.(".mes") || targetEl?.closest?.(".mes");
-                    if (!mesEl) continue;
-
-                    if (node.classList.contains("ib-board") || node.querySelector?.(".ib-board")) continue;
-
-                    if (
-                        node.classList.contains("mes_text") ||
-                        targetEl?.classList.contains("mes_text") ||
-                        node.querySelector?.(".mes_text")
-                    ) {
-                        scheduleProcessByMes(mesEl);
-                    }
-                }
-            }
-        });
-
-        observer.observe(chatContainer, {
-            childList: true,
-            subtree: true,
-        });
-    }
+    ObserveChatContainer();
 
     document.querySelectorAll(".mes").forEach(node => {
         const msgId = Number(node.getAttribute("mesid"));
         if (!isNaN(msgId)) {
-            ProcessMessage(node, msgId);
+            ScheduleProcessMessage(msgId, 100);
         }
     });
 
