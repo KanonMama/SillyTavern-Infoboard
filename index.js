@@ -1377,17 +1377,53 @@ async function ImportStateFromFile(file) {
     }
 }
 
-function ScheduleProcessMessage(msgId, delay = 260) {
+function ScheduleProcessMessage(msgId, delay = 260, retries = 8) {
     if (isNaN(msgId)) return;
+
     const prev = gRenderTimers.get(msgId);
     if (prev) clearTimeout(prev);
 
     const timer = setTimeout(() => {
-        gRenderTimers.delete(msgId);
+        const stContext = SillyTavern.getContext();
+        const msg = stContext.chat?.[msgId];
         const msgDiv = document.querySelector(`.mes[mesid="${msgId}"]`);
-        if (!msgDiv) return;
 
-        if (msgDiv.querySelector(".mes_edit_done, textarea, .edit_textarea")) return;
+        if (!msgDiv) {
+            if (retries > 0) {
+                ScheduleProcessMessage(msgId, 220, retries - 1);
+            } else {
+                gRenderTimers.delete(msgId);
+            }
+            return;
+        }
+
+        if (msgDiv.querySelector(".mes_edit_done, textarea, .edit_textarea")) {
+            if (retries > 0) {
+                ScheduleProcessMessage(msgId, 220, retries - 1);
+            } else {
+                gRenderTimers.delete(msgId);
+            }
+            return;
+        }
+
+        if (!msg || msg.is_user) {
+            gRenderTimers.delete(msgId);
+            return;
+        }
+
+        const text = msg.mes || "";
+        const parsed = ParseInfoboard(text);
+
+        if (!parsed) {
+            if (retries > 0) {
+                ScheduleProcessMessage(msgId, 240, retries - 1);
+            } else {
+                gRenderTimers.delete(msgId);
+            }
+            return;
+        }
+
+        gRenderTimers.delete(msgId);
         ProcessMessage(msgDiv, msgId);
     }, delay);
 
@@ -1416,7 +1452,7 @@ function ObserveChatContainer() {
 
                 if (node.classList.contains("mes")) {
                     const msgId = Number(node.getAttribute("mesid"));
-                    ScheduleProcessMessage(msgId, 320);
+                    ScheduleProcessMessage(msgId, 320, 8);
                     continue;
                 }
 
@@ -1431,7 +1467,7 @@ function ObserveChatContainer() {
                     node.querySelector?.(".mes_text")
                 ) {
                     const msgId = Number(mesEl.getAttribute("mesid"));
-                    ScheduleProcessMessage(msgId, 320);
+                    ScheduleProcessMessage(msgId, 320, 8);
                 }
             }
         }
@@ -1616,10 +1652,10 @@ jQuery(async () => {
     }
 
     if (stContext.eventTypes.MESSAGE_RECEIVED) {
-        stContext.eventSource.on(stContext.eventTypes.MESSAGE_RECEIVED, (msgIndex) => {
-            ScheduleProcessMessage(msgIndex, 300);
-        });
-    }
+    stContext.eventSource.on(stContext.eventTypes.MESSAGE_RECEIVED, (msgIndex) => {
+        ScheduleProcessMessage(msgIndex, 350, 10);
+    });
+}
 
     if (stContext.eventTypes.MESSAGE_EDITED) {
         stContext.eventSource.on(stContext.eventTypes.MESSAGE_EDITED, () => {
@@ -1640,11 +1676,11 @@ jQuery(async () => {
     ObserveChatContainer();
 
     document.querySelectorAll(".mes").forEach(node => {
-        const msgId = Number(node.getAttribute("mesid"));
-        if (!isNaN(msgId)) {
-            ScheduleProcessMessage(msgId, 100);
-        }
-    });
+    const msgId = Number(node.getAttribute("mesid"));
+    if (!isNaN(msgId)) {
+        ScheduleProcessMessage(msgId, 120, 6);
+    }
+});
 
     InjectPrompt();
     console.log("[IB] Infoboard extension ready");
