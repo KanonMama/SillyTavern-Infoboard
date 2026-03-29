@@ -23,9 +23,6 @@ let gCustomCss = "";
 let gHoverFx = true;
 let gShowBeat = true;
 
-const gRenderTimers = new Map();
-let gMutationObserver = null;
-
 const kLang = {
     ru: {
         enable: "Enable Infoboard",
@@ -452,7 +449,7 @@ function ParseFocusState(tags = []) {
 }
 
 function ParseInfoboard(text) {
-    const boardMatch = text.match(/<infoboard[\s\S]*?<\/infoboard>/i);
+    const boardMatch = String(text || "").match(/<infoboard[\s\S]*?<\/infoboard>/i);
     if (!boardMatch) return null;
 
     const xmlBlock = boardMatch[0];
@@ -555,7 +552,7 @@ function ParseInfoboard(text) {
         result.beat = String(beatNode.textContent || "").trim();
     }
 
-    const tailText = text.slice(text.indexOf(xmlBlock) + xmlBlock.length);
+    const tailText = String(text || "").slice(String(text || "").indexOf(xmlBlock) + xmlBlock.length);
     const nsfwParser = new DOMParser();
     const nsfwDoc = nsfwParser.parseFromString(`<root>${tailText}</root>`, "text/xml");
     const nsfwNode = nsfwDoc.querySelector("nsfw");
@@ -566,7 +563,7 @@ function ParseInfoboard(text) {
             p: nsfwNode.getAttribute("p") || ""
         };
     } else {
-        const nsfwMatch = text.match(/<nsfw\s+f="(.*?)"\s+p="(.*?)"\s*\/?>/i);
+        const nsfwMatch = String(text || "").match(/<nsfw\s+f="(.*?)"\s+p="(.*?)"\s*\/?>/i);
         if (nsfwMatch) {
             result.nsfw = {
                 f: nsfwMatch[1] || "",
@@ -997,9 +994,7 @@ function WireAccordionControls(boardEl) {
             card.classList.toggle("ib-open", open);
             toggle.setAttribute("aria-expanded", open ? "true" : "false");
             toggle.setAttribute("title", open ? T("closeNpc") : T("openNpc"));
-            if (miniwrap) {
-                miniwrap.style.display = open ? "none" : "flex";
-            }
+            if (miniwrap) miniwrap.style.display = open ? "none" : "flex";
         };
 
         apply(true);
@@ -1063,8 +1058,9 @@ function CleanupBoardHosts(mesTextEl) {
     if (hosts.length <= 1) return;
 
     hosts.forEach((host, index) => {
-        if (index === hosts.length - 1) return;
-        host.remove();
+        if (index !== hosts.length - 1) {
+            host.remove();
+        }
     });
 }
 
@@ -1077,9 +1073,8 @@ function RemoveRawXmlFromText(messageTextEl) {
         {
             acceptNode(node) {
                 if (!node?.parentElement) return NodeFilter.FILTER_REJECT;
-                if (node.parentElement.closest(".ib-board-host, .ib-board")) {
-                    return NodeFilter.FILTER_REJECT;
-                }
+                if (node.parentElement.closest(".ib-board-host, .ib-board")) return NodeFilter.FILTER_REJECT;
+
                 const txt = node.textContent || "";
                 if (
                     txt.includes("<infoboard") ||
@@ -1092,6 +1087,7 @@ function RemoveRawXmlFromText(messageTextEl) {
                 ) {
                     return NodeFilter.FILTER_ACCEPT;
                 }
+
                 return NodeFilter.FILTER_SKIP;
             }
         }
@@ -1105,7 +1101,7 @@ function RemoveRawXmlFromText(messageTextEl) {
     }
 
     for (const node of targets) {
-        let text = node.textContent || "";
+        const text = node.textContent || "";
         const next = text
             .replace(/<infoboard[\s\S]*?<\/infoboard>/gi, "")
             .replace(/<thk[\s\S]*?<\/thk>/gi, "")
@@ -1117,19 +1113,6 @@ function RemoveRawXmlFromText(messageTextEl) {
             node.textContent = next;
         }
     }
-
-    messageTextEl.querySelectorAll("p, div, span").forEach(el => {
-        if (el.closest(".ib-board-host, .ib-board")) return;
-        const txt = (el.textContent || "").trim();
-        if (!txt) {
-            const hasMeaningfulChildren = [...el.children].some(child => {
-                return !child.classList.contains("ib-board-host") && (child.textContent || "").trim();
-            });
-            if (!hasMeaningfulChildren && el.children.length === 0) {
-                el.remove();
-            }
-        }
-    });
 }
 
 function RemoveThoughtLeaksInContainer(messageTextEl, parsed) {
@@ -1138,7 +1121,6 @@ function RemoveThoughtLeaksInContainer(messageTextEl, parsed) {
     const thoughtEntries = parsed.thoughts.map(t => ({
         full: NormalizeLooseText(`${t.name}: ${t.text}`),
         text: NormalizeLooseText(t.text),
-        name: NormalizeLooseText(t.name),
         aliases: GetNameAliases(t.name).map(NormalizeLooseText),
     }));
 
@@ -1238,68 +1220,68 @@ function RenderBoardIntoMessage(mesTextEl, parsed, isFresh, prevState) {
     CleanupBoardHosts(mesTextEl);
 }
 
-function ProcessMessage(messageDiv, msgIndex) {
+function ProcessMessage(messageDiv, msgIndex, isFresh = true, prevState = null) {
     if (!gEnabled) return;
 
     const stContext = SillyTavern.getContext();
-    const msg = stContext.chat[msgIndex];
+    const msg = stContext.chat?.[msgIndex];
     if (!msg || msg.is_user) return;
 
-    const text = msg.mes || "";
-    const parsed = ParseInfoboard(text);
+    const parsed = ParseInfoboard(msg.mes || "");
     if (!parsed) return;
-
-    const prevState = JSON.parse(JSON.stringify(gState));
-
-    ApplyParsedToState(parsed);
-    SaveState();
-
-    UpdateStatusDisplay();
-    UpdateLastUpdateDisplay();
 
     const mesTextEl = messageDiv.querySelector(".mes_text");
     if (!mesTextEl) return;
 
-    RenderBoardIntoMessage(mesTextEl, parsed, true, prevState);
+    ApplyParsedToState(parsed);
+    SaveState();
+
+    RenderBoardIntoMessage(mesTextEl, parsed, isFresh, prevState);
+
+    UpdateStatusDisplay();
+    UpdateLastUpdateDisplay();
 }
 
 function ReprocessChat() {
     const stContext = SillyTavern.getContext();
     if (!stContext.chat) return;
 
-    gState = JSON.parse(JSON.stringify(kDefaultState));
-
-    for (let i = 0; i < stContext.chat.length; i++) {
-        const msg = stContext.chat[i];
-        if (!msg?.is_user && msg.mes) {
-            const parsed = ParseInfoboard(msg.mes);
-            if (parsed) {
-                ApplyParsedToState(parsed);
-            }
-        }
-    }
-
-    SaveState();
+    let rollingState = JSON.parse(JSON.stringify(kDefaultState));
 
     document.querySelectorAll(".mes").forEach(node => {
         const msgId = Number(node.getAttribute("mesid"));
         if (isNaN(msgId)) return;
 
         const stMsg = stContext.chat[msgId];
-        if (stMsg?.is_user) return;
+        if (!stMsg || stMsg.is_user) return;
 
-        const parsed = ParseInfoboard(stMsg?.mes || "");
+        const parsed = ParseInfoboard(stMsg.mes || "");
         const mesTextEl = node.querySelector(".mes_text");
         if (!mesTextEl) return;
 
-        if (parsed) {
-            RenderBoardIntoMessage(mesTextEl, parsed, false, null);
-        } else {
+        if (!parsed) {
             const host = mesTextEl.querySelector(".ib-board-host");
             if (host) host.remove();
+            return;
         }
+
+        const prevState = JSON.parse(JSON.stringify(rollingState));
+
+        rollingState.time = parsed.time || rollingState.time;
+        rollingState.date = parsed.date || rollingState.date;
+        rollingState.weather = parsed.weather || rollingState.weather;
+        rollingState.loc = parsed.loc || rollingState.loc;
+        rollingState.chars = parsed.chars || [];
+        rollingState.rels = parsed.rels || [];
+        rollingState.thoughts = parsed.thoughts || [];
+        rollingState.nsfw = parsed.nsfw || null;
+        rollingState.beat = parsed.beat || "";
+
+        RenderBoardIntoMessage(mesTextEl, parsed, false, prevState);
     });
 
+    gState = rollingState;
+    SaveState();
     UpdateStatusDisplay();
     UpdateLastUpdateDisplay();
 }
@@ -1311,7 +1293,9 @@ function OnChatChanged() {
     UpdateLastUpdateDisplay();
 
     if (!gEnabled) return;
-    setTimeout(ReprocessChat, 180);
+
+    setTimeout(() => ReprocessChat(), 180);
+    setTimeout(() => ReprocessChat(), 600);
 }
 
 function UpdateStatusDisplay() {
@@ -1375,108 +1359,6 @@ async function ImportStateFromFile(file) {
         console.error("[IB] Import failed:", e);
         alert(T("importFail"));
     }
-}
-
-function ScheduleProcessMessage(msgId, delay = 260, retries = 8) {
-    if (isNaN(msgId)) return;
-
-    const prev = gRenderTimers.get(msgId);
-    if (prev) clearTimeout(prev);
-
-    const timer = setTimeout(() => {
-        const stContext = SillyTavern.getContext();
-        const msg = stContext.chat?.[msgId];
-        const msgDiv = document.querySelector(`.mes[mesid="${msgId}"]`);
-
-        if (!msgDiv) {
-            if (retries > 0) {
-                ScheduleProcessMessage(msgId, 220, retries - 1);
-            } else {
-                gRenderTimers.delete(msgId);
-            }
-            return;
-        }
-
-        if (msgDiv.querySelector(".mes_edit_done, textarea, .edit_textarea")) {
-            if (retries > 0) {
-                ScheduleProcessMessage(msgId, 220, retries - 1);
-            } else {
-                gRenderTimers.delete(msgId);
-            }
-            return;
-        }
-
-        if (!msg || msg.is_user) {
-            gRenderTimers.delete(msgId);
-            return;
-        }
-
-        const text = msg.mes || "";
-        const parsed = ParseInfoboard(text);
-
-        if (!parsed) {
-            if (retries > 0) {
-                ScheduleProcessMessage(msgId, 240, retries - 1);
-            } else {
-                gRenderTimers.delete(msgId);
-            }
-            return;
-        }
-
-        gRenderTimers.delete(msgId);
-        ProcessMessage(msgDiv, msgId);
-    }, delay);
-
-    gRenderTimers.set(msgId, timer);
-}
-
-function ObserveChatContainer() {
-    if (gMutationObserver) {
-        gMutationObserver.disconnect();
-        gMutationObserver = null;
-    }
-
-    const chatContainer = document.getElementById("chat");
-    if (!chatContainer) return;
-
-    gMutationObserver = new MutationObserver(mutations => {
-        for (const m of mutations) {
-            if (m.type !== "childList") continue;
-
-            const targetEl = m.target instanceof HTMLElement ? m.target : null;
-            if (targetEl?.closest?.(".ib-board")) continue;
-
-            for (const node of m.addedNodes) {
-                if (!(node instanceof HTMLElement)) continue;
-                if (node.closest?.(".ib-board")) continue;
-
-                if (node.classList.contains("mes")) {
-                    const msgId = Number(node.getAttribute("mesid"));
-                    ScheduleProcessMessage(msgId, 320, 8);
-                    continue;
-                }
-
-                const mesEl = node.closest?.(".mes") || targetEl?.closest?.(".mes");
-                if (!mesEl) continue;
-
-                if (node.classList.contains("ib-board") || node.querySelector?.(".ib-board")) continue;
-
-                if (
-                    node.classList.contains("mes_text") ||
-                    targetEl?.classList.contains("mes_text") ||
-                    node.querySelector?.(".mes_text")
-                ) {
-                    const msgId = Number(mesEl.getAttribute("mesid"));
-                    ScheduleProcessMessage(msgId, 320, 8);
-                }
-            }
-        }
-    });
-
-    gMutationObserver.observe(chatContainer, {
-        childList: true,
-        subtree: true,
-    });
 }
 
 jQuery(async () => {
@@ -1543,6 +1425,7 @@ jQuery(async () => {
         localStorage.setItem(kEnabledKey, String(gEnabled));
         UpdateStatusDisplay();
         InjectPrompt();
+
         if (gEnabled) {
             ReprocessChat();
         } else {
@@ -1652,35 +1535,28 @@ jQuery(async () => {
     }
 
     if (stContext.eventTypes.MESSAGE_RECEIVED) {
-    stContext.eventSource.on(stContext.eventTypes.MESSAGE_RECEIVED, (msgIndex) => {
-        ScheduleProcessMessage(msgIndex, 350, 10);
-    });
-}
+        stContext.eventSource.on(stContext.eventTypes.MESSAGE_RECEIVED, () => {
+            setTimeout(() => ReprocessChat(), 250);
+            setTimeout(() => ReprocessChat(), 700);
+            setTimeout(() => ReprocessChat(), 1400);
+        });
+    }
 
     if (stContext.eventTypes.MESSAGE_EDITED) {
         stContext.eventSource.on(stContext.eventTypes.MESSAGE_EDITED, () => {
-            setTimeout(() => {
-                ReprocessChat();
-            }, 320);
+            setTimeout(() => ReprocessChat(), 320);
         });
     }
 
     if (stContext.eventTypes.MESSAGE_SWIPED) {
         stContext.eventSource.on(stContext.eventTypes.MESSAGE_SWIPED, () => {
-            setTimeout(() => {
-                ReprocessChat();
-            }, 280);
+            setTimeout(() => ReprocessChat(), 280);
+            setTimeout(() => ReprocessChat(), 700);
         });
     }
 
-    ObserveChatContainer();
-
-    document.querySelectorAll(".mes").forEach(node => {
-    const msgId = Number(node.getAttribute("mesid"));
-    if (!isNaN(msgId)) {
-        ScheduleProcessMessage(msgId, 120, 6);
-    }
-});
+    setTimeout(() => ReprocessChat(), 120);
+    setTimeout(() => ReprocessChat(), 500);
 
     InjectPrompt();
     console.log("[IB] Infoboard extension ready");
