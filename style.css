@@ -190,6 +190,56 @@
     --ib-header-glow: radial-gradient(circle at top right, rgba(185, 160, 255, 0.10), transparent 48%);
 }
 
+/* NEW THEME: Verdant Grove */
+.ib-theme-verdantgrove {
+    --ib-bg-1: #162019;
+    --ib-bg-2: #223126;
+    --ib-bg-3: #0f1511;
+    --ib-border: rgba(124, 164, 118, 0.20);
+    --ib-border-neon: rgba(170, 210, 140, 0.16);
+    --ib-soft-border: rgba(124, 164, 118, 0.10);
+    --ib-text: #e7f1e4;
+    --ib-muted: #aebea8;
+    --ib-dim: #73856f;
+    --ib-accent: #9fcb8f;
+    --ib-accent-2: #d6c68b;
+    --ib-green: #7fdb9f;
+    --ib-blue: #8fbba6;
+    --ib-purple: #b6a0d8;
+    --ib-warm: #d8b16d;
+    --ib-danger: #d97f87;
+    --ib-chip-bg: rgba(130, 175, 120, 0.12);
+    --ib-chip-border: rgba(145, 190, 130, 0.22);
+    --ib-shadow: 0 12px 28px rgba(7, 12, 8, 0.42);
+    --ib-neon: 0 0 16px rgba(170, 210, 140, 0.06);
+    --ib-header-glow: radial-gradient(circle at top right, rgba(188, 212, 140, 0.08), transparent 46%);
+}
+
+/* NEW THEME: Sandalwood */
+.ib-theme-sandalwood {
+    --ib-bg-1: #2a221b;
+    --ib-bg-2: #3a2f25;
+    --ib-bg-3: #19130f;
+    --ib-border: rgba(188, 156, 120, 0.22);
+    --ib-border-neon: rgba(222, 188, 138, 0.16);
+    --ib-soft-border: rgba(188, 156, 120, 0.11);
+    --ib-text: #f5eadc;
+    --ib-muted: #ceb79f;
+    --ib-dim: #9a836b;
+    --ib-accent: #ddb27a;
+    --ib-accent-2: #cfa98e;
+    --ib-green: #9dd0ab;
+    --ib-blue: #9fb8d6;
+    --ib-purple: #c8a9d8;
+    --ib-warm: #f0be82;
+    --ib-danger: #d98b7d;
+    --ib-chip-bg: rgba(205, 165, 120, 0.12);
+    --ib-chip-border: rgba(215, 180, 140, 0.22);
+    --ib-shadow: 0 12px 28px rgba(18, 10, 5, 0.42);
+    --ib-neon: 0 0 14px rgba(221, 178, 122, 0.05);
+    --ib-header-glow: radial-gradient(circle at top right, rgba(240, 205, 160, 0.08), transparent 46%);
+}
+
 .ib-settings .ib-setting-row {
     display: flex;
     align-items: center;
@@ -256,6 +306,42 @@
     resize: vertical;
 }
 
+/* NEW: theme preview in settings */
+.ib-theme-preview {
+    margin-top: -2px;
+    margin-bottom: 10px;
+    padding: 10px 12px;
+    border-radius: 10px;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.06);
+}
+
+.ib-theme-preview-swatches {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 6px;
+}
+
+.ib-swatch {
+    width: 18px;
+    height: 18px;
+    border-radius: 999px;
+    border: 1px solid rgba(255,255,255,0.18);
+    box-shadow:
+        inset 0 1px 2px rgba(255,255,255,0.12),
+        0 2px 8px rgba(0,0,0,0.20);
+    display: inline-block;
+    background: #555;
+}
+
+.ib-theme-preview-label {
+    font-size: 11px;
+    color: #9a9a9a;
+    line-height: 1.35;
+}
+
 .ib-board-host {
     display: block;
     width: 100%;
@@ -307,6 +393,20 @@
         radial-gradient(circle at 10% 0%, rgba(255,255,255,0.04), transparent 22%);
     pointer-events: none;
     opacity: 0.75;
+}
+
+.ib-theme-verdantgrove .ib-board::before {
+    background:
+        linear-gradient(120deg, rgba(255,255,255,0.02), transparent 34%),
+        radial-gradient(circle at 12% 0%, rgba(220,255,210,0.04), transparent 24%),
+        radial-gradient(circle at 88% 16%, rgba(210,190,120,0.05), transparent 18%);
+}
+
+.ib-theme-sandalwood .ib-board::before {
+    background:
+        linear-gradient(120deg, rgba(255,255,255,0.028), transparent 34%),
+        radial-gradient(circle at 10% 0%, rgba(255,245,230,0.05), transparent 24%),
+        radial-gradient(circle at 90% 15%, rgba(240,200,140,0.06), transparent 18%);
 }
 
 .ib-board::after {
@@ -466,6 +566,36 @@
 .ib-theme-pinkbite .ib-beat-icon,
 .ib-theme-pinkbite .ib-status-romantic .ib-status-icon {
     color: #ff9fcb;
+}
+
+.ib-theme-verdantgrove .ib-header::before {
+    background:
+        linear-gradient(90deg, transparent, var(--ib-accent), var(--ib-accent-2), transparent);
+    opacity: 0.8;
+}
+
+.ib-theme-verdantgrove .ib-char-icon-wrap {
+    box-shadow: 0 0 10px rgba(159, 203, 143, 0.14);
+}
+
+.ib-theme-verdantgrove .ib-beat-icon,
+.ib-theme-verdantgrove .ib-status-complex .ib-status-icon {
+    color: #d6c68b;
+}
+
+.ib-theme-sandalwood .ib-header::before {
+    background:
+        linear-gradient(90deg, transparent, var(--ib-accent), #f0d1a8, transparent);
+    opacity: 0.78;
+}
+
+.ib-theme-sandalwood .ib-char-icon-wrap {
+    box-shadow: 0 0 10px rgba(221, 178, 122, 0.14);
+}
+
+.ib-theme-sandalwood .ib-status-romantic .ib-status-icon,
+.ib-theme-sandalwood .ib-beat-icon {
+    color: #f0be82;
 }
 
 .ib-full-wrap,
