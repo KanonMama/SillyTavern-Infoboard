@@ -166,6 +166,30 @@
     --ib-header-glow: radial-gradient(circle at top right, rgba(255, 182, 220, 0.12), transparent 45%);
 }
 
+.ib-theme-violetglass {
+    --ib-bg-1: #1b1830;
+    --ib-bg-2: #2a2344;
+    --ib-bg-3: #141225;
+    --ib-border: rgba(165, 150, 255, 0.20);
+    --ib-border-neon: rgba(180, 165, 255, 0.18);
+    --ib-soft-border: rgba(165, 150, 255, 0.10);
+    --ib-text: #efeaff;
+    --ib-muted: #b8acd8;
+    --ib-dim: #8478aa;
+    --ib-accent: #b69cff;
+    --ib-accent-2: #8fd4ff;
+    --ib-green: #7ff0c2;
+    --ib-blue: #8ac2ff;
+    --ib-purple: #c59bff;
+    --ib-warm: #f0bf8a;
+    --ib-danger: #ff92b2;
+    --ib-chip-bg: rgba(170, 150, 255, 0.12);
+    --ib-chip-border: rgba(170, 150, 255, 0.22);
+    --ib-shadow: 0 12px 30px rgba(10, 8, 24, 0.42);
+    --ib-neon: 0 0 18px rgba(182, 156, 255, 0.08);
+    --ib-header-glow: radial-gradient(circle at top right, rgba(185, 160, 255, 0.10), transparent 48%);
+}
+
 .ib-settings .ib-setting-row {
     display: flex;
     align-items: center;
@@ -259,6 +283,19 @@
     backface-visibility: hidden;
     -webkit-transform: translateZ(0);
     -webkit-backface-visibility: hidden;
+}
+
+.ib-theme-violetglass.ib-board,
+.ib-theme-violetglass .ib-board {
+    background:
+        radial-gradient(circle at top right, rgba(185, 160, 255, 0.10), transparent 48%),
+        linear-gradient(135deg,
+            rgba(27, 24, 48, 0.82),
+            rgba(42, 35, 68, 0.78),
+            rgba(20, 18, 37, 0.84)
+        );
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
 }
 
 .ib-board::before {
@@ -503,6 +540,16 @@
     overflow: hidden;
 }
 
+.ib-theme-violetglass .ib-header,
+.ib-theme-violetglass .ib-section,
+.ib-theme-violetglass .ib-rel-card,
+.ib-theme-violetglass .ib-compact-wrap,
+.ib-theme-violetglass .ib-collapsed-tag {
+    background: rgba(255, 255, 255, 0.045);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+}
+
 .ib-header::before {
     content: "";
     position: absolute;
@@ -578,6 +625,16 @@
     flex-shrink: 0;
     -webkit-tap-highlight-color: transparent;
     touch-action: manipulation;
+}
+
+.ib-theme-violetglass .ib-meta-pill,
+.ib-theme-violetglass .ib-tag,
+.ib-theme-violetglass .ib-control-btn,
+.ib-theme-violetglass .ib-status-chip,
+.ib-theme-violetglass .ib-beat {
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
 }
 
 .ib-control-btn:hover {
@@ -907,6 +964,10 @@
     flex: 1;
 }
 
+.ib-rel-toggle-main > * {
+    min-width: 0;
+}
+
 .ib-rel-toggle-name {
     font-size: 12px;
     font-weight: 700;
@@ -985,6 +1046,10 @@
     border: 1px solid var(--ib-soft-border);
 }
 
+.ib-theme-violetglass .ib-rel-thought {
+    background: rgba(255, 255, 255, 0.035);
+}
+
 .ib-rel-thought-text {
     color: var(--ib-text);
     font-style: italic;
@@ -1002,7 +1067,11 @@
     border: 1px solid transparent;
     font-weight: 700;
     letter-spacing: 0.2px;
-    white-space: nowrap;
+    white-space: normal;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+    max-width: 100%;
+    line-height: 1.3;
 }
 
 .ib-status-icon {
@@ -1048,6 +1117,12 @@
         0 2px 8px rgba(0,0,0,0.14);
     overflow: hidden;
     transition: transform 0.16s ease, filter 0.16s ease;
+}
+
+.ib-theme-violetglass .ib-mini-stat {
+    background: rgba(255, 255, 255, 0.06);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
 }
 
 .ib-mini-stat-progress {
@@ -1515,6 +1590,53 @@
     box-shadow: 0 0 10px currentColor;
 }
 
+.ib-bars-prism .ib-bar {
+    height: 8px;
+    background:
+        linear-gradient(180deg, rgba(255,255,255,0.08), rgba(255,255,255,0.015)),
+        linear-gradient(90deg, rgba(255,255,255,0.04), rgba(255,255,255,0.01)),
+        rgba(12, 16, 28, 0.24);
+    border: 1px solid rgba(255,255,255,0.06);
+    box-shadow:
+        inset 0 1px 2px rgba(255,255,255,0.06),
+        inset 0 -1px 2px rgba(0,0,0,0.12);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+}
+
+.ib-bars-prism .ib-bar-fill {
+    border-radius: 999px;
+    filter: saturate(1.06) brightness(1.05);
+    opacity: 0.96;
+    box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.30),
+        inset 0 -1px 0 rgba(255,255,255,0.06),
+        0 0 10px currentColor;
+}
+
+.ib-bars-prism .ib-bar-fill::before {
+    content: "";
+    position: absolute;
+    inset: 1px 1px auto 1px;
+    height: 55%;
+    border-radius: inherit;
+    background:
+        linear-gradient(180deg, rgba(255,255,255,0.38), rgba(255,255,255,0.08)),
+        linear-gradient(90deg, rgba(255,255,255,0.12), transparent 60%);
+    opacity: 0.78;
+    pointer-events: none;
+}
+
+.ib-bars-prism .ib-bar-fill::after {
+    opacity: 0.92;
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    box-shadow:
+        0 0 12px currentColor,
+        0 0 3px rgba(255,255,255,0.35);
+}
+
 .ib-theme-pinkbite.ib-bars-candy .ib-bar-love-pos::after,
 .ib-theme-pinkbite.ib-bars-candy .ib-bar-love-neg::after {
     border-radius: 2px;
@@ -1671,6 +1793,36 @@
     color: #ffc0d4;
 }
 
+.ib-bars-prism .ib-bar-affection-pos {
+    background: linear-gradient(90deg, rgba(126, 255, 204, 0.95), rgba(66, 220, 160, 0.88) 45%, rgba(35, 170, 118, 0.92));
+    color: #8cf7ca;
+}
+
+.ib-bars-prism .ib-bar-affection-neg {
+    background: linear-gradient(90deg, rgba(255, 180, 180, 0.95), rgba(240, 120, 145, 0.88) 45%, rgba(205, 82, 102, 0.92));
+    color: #ffc0cb;
+}
+
+.ib-bars-prism .ib-bar-trust-pos {
+    background: linear-gradient(90deg, rgba(170, 225, 255, 0.95), rgba(110, 175, 255, 0.88) 45%, rgba(75, 120, 235, 0.92));
+    color: #b7e4ff;
+}
+
+.ib-bars-prism .ib-bar-trust-neg {
+    background: linear-gradient(90deg, rgba(255, 216, 168, 0.95), rgba(240, 170, 108, 0.88) 45%, rgba(200, 120, 66, 0.92));
+    color: #ffe0bc;
+}
+
+.ib-bars-prism .ib-bar-love-pos {
+    background: linear-gradient(90deg, rgba(235, 190, 255, 0.96), rgba(190, 130, 255, 0.88) 45%, rgba(132, 82, 230, 0.92));
+    color: #efc7ff;
+}
+
+.ib-bars-prism .ib-bar-love-neg {
+    background: linear-gradient(90deg, rgba(255, 190, 215, 0.96), rgba(245, 120, 170, 0.88) 45%, rgba(210, 70, 120, 0.92));
+    color: #ffc3d7;
+}
+
 .ib-theme-frostwhite.ib-bars-deep .ib-bar {
     background:
         linear-gradient(180deg, rgba(255,255,255,0.03), rgba(0,0,0,0.04)),
@@ -1740,6 +1892,24 @@
         backdrop-filter: none !important;
     }
 
+    .ib-theme-violetglass.ib-board,
+    .ib-theme-violetglass .ib-board,
+    .ib-theme-violetglass .ib-header,
+    .ib-theme-violetglass .ib-section,
+    .ib-theme-violetglass .ib-rel-card,
+    .ib-theme-violetglass .ib-compact-wrap,
+    .ib-theme-violetglass .ib-collapsed-tag,
+    .ib-theme-violetglass .ib-meta-pill,
+    .ib-theme-violetglass .ib-tag,
+    .ib-theme-violetglass .ib-control-btn,
+    .ib-theme-violetglass .ib-status-chip,
+    .ib-theme-violetglass .ib-mini-stat,
+    .ib-theme-violetglass .ib-beat,
+    .ib-bars-prism .ib-bar {
+        backdrop-filter: none !important;
+        -webkit-backdrop-filter: none !important;
+    }
+
     .ib-header-location-text {
         font-size: 13px;
         white-space: normal;
@@ -1756,6 +1926,16 @@
         align-items: stretch;
     }
 
+    .ib-rel-toggle-main {
+        width: 100%;
+    }
+
+    .ib-rel-toggle-name {
+        min-width: 0;
+        overflow-wrap: anywhere;
+        word-break: break-word;
+    }
+
     .ib-rel-toggle-preview {
         justify-content: flex-start;
         flex-wrap: wrap;
@@ -1765,6 +1945,14 @@
     .ib-rel-toggle-miniwrap {
         flex-wrap: wrap;
         width: 100%;
+    }
+
+    .ib-status-chip {
+        white-space: normal !important;
+        overflow-wrap: anywhere;
+        word-break: break-word;
+        max-width: 100%;
+        line-height: 1.3;
     }
 
     .ib-compact-main {
@@ -1835,37 +2023,5 @@
 
     .ib-rel-toggle {
         padding: 9px;
-    }
-}
-
-.ib-rel-toggle-main > * {
-    min-width: 0;
-}
-
-.ib-status-chip {
-    white-space: normal;
-    overflow-wrap: anywhere;
-    word-break: break-word;
-    max-width: 100%;
-    line-height: 1.3;
-}
-
-@media (max-width: 760px) {
-    .ib-rel-toggle-main {
-        width: 100%;
-    }
-
-    .ib-rel-toggle-name {
-        min-width: 0;
-        overflow-wrap: anywhere;
-        word-break: break-word;
-    }
-
-    .ib-status-chip {
-        white-space: normal !important;
-        overflow-wrap: anywhere;
-        word-break: break-word;
-        max-width: 100%;
-        line-height: 1.3;
     }
 }
