@@ -1299,27 +1299,52 @@ function RemoveThoughtLeaksInContainer(messageTextEl, parsed) {
         aliases: GetNameAliases(t.name).map(NormalizeLooseText),
     }));
 
-    const children = [...messageTextEl.children];
+    const walker = document.createTreeWalker(
+        messageTextEl,
+        NodeFilter.SHOW_TEXT,
+        {
+            acceptNode(node) {
+                if (!node?.parentElement) return NodeFilter.FILTER_REJECT;
+                if (node.parentElement.closest(".ib-board-host, .ib-board")) return NodeFilter.FILTER_REJECT;
 
-    for (const el of children) {
-        if (el.classList?.contains("ib-board-host") || el.classList?.contains("ib-board")) continue;
-        if (el.closest?.(".ib-board-host") || el.closest?.(".ib-board")) continue;
+                const text = NormalizeLooseText(node.textContent || "");
+                if (!text) return NodeFilter.FILTER_SKIP;
 
-        const text = NormalizeLooseText(el.textContent || "");
-        if (!text) continue;
+                const isThoughtLeak = thoughtEntries.some(t => {
+                    const aliasHit = t.aliases.some(a => a && text.includes(a));
+                    const textHit =
+                        (t.full && text.includes(t.full)) ||
+                        (t.text && text.includes(t.text)) ||
+                        (t.text && t.text.includes(text) && text.length > 20);
 
-        const isThoughtLeak = thoughtEntries.some(t => {
-            const aliasHit = t.aliases.some(a => a && text.includes(a));
-            const textHit =
-                (t.full && text.includes(t.full)) ||
-                (t.text && text.includes(t.text)) ||
-                (t.text && t.text.includes(text) && text.length > 20);
+                    return textHit || (aliasHit && t.text && text.includes(t.text.slice(0, 16)));
+                });
 
-            return textHit || (aliasHit && t.text && text.includes(t.text.slice(0, 16)));
-        });
+                return isThoughtLeak ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_SKIP;
+            }
+        }
+    );
 
-        if (isThoughtLeak) {
-            el.remove();
+    const targets = [];
+    let current = walker.nextNode();
+    while (current) {
+        targets.push(current);
+        current = walker.nextNode();
+    }
+
+    for (const node of targets) {
+        const parent = node.parentElement;
+        if (!parent) continue;
+
+        const normalized = NormalizeLooseText(node.textContent || "");
+        const shouldRemoveWholeParent =
+            parent.childNodes.length === 1 &&
+            normalized.length > 0;
+
+        if (shouldRemoveWholeParent && !parent.closest(".ib-board-host, .ib-board")) {
+            parent.remove();
+        } else {
+            node.textContent = "";
         }
     }
 }
