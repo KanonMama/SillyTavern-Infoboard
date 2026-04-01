@@ -23,6 +23,99 @@ let gCustomCss = "";
 let gHoverFx = true;
 let gShowBeat = true;
 
+const kThemePreviewMap = {
+    nocturne: {
+        label: { ru: "Ночное синее стекло", en: "Midnight blue glass" },
+        bg: "#141824",
+        bg2: "#1c2232",
+        accent: "#8fb4ff",
+        accent2: "#c09cff",
+        text: "#dbe3ff",
+        danger: "#ff8f9f"
+    },
+    burgundy: {
+        label: { ru: "Винный, тёплый, драматичный", en: "Wine-dark and dramatic" },
+        bg: "#221419",
+        bg2: "#311c24",
+        accent: "#ff9bb3",
+        accent2: "#e0a7ff",
+        text: "#ffe2ea",
+        danger: "#ff9bb3"
+    },
+    ashrose: {
+        label: { ru: "Пепельная роза", en: "Muted rose dusk" },
+        bg: "#211a20",
+        bg2: "#2d242c",
+        accent: "#f0a8c4",
+        accent2: "#caa8ff",
+        text: "#f3dfe8",
+        danger: "#f0a8c4"
+    },
+    coldsteel: {
+        label: { ru: "Холодный металл", en: "Cold iron and steel" },
+        bg: "#15191c",
+        bg2: "#20272d",
+        accent: "#9ec7d9",
+        accent2: "#b3b9df",
+        text: "#dde6eb",
+        danger: "#c89292"
+    },
+    frostwhite: {
+        label: { ru: "Морозное небо", en: "Frosted pale blue" },
+        bg: "#253446",
+        bg2: "#2d4158",
+        accent: "#7fb8ff",
+        accent2: "#a8bfff",
+        text: "#e3eefc",
+        danger: "#e06c84"
+    },
+    pixel: {
+        label: { ru: "Пиксельный неон", en: "Retro pixel neon" },
+        bg: "#17132b",
+        bg2: "#221b3f",
+        accent: "#a6ff78",
+        accent2: "#7de8ff",
+        text: "#d8ffd0",
+        danger: "#ff7f9f"
+    },
+    pinkbite: {
+        label: { ru: "Сахарный розовый укус", en: "Sweet pink bite" },
+        bg: "#2a1526",
+        bg2: "#3a1d35",
+        accent: "#ff8fc7",
+        accent2: "#ffc2e6",
+        text: "#ffe6f4",
+        danger: "#ff7ba5"
+    },
+    violetglass: {
+        label: { ru: "Фиолетовое стекло", en: "Soft violet glass" },
+        bg: "#1b1830",
+        bg2: "#2a2344",
+        accent: "#b69cff",
+        accent2: "#8fd4ff",
+        text: "#efeaff",
+        danger: "#ff92b2"
+    },
+    verdantgrove: {
+        label: { ru: "Лес, мох и приглушённое золото", en: "Forest moss and muted gold" },
+        bg: "#162019",
+        bg2: "#223126",
+        accent: "#9fcb8f",
+        accent2: "#d6c68b",
+        text: "#e7f1e4",
+        danger: "#d97f87"
+    },
+    sandalwood: {
+        label: { ru: "Тёплое дерево и бежевый свет", en: "Warm sandalwood and beige light" },
+        bg: "#2a221b",
+        bg2: "#3a2f25",
+        accent: "#ddb27a",
+        accent2: "#cfa98e",
+        text: "#f5eadc",
+        danger: "#d98b7d"
+    }
+};
+
 const kLang = {
     ru: {
         enable: "Enable Infoboard",
@@ -73,7 +166,9 @@ const kLang = {
         background: "на периферии",
         leftScene: "вышел",
         openNpc: "Открыть NPC",
-        closeNpc: "Скрыть NPC"
+        closeNpc: "Скрыть NPC",
+        palettePreview: "Палитра темы",
+        paletteMissing: "Превью палитры недоступно"
     },
     en: {
         enable: "Enable Infoboard",
@@ -124,7 +219,9 @@ const kLang = {
         background: "background",
         leftScene: "left",
         openNpc: "Open NPC",
-        closeNpc: "Hide NPC"
+        closeNpc: "Hide NPC",
+        palettePreview: "Theme palette",
+        paletteMissing: "Palette preview unavailable"
     }
 };
 
@@ -238,6 +335,34 @@ let gState = JSON.parse(JSON.stringify(kDefaultState));
 
 function T(key) {
     return kLang[gLang]?.[key] ?? key;
+}
+
+function GetThemePreview(theme = gTheme) {
+    return kThemePreviewMap[theme] || kThemePreviewMap.nocturne;
+}
+
+function UpdateThemePreview(theme = gTheme) {
+    const preview = GetThemePreview(theme);
+
+    const $wrap = $("#ib_theme_preview");
+    if (!$wrap.length) return;
+
+    const setSwatch = (selector, color) => {
+        const $el = $wrap.find(selector);
+        if ($el.length) {
+            $el.css("background", color || "#555");
+        }
+    };
+
+    setSwatch(".ib-swatch-bg", preview.bg);
+    setSwatch(".ib-swatch-bg2", preview.bg2);
+    setSwatch(".ib-swatch-accent", preview.accent);
+    setSwatch(".ib-swatch-accent2", preview.accent2);
+    setSwatch(".ib-swatch-text", preview.text);
+    setSwatch(".ib-swatch-danger", preview.danger);
+
+    const text = preview?.label?.[gLang] || T("paletteMissing");
+    $("#ib_theme_preview_label").text(`${T("palettePreview")}: ${text}`);
 }
 
 function GetUserName() {
@@ -1218,6 +1343,7 @@ function UpdateSettingsText() {
     $("#ib_custom_css_help").text(T("customCssHelp"));
     $("#ib_save_custom_css").text(T("saveCustomCss"));
     $("#ib_clear_custom_css").text(T("clearCustomCss"));
+    UpdateThemePreview();
 }
 
 function ApplyParsedToState(parsed) {
@@ -1460,6 +1586,7 @@ jQuery(async () => {
     UpdateSettingsText();
     UpdateStatusDisplay();
     UpdateLastUpdateDisplay();
+    UpdateThemePreview();
 
     $("#ib_enabled").on("change", function () {
         gEnabled = $(this).is(":checked");
@@ -1480,6 +1607,7 @@ jQuery(async () => {
         UpdateSettingsText();
         UpdateStatusDisplay();
         UpdateLastUpdateDisplay();
+        UpdateThemePreview();
         InjectPrompt();
         ReprocessChat();
     });
@@ -1487,6 +1615,7 @@ jQuery(async () => {
     $("#ib_theme").on("change", function () {
         gTheme = $(this).val();
         localStorage.setItem(kThemeKey, gTheme);
+        UpdateThemePreview();
         ReprocessChat();
     });
 
@@ -1598,6 +1727,7 @@ jQuery(async () => {
 
     setTimeout(() => ReprocessChat(), 120);
     setTimeout(() => ReprocessChat(), 500);
+    setTimeout(() => UpdateThemePreview(), 150);
 
     InjectPrompt();
     console.log("[IB] Infoboard extension ready");
