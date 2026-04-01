@@ -268,9 +268,10 @@ Rules:
 
 <thk> strict format:
 - Use the exact full NPC name exactly as in <chars>
+- Always write the name before the thought
 - Never shorten names
 - No markdown, quotes, asterisks, or brackets
-- Format only: Полное Имя: мысль`;
+- Format only: Full Name: Thought`;
 
 const kSystemPromptEn = `Infoboard:
 Append exactly one XML block at the end of every assistant response. Fill all values in English. Keep it concise, accurate, and updated every message.
