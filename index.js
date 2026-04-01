@@ -150,6 +150,8 @@ Rules:
 - Output exactly one <infoboard> block in every message
 - Fill all values in Russian
 - Add one <c /> for each NPC currently present
+- Use the exact same full NPC name in <chars name="">, <rel source="">, and <thk>
+- Never shorten NPC names in <rel>
 - tags: 1-4 short tags separated by |
 - Use tags to indicate scene presence when relevant, for example: focus | рядом | наблюдает | на периферии | вышел
 - Add one <rel /> per present NPC describing feelings toward {{user}} only
@@ -195,6 +197,8 @@ Rules:
 - Output exactly one <infoboard> block in every message
 - Fill all values in English
 - Add one <c /> for each NPC currently present
+- Use the exact same full NPC name in <chars name="">, <rel source="">, and <thk>
+- Never shorten NPC names in <rel>
 - tags: 1-4 short tags separated by |
 - Use tags to indicate scene presence when relevant, for example: focus | near | watching | background | left
 - Add one <rel /> per present NPC describing feelings toward {{user}} only
@@ -313,7 +317,15 @@ function NormalizeLooseText(str) {
     return String(str ?? "")
         .toLowerCase()
         .replace(/[*_~`"]/g, "")
-        .replace(/[—–-]/g, ":")
+        .replace(/[—–]/g, ":")
+        .replace(/\s+/g, " ")
+        .trim();
+}
+
+function StripNameDecorators(str) {
+    return String(str ?? "")
+        .replace(/[*_~`"“”„]/g, "")
+        .replace(/[(){}\[\]]/g, " ")
         .replace(/\s+/g, " ")
         .trim();
 }
@@ -322,11 +334,7 @@ function GetNameAliases(name) {
     const raw = String(name ?? "").trim();
     if (!raw) return [];
 
-    const clean = raw
-        .replace(/[*_~`"]/g, "")
-        .replace(/\s+/g, " ")
-        .trim();
-
+    const clean = StripNameDecorators(raw);
     const lower = clean.toLowerCase();
     const parts = clean.split(/\s+/).filter(Boolean);
 
@@ -409,25 +417,22 @@ function ParseThoughtLine(line) {
         .replace(/[*_~`]+\s*$/, "")
         .trim();
 
-    let idx = cleaned.indexOf(":");
-    if (idx === -1) idx = cleaned.indexOf("—");
-    if (idx === -1) idx = cleaned.indexOf("-");
-
-    if (idx === -1) {
+    const match = cleaned.match(/^([^:—]+?)\s*[:—]\s*(.+)$/u);
+    if (!match) {
         return { name: "NPC", text: cleaned };
     }
 
-    const name = cleaned.slice(0, idx).trim();
-    const text = cleaned.slice(idx + 1).trim();
+    const name = StripNameDecorators(match[1]);
+    const text = String(match[2] || "")
+        .replace(/^\s*[*_~`]+/, "")
+        .replace(/[*_~`]+\s*$/, "")
+        .trim();
 
     if (!text) return null;
 
     return {
         name: name || "NPC",
-        text: text
-            .replace(/^\s*[*_~`]+/, "")
-            .replace(/[*_~`]+\s*$/, "")
-            .trim()
+        text
     };
 }
 
@@ -459,6 +464,35 @@ function ParseFocusState(tags = []) {
     }
 
     return null;
+}
+
+function NormalizeThoughtOwners(result) {
+    if (!result?.thoughts?.length) return;
+
+    result.thoughts = result.thoughts
+        .map(t => {
+            const matchedRel = result.rels.find(r => NamesLikelyMatch(r.source, t.name));
+            const matchedChar = result.chars.find(c => NamesLikelyMatch(c.name, t.name));
+            const canonicalName = matchedRel?.source || matchedChar?.name || t.name;
+
+            return {
+                ...t,
+                name: canonicalName
+            };
+        })
+        .filter(t => !IsUserLikeName(t.name));
+
+    if (result.chars.length > 0) {
+        result.thoughts = result.thoughts.filter(t => {
+            const n = NormalizeName(t.name);
+            if (n === "npc") return true;
+
+            const byChar = result.chars.some(c => NamesLikelyMatch(c.name, t.name));
+            const byRel = result.rels.some(r => NamesLikelyMatch(r.source, t.name));
+
+            return byChar || byRel;
+        });
+    }
 }
 
 function ParseInfoboard(text) {
@@ -509,8 +543,7 @@ function ParseInfoboard(text) {
         });
     });
 
-    const relNodes = doc.querySelectorAll("rels > rel");
-    relNodes.forEach(rel => {
+    const pushRel = (rel) => {
         const source = rel.getAttribute("source") || "???";
         if (IsUserLikeName(source)) return;
 
@@ -525,30 +558,28 @@ function ParseInfoboard(text) {
             lc: Clamp(parseInt(rel.getAttribute("lc")) || 0, -100, 100),
             status: rel.getAttribute("status") || T("noStatus")
         });
-    });
+    };
+
+    const relNodes = doc.querySelectorAll("rels > rel");
+    relNodes.forEach(pushRel);
 
     if (!result.rels.length) {
-        doc.querySelectorAll("rel").forEach(rel => {
-            const source = rel.getAttribute("source") || "???";
-            if (IsUserLikeName(source)) return;
+        doc.querySelectorAll("rel").forEach(pushRel);
+    }
 
-            result.rels.push({
-                source,
-                target: GetUserName(),
-                a: Clamp(parseInt(rel.getAttribute("a")) || 0, -100, 100),
-                ac: Clamp(parseInt(rel.getAttribute("ac")) || 0, -100, 100),
-                tr: Clamp(parseInt(rel.getAttribute("tr")) || 0, -100, 100),
-                tc: Clamp(parseInt(rel.getAttribute("tc")) || 0, -100, 100),
-                l: Clamp(parseInt(rel.getAttribute("l")) || 0, -100, 100),
-                lc: Clamp(parseInt(rel.getAttribute("lc")) || 0, -100, 100),
-                status: rel.getAttribute("status") || T("noStatus")
-            });
+    if (result.rels.length && result.chars.length) {
+        result.rels = result.rels.map(r => {
+            const matchedChar = result.chars.find(c => NamesLikelyMatch(c.name, r.source));
+            return {
+                ...r,
+                source: matchedChar?.name || r.source
+            };
         });
     }
 
     const thk = doc.querySelector("thk");
     if (thk) {
-        const rawThoughts = thk.textContent || "";
+        const rawThoughts = (thk.textContent || "").replace(/\r/g, "\n");
         const lines = rawThoughts
             .split("\n")
             .map(line => line.trim())
@@ -559,6 +590,8 @@ function ParseInfoboard(text) {
             .filter(Boolean)
             .filter(t => !IsUserLikeName(t.name));
     }
+
+    NormalizeThoughtOwners(result);
 
     const beatNode = doc.querySelector("beat");
     if (beatNode) {
@@ -583,14 +616,6 @@ function ParseInfoboard(text) {
                 p: nsfwMatch[2] || ""
             };
         }
-    }
-
-    if (result.chars.length > 0) {
-        result.thoughts = result.thoughts.filter(t => {
-            const n = NormalizeName(t.name);
-            if (n === "npc") return true;
-            return result.chars.some(c => NamesLikelyMatch(c.name, t.name));
-        });
     }
 
     return result;
@@ -812,16 +837,7 @@ function RenderRelMeter(type, value, delta, changed) {
 function RenderThoughtForNpc(thoughts, npcName) {
     if (!Array.isArray(thoughts) || !npcName) return "";
 
-    let found = thoughts.find(t => NamesStrictMatch(t.name, npcName));
-
-    if (!found) {
-        const exactLoose = NormalizeName(npcName);
-        const candidates = thoughts.filter(t => NormalizeName(t.name) === exactLoose);
-        if (candidates.length === 1) {
-            found = candidates[0];
-        }
-    }
-
+    const found = thoughts.find(t => NamesLikelyMatch(t.name, npcName));
     if (!found) return "";
 
     return `
