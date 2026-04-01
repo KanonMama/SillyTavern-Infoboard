@@ -268,7 +268,6 @@ Rules:
 
 <thk> strict format:
 - Use the exact full NPC name exactly as in <chars>
-- Always write the name before the thought
 - Never shorten names
 - No markdown, quotes, asterisks, or brackets
 - Format only: Full Name: Thought`;
@@ -545,8 +544,8 @@ function ParseThoughtLine(line) {
 
     const match = cleaned.match(/^([^:—]+?)\s*[:—]\s*(.+)$/u);
     if (!match) {
-        return { name: "NPC", text: cleaned };
-    }
+    return { name: "__UNASSIGNED__", text: cleaned };
+}
 
     const name = StripNameDecorators(match[1]);
     const text = String(match[2] || "")
@@ -595,11 +594,20 @@ function ParseFocusState(tags = []) {
 function NormalizeThoughtOwners(result) {
     if (!result?.thoughts?.length) return;
 
+    const singleRelName = result.rels?.length === 1 ? result.rels[0].source : "";
+    const singleCharName = result.chars?.length === 1 ? result.chars[0].name : "";
+
     result.thoughts = result.thoughts
         .map(t => {
-            const matchedRel = result.rels.find(r => NamesLikelyMatch(r.source, t.name));
-            const matchedChar = result.chars.find(c => NamesLikelyMatch(c.name, t.name));
-            const canonicalName = matchedRel?.source || matchedChar?.name || t.name;
+            let thoughtName = t.name;
+
+            if (NormalizeName(thoughtName) === "__unassigned__" || NormalizeName(thoughtName) === "npc") {
+    thoughtName = singleRelName || singleCharName || thoughtName;
+}
+
+            const matchedRel = result.rels.find(r => NamesLikelyMatch(r.source, thoughtName));
+            const matchedChar = result.chars.find(c => NamesLikelyMatch(c.name, thoughtName));
+            const canonicalName = matchedRel?.source || matchedChar?.name || thoughtName;
 
             return {
                 ...t,
@@ -608,10 +616,10 @@ function NormalizeThoughtOwners(result) {
         })
         .filter(t => !IsUserLikeName(t.name));
 
-    if (result.chars.length > 0) {
+    if (result.chars.length > 0 || result.rels.length > 0) {
         result.thoughts = result.thoughts.filter(t => {
             const n = NormalizeName(t.name);
-            if (n === "npc") return true;
+            if (n === "npc") return false;
 
             const byChar = result.chars.some(c => NamesLikelyMatch(c.name, t.name));
             const byRel = result.rels.some(r => NamesLikelyMatch(r.source, t.name));
