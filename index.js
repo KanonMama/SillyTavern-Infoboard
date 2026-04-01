@@ -11,7 +11,6 @@ const kLangKey = "IB_Lang";
 const kBarStyleKey = "IB_BarStyle";
 const kCustomCssKey = "IB_CustomCss";
 const kHoverFxKey = "IB_HoverFx";
-const kShowBeatKey = "IB_ShowBeat";
 
 let gEnabled = false;
 let gTheme = "nocturne";
@@ -21,7 +20,6 @@ let gLang = "ru";
 let gBarStyle = "deep";
 let gCustomCss = "";
 let gHoverFx = true;
-let gShowBeat = true;
 
 const kThemePreviewMap = {
     nocturne: {
@@ -125,7 +123,6 @@ const kLang = {
         hideRaw: "Скрывать сырой XML из сообщений",
         showNsfw: "Показывать NSFW блок",
         hoverFx: "Включить hover-эффекты статов",
-        showBeat: "Показывать next beat",
         active: "✦ Расширение активно",
         inactive: "Расширение отключено",
         currentState: "Текущее состояние:",
@@ -156,8 +153,6 @@ const kLang = {
         saveCustomCss: "💾 Сохранить CSS",
         clearCustomCss: "🧹 Очистить CSS",
         clearCustomCssConfirm: "Очистить пользовательский CSS?",
-        nextBeat: "Следующий такт",
-        noBeat: "Нет прогноза сцены.",
         compactMore: "ещё",
         focus: "в фокусе",
         activeHere: "активен",
@@ -178,7 +173,6 @@ const kLang = {
         hideRaw: "Hide raw XML from messages",
         showNsfw: "Show NSFW section",
         hoverFx: "Enable stat hover effects",
-        showBeat: "Show next beat",
         active: "✦ Extension is active",
         inactive: "Extension is inactive",
         currentState: "Current State:",
@@ -209,8 +203,6 @@ const kLang = {
         saveCustomCss: "💾 Save Custom CSS",
         clearCustomCss: "🧹 Clear Custom CSS",
         clearCustomCssConfirm: "Clear custom CSS?",
-        nextBeat: "Next Beat",
-        noBeat: "No scene forecast.",
         compactMore: "more",
         focus: "focus",
         activeHere: "active",
@@ -237,7 +229,6 @@ Format:
 <rel source="" target="{{user}}" a="" ac="" tr="" tc="" l="" lc="" status="" />
 </rels>
 <thk></thk>
-<beat></beat>
 </infoboard>
 
 Optional only for explicitly intimate scenes:
@@ -261,16 +252,15 @@ Rules:
 - Put all NPC private thoughts into one <thk> block
 - One NPC per line in <thk>
 - Never include {{user}} thoughts in <thk>
-- <beat> must contain one short likely next beat of the scene based on current interaction
-- <beat> must be near-term, grounded, and concise
 - Omit <nsfw /> if the scene is not intimate
 - No extra XML tags or commentary
 
 <thk> strict format:
 - Use the exact full NPC name exactly as in <chars>
+- Always write the name before the thought
 - Never shorten names
 - No markdown, quotes, asterisks, or brackets
-- Format only: Full Name: Thought`;
+- Format only: Полное Имя: мысль`;
 
 const kSystemPromptEn = `Infoboard:
 Append exactly one XML block at the end of every assistant response. Fill all values in English. Keep it concise, accurate, and updated every message.
@@ -284,7 +274,6 @@ Format:
 <rel source="" target="{{user}}" a="" ac="" tr="" tc="" l="" lc="" status="" />
 </rels>
 <thk></thk>
-<beat></beat>
 </infoboard>
 
 Optional only for explicitly intimate scenes:
@@ -308,13 +297,12 @@ Rules:
 - Put all NPC private thoughts into one <thk> block
 - One NPC per line in <thk>
 - Never include {{user}} thoughts in <thk>
-- <beat> must contain one short likely next beat of the scene based on current interaction
-- <beat> must be near-term, grounded, and concise
 - Omit <nsfw /> if the scene is not intimate
 - No extra XML tags or commentary
 
 <thk> strict format:
 - Use the exact full NPC name exactly as in <chars>
+- Always write the name before the thought
 - Never shorten names
 - No markdown, quotes, asterisks, or brackets
 - Format only: Full Name: thought`;
@@ -327,8 +315,7 @@ const kDefaultState = {
     chars: [],
     rels: [],
     thoughts: [],
-    nsfw: null,
-    beat: ""
+    nsfw: null
 };
 
 let gState = JSON.parse(JSON.stringify(kDefaultState));
@@ -408,7 +395,6 @@ function LoadState() {
         const raw = localStorage.getItem(GetStorageKey());
         if (raw) {
             gState = JSON.parse(raw);
-            if (typeof gState.beat !== "string") gState.beat = "";
             if (!Array.isArray(gState.thoughts)) gState.thoughts = [];
             if (!Array.isArray(gState.chars)) gState.chars = [];
             if (!Array.isArray(gState.rels)) gState.rels = [];
@@ -493,19 +479,6 @@ function NamesLikelyMatch(a, b) {
     return false;
 }
 
-function NamesStrictMatch(a, b) {
-    const aa = NormalizeName(a).replace(/\s+/g, " ").trim();
-    const bb = NormalizeName(b).replace(/\s+/g, " ").trim();
-
-    if (!aa || !bb) return false;
-    if (aa === bb) return true;
-
-    const aClean = aa.replace(/[^\p{L}\p{N}\s-]/gu, "").trim();
-    const bClean = bb.replace(/[^\p{L}\p{N}\s-]/gu, "").trim();
-
-    return !!aClean && !!bClean && aClean === bClean;
-}
-
 function IsUserLikeName(name) {
     const n = NormalizeName(name);
     return !n ||
@@ -544,8 +517,8 @@ function ParseThoughtLine(line) {
 
     const match = cleaned.match(/^([^:—]+?)\s*[:—]\s*(.+)$/u);
     if (!match) {
-    return { name: "__UNASSIGNED__", text: cleaned };
-}
+        return { name: "__UNASSIGNED__", text: cleaned };
+    }
 
     const name = StripNameDecorators(match[1]);
     const text = String(match[2] || "")
@@ -556,7 +529,7 @@ function ParseThoughtLine(line) {
     if (!text) return null;
 
     return {
-        name: name || "NPC",
+        name: name || "__UNASSIGNED__",
         text
     };
 }
@@ -601,9 +574,12 @@ function NormalizeThoughtOwners(result) {
         .map(t => {
             let thoughtName = t.name;
 
-            if (NormalizeName(thoughtName) === "__unassigned__" || NormalizeName(thoughtName) === "npc") {
-    thoughtName = singleRelName || singleCharName || thoughtName;
-}
+            if (
+                NormalizeName(thoughtName) === "__unassigned__" ||
+                NormalizeName(thoughtName) === "npc"
+            ) {
+                thoughtName = singleRelName || singleCharName || thoughtName;
+            }
 
             const matchedRel = result.rels.find(r => NamesLikelyMatch(r.source, thoughtName));
             const matchedChar = result.chars.find(c => NamesLikelyMatch(c.name, thoughtName));
@@ -619,7 +595,7 @@ function NormalizeThoughtOwners(result) {
     if (result.chars.length > 0 || result.rels.length > 0) {
         result.thoughts = result.thoughts.filter(t => {
             const n = NormalizeName(t.name);
-            if (n === "npc") return false;
+            if (n === "npc" || n === "__unassigned__") return false;
 
             const byChar = result.chars.some(c => NamesLikelyMatch(c.name, t.name));
             const byRel = result.rels.some(r => NamesLikelyMatch(r.source, t.name));
@@ -654,7 +630,6 @@ function ParseInfoboard(text) {
         rels: [],
         thoughts: [],
         nsfw: null,
-        beat: "",
         rawXml: xmlBlock
     };
 
@@ -727,11 +702,6 @@ function ParseInfoboard(text) {
 
     NormalizeThoughtOwners(result);
 
-    const beatNode = doc.querySelector("beat");
-    if (beatNode) {
-        result.beat = String(beatNode.textContent || "").trim();
-    }
-
     const tailText = String(text || "").slice(String(text || "").indexOf(xmlBlock) + xmlBlock.length);
     const nsfwParser = new DOMParser();
     const nsfwDoc = nsfwParser.parseFromString(`<root>${tailText}</root>`, "text/xml");
@@ -783,10 +753,6 @@ function BuildStateInjection() {
         for (const t of gState.thoughts) {
             lines.push(`- ${t.name}: ${t.text}`);
         }
-    }
-
-    if (gState.beat) {
-        lines.push(`Next Beat: ${gState.beat}`);
     }
 
     if (gState.nsfw) {
@@ -968,10 +934,15 @@ function RenderRelMeter(type, value, delta, changed) {
     </div>`;
 }
 
-function RenderThoughtForNpc(thoughts, npcName) {
+function RenderThoughtForNpc(thoughts, npcName, rels = []) {
     if (!Array.isArray(thoughts) || !npcName) return "";
 
-    const found = thoughts.find(t => NamesLikelyMatch(t.name, npcName));
+    let found = thoughts.find(t => NamesLikelyMatch(t.name, npcName));
+
+    if (!found && thoughts.length === 1 && rels.length === 1) {
+        found = thoughts[0];
+    }
+
     if (!found) return "";
 
     return `
@@ -981,7 +952,7 @@ function RenderThoughtForNpc(thoughts, npcName) {
     </div>`;
 }
 
-function RenderRelCard(r, thoughts = [], prevState = null) {
+function RenderRelCard(r, thoughts = [], prevState = null, rels = []) {
     const statusClass = GetStatusClass(r.status);
     const statusIcon = GetStatusIcon(r.status);
     const changed = GetChangedMetrics(prevState, r);
@@ -1011,7 +982,7 @@ function RenderRelCard(r, thoughts = [], prevState = null) {
             ${RenderRelMeter("a", r.a, r.ac, changed.a)}
             ${RenderRelMeter("tr", r.tr, r.tc, changed.tr)}
             ${RenderRelMeter("l", r.l, r.lc, changed.l)}
-            ${RenderThoughtForNpc(thoughts, r.source)}
+            ${RenderThoughtForNpc(thoughts, r.source, rels)}
         </div>
     </div>`;
 }
@@ -1024,7 +995,7 @@ function RenderRelations(rels, thoughts = [], prevState = null) {
     return `
     <div class="ib-section">
         <div class="ib-section-title">${T("rels")}</div>
-        ${sorted.map(r => RenderRelCard(r, thoughts, prevState)).join("")}
+        ${sorted.map(r => RenderRelCard(r, thoughts, prevState, rels)).join("")}
     </div>`;
 }
 
@@ -1036,21 +1007,6 @@ function RenderNsfw(nsfw) {
         <div class="ib-section-title">${T("nsfw")}</div>
         <div class="ib-nsfw-line"><b>${T("fetishes")}:</b> ${EscapeHtml(nsfw.f)}</div>
         <div class="ib-nsfw-line"><b>${T("positions")}:</b> ${EscapeHtml(nsfw.p)}</div>
-    </div>`;
-}
-
-function RenderBeat(state) {
-    if (!gShowBeat) return "";
-    const beat = String(state?.beat || "").trim();
-    if (!beat) return "";
-
-    return `
-    <div class="ib-beat-wrap">
-        <div class="ib-beat">
-            <span class="ib-beat-icon">➜</span>
-            <span class="ib-beat-label">${EscapeHtml(T("nextBeat"))}:</span>
-            <span class="ib-beat-text">${EscapeHtml(beat)}</span>
-        </div>
     </div>`;
 }
 
@@ -1134,7 +1090,6 @@ function RenderBoard(state, isFresh = false, prevState = null) {
                 ${RenderChars(state.chars)}
                 ${RenderRelations(state.rels, state.thoughts, prevState)}
                 ${RenderNsfw(state.nsfw)}
-                ${RenderBeat(state)}
             </div>
         </div>
     </div>`;
@@ -1256,8 +1211,6 @@ function RemoveRawXmlFromText(messageTextEl) {
                     txt.includes("</infoboard>") ||
                     txt.includes("<thk") ||
                     txt.includes("</thk>") ||
-                    txt.includes("<beat") ||
-                    txt.includes("</beat>") ||
                     txt.includes("<nsfw")
                 ) {
                     return NodeFilter.FILTER_ACCEPT;
@@ -1280,7 +1233,6 @@ function RemoveRawXmlFromText(messageTextEl) {
         const next = text
             .replace(/<infoboard[\s\S]*?<\/infoboard>/gi, "")
             .replace(/<thk[\s\S]*?<\/thk>/gi, "")
-            .replace(/<beat[\s\S]*?<\/beat>/gi, "")
             .replace(/<nsfw\b[\s\S]*?\/?>/gi, "")
             .replace(/\n{3,}/g, "\n\n");
 
@@ -1350,13 +1302,7 @@ function RemoveThoughtLeaksInContainer(messageTextEl, parsed) {
 }
 
 function UpdateLastUpdateDisplay() {
-    const $el = $("#ib_last_update");
-    const beat = String(gState.beat || "").trim();
-    if (!gShowBeat || !beat) {
-        $el.text(T("noRecentUpdates"));
-        return;
-    }
-    $el.text(beat);
+    $("#ib_last_update").text(T("noRecentUpdates"));
 }
 
 function UpdateSettingsText() {
@@ -1367,7 +1313,6 @@ function UpdateSettingsText() {
     $('label[for="ib_hide_raw"]').text(T("hideRaw"));
     $('label[for="ib_show_nsfw"]').text(T("showNsfw"));
     $('label[for="ib_hover_fx"]').text(T("hoverFx"));
-    $('label[for="ib_show_beat"]').text(T("showBeat"));
     $("#ib_state_label").text(T("currentState"));
     $("#ib_reset_state").text(T("resetState"));
     $("#ib_reprocess_chat").text(T("reprocess"));
@@ -1389,7 +1334,6 @@ function ApplyParsedToState(parsed) {
     gState.rels = parsed.rels || [];
     gState.thoughts = parsed.thoughts || [];
     gState.nsfw = parsed.nsfw || null;
-    gState.beat = parsed.beat || "";
 }
 
 function ForceRepaint(el) {
@@ -1476,7 +1420,6 @@ function ReprocessChat() {
         rollingState.rels = parsed.rels || [];
         rollingState.thoughts = parsed.thoughts || [];
         rollingState.nsfw = parsed.nsfw || null;
-        rollingState.beat = parsed.beat || "";
 
         RenderBoardIntoMessage(mesTextEl, parsed, false, prevState);
     });
@@ -1548,8 +1491,7 @@ async function ImportStateFromFile(file) {
             ...parsed,
             chars: Array.isArray(parsed.chars) ? parsed.chars : [],
             rels: Array.isArray(parsed.rels) ? parsed.rels : [],
-            thoughts: Array.isArray(parsed.thoughts) ? parsed.thoughts : [],
-            beat: typeof parsed.beat === "string" ? parsed.beat : ""
+            thoughts: Array.isArray(parsed.thoughts) ? parsed.thoughts : []
         };
 
         SaveState();
@@ -1602,7 +1544,6 @@ jQuery(async () => {
     gBarStyle = localStorage.getItem(kBarStyleKey) || "deep";
     gCustomCss = localStorage.getItem(kCustomCssKey) || "";
     gHoverFx = localStorage.getItem(kHoverFxKey) !== "false";
-    gShowBeat = localStorage.getItem(kShowBeatKey) !== "false";
 
     LoadState();
     ApplyCustomCss();
@@ -1614,7 +1555,6 @@ jQuery(async () => {
     $("#ib_hide_raw").prop("checked", gHideRaw);
     $("#ib_show_nsfw").prop("checked", gShowNsfw);
     $("#ib_hover_fx").prop("checked", gHoverFx);
-    $("#ib_show_beat").prop("checked", gShowBeat);
     $("#ib_custom_css").val(gCustomCss);
 
     UpdateSettingsText();
@@ -1662,13 +1602,6 @@ jQuery(async () => {
     $("#ib_hover_fx").on("change", function () {
         gHoverFx = $(this).is(":checked");
         localStorage.setItem(kHoverFxKey, String(gHoverFx));
-        ReprocessChat();
-    });
-
-    $("#ib_show_beat").on("change", function () {
-        gShowBeat = $(this).is(":checked");
-        localStorage.setItem(kShowBeatKey, String(gShowBeat));
-        UpdateLastUpdateDisplay();
         ReprocessChat();
     });
 
