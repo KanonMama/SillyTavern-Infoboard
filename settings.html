@@ -22,15 +22,31 @@
             <div class="ib-setting-row">
                 <label for="ib_theme"><b>Theme</b></label>
                 <select id="ib_theme">
-                    <option value="nocturne">Nocturne</option>
-                    <option value="burgundy">Burgundy</option>
-                    <option value="ashrose">Ash Rose</option>
-                    <option value="coldsteel">Cold Steel</option>
-                    <option value="frostwhite">Frostwhite</option>
-                    <option value="pixel">Pixel Arcade</option>
-                    <option value="pinkbite">Pink Bite</option>
-                    <option value="violetglass">Violet Glass</option>
+                    <option value="nocturne">🌙 Nocturne</option>
+                    <option value="burgundy">🍷 Burgundy</option>
+                    <option value="ashrose">🌸 Ash Rose</option>
+                    <option value="coldsteel">🩶 Cold Steel</option>
+                    <option value="frostwhite">🧊 Frostwhite</option>
+                    <option value="pixel">🕹 Pixel Arcade</option>
+                    <option value="pinkbite">💗 Pink Bite</option>
+                    <option value="violetglass">🟣 Violet Glass</option>
+                    <option value="verdantgrove">🌿 Verdant Grove</option>
+                    <option value="sandalwood">🟤 Sandalwood</option>
                 </select>
+            </div>
+
+            <div class="ib-theme-preview" id="ib_theme_preview">
+                <div class="ib-theme-preview-swatches">
+                    <span class="ib-swatch ib-swatch-bg" title="Background"></span>
+                    <span class="ib-swatch ib-swatch-bg2" title="Surface"></span>
+                    <span class="ib-swatch ib-swatch-accent" title="Accent"></span>
+                    <span class="ib-swatch ib-swatch-accent2" title="Accent 2"></span>
+                    <span class="ib-swatch ib-swatch-text" title="Text"></span>
+                    <span class="ib-swatch ib-swatch-danger" title="Danger"></span>
+                </div>
+                <div class="ib-theme-preview-label" id="ib_theme_preview_label">
+                    Palette preview
+                </div>
             </div>
 
             <div class="ib-setting-row">
@@ -91,7 +107,12 @@
 
             <div class="ib-custom-css-wrap">
                 <label for="ib_custom_css"><b id="ib_custom_css_label">Custom CSS Overrides</b></label>
-                <textarea id="ib_custom_css" class="text_pole" rows="10" placeholder=".ib-board { border-radius: 20px; }"></textarea>
+                <textarea
+                    id="ib_custom_css"
+                    class="text_pole"
+                    rows="10"
+                    placeholder=".ib-board { border-radius: 20px; }"
+                ></textarea>
                 <div class="ib-custom-css-help" id="ib_custom_css_help">
                     Applied after built-in styles. Use to override colors, spacing, bars, or any Infoboard classes.
                 </div>
