@@ -489,6 +489,47 @@ function NamesLikelyMatch(a, b) {
     return false;
 }
 
+function ThoughtOwnerMatchesNpc(thoughtName, npcName, allNpcNames = []) {
+    const thought = StripNameDecorators(thoughtName).toLowerCase().trim();
+    const npc = StripNameDecorators(npcName).toLowerCase().trim();
+
+    if (!thought || !npc) return false;
+    if (thought === npc) return true;
+
+    const thoughtParts = thought.split(/\s+/).filter(Boolean);
+    const npcParts = npc.split(/\s+/).filter(Boolean);
+
+    if (!thoughtParts.length || !npcParts.length) return false;
+
+    const thoughtFirst = thoughtParts[0];
+    const thoughtLast = thoughtParts[thoughtParts.length - 1];
+    const npcFirst = npcParts[0];
+    const npcLast = npcParts[npcParts.length - 1];
+
+    if (thought === npcFirst || thought === npcLast) {
+        if (thought === npcLast) {
+            const sameLastCount = allNpcNames.filter(name => {
+                const parts = StripNameDecorators(name).toLowerCase().trim().split(/\s+/).filter(Boolean);
+                return parts.length && parts[parts.length - 1] === npcLast;
+            }).length;
+
+            return sameLastCount <= 1;
+        }
+
+        return true;
+    }
+
+    if (thought.includes(npc) || npc.includes(thought)) {
+        const minLen = Math.min(thought.length, npc.length);
+        const maxLen = Math.max(thought.length, npc.length);
+        return minLen >= 4 && (minLen / maxLen >= 0.65);
+    }
+
+    if (thoughtFirst === npcFirst && thoughtLast === npcLast) return true;
+
+    return false;
+}
+
 function IsUserLikeName(name) {
     const n = NormalizeName(name);
     return !n ||
@@ -599,8 +640,13 @@ function NormalizeThoughtOwners(result) {
                 }
             }
 
-            const relMatches = result.rels.filter(r => NamesLikelyMatch(r.source, thoughtName));
-            const charMatches = result.chars.filter(c => NamesLikelyMatch(c.name, thoughtName));
+const allNpcNames = [
+    ...result.rels.map(r => r.source),
+    ...result.chars.map(c => c.name)
+];
+
+const relMatches = result.rels.filter(r => ThoughtOwnerMatchesNpc(thoughtName, r.source, allNpcNames));
+const charMatches = result.chars.filter(c => ThoughtOwnerMatchesNpc(thoughtName, c.name, allNpcNames));
 
             const canonicalName =
                 relMatches.length === 1 ? relMatches[0].source :
@@ -961,10 +1007,12 @@ function RenderRelMeter(type, value, delta, changed) {
     </div>`;
 }
 
-function RenderThoughtForNpc(thoughts, npcName) {
+function RenderThoughtForNpc(thoughts, npcName, rels = []) {
     if (!Array.isArray(thoughts) || !npcName) return "";
 
-    const matches = thoughts.filter(t => NamesLikelyMatch(t.name, npcName));
+    const allNpcNames = rels.map(r => r.source);
+    const matches = thoughts.filter(t => ThoughtOwnerMatchesNpc(t.name, npcName, allNpcNames));
+
     if (matches.length !== 1) return "";
 
     return `
@@ -1753,17 +1801,22 @@ jQuery(async () => {
     }
 
     if (stContext.eventTypes.MESSAGE_EDITED) {
-        stContext.eventSource.on(stContext.eventTypes.MESSAGE_EDITED, () => {
-            setTimeout(() => ReprocessChat(), 320);
-        });
-    }
+    stContext.eventSource.on(stContext.eventTypes.MESSAGE_EDITED, () => {
+        setTimeout(() => ReprocessChat(), 320);
+        setTimeout(() => ReprocessChat(), 900);
+    });
+}
 
     if (stContext.eventTypes.MESSAGE_SWIPED) {
-        stContext.eventSource.on(stContext.eventTypes.MESSAGE_SWIPED, () => {
-            setTimeout(() => ReprocessChat(), 280);
-            setTimeout(() => ReprocessChat(), 700);
-        });
-    }
+    stContext.eventSource.on(stContext.eventTypes.MESSAGE_SWIPED, () => {
+        document.querySelectorAll(".ib-board-host").forEach(el => el.remove());
+
+        setTimeout(() => ReprocessChat(), 250);
+        setTimeout(() => ReprocessChat(), 700);
+        setTimeout(() => ReprocessChat(), 1300);
+        setTimeout(() => ReprocessChat(), 2000);
+    });
+}
 
     setTimeout(() => ReprocessChat(), 120);
     setTimeout(() => ReprocessChat(), 500);
