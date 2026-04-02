@@ -1216,6 +1216,55 @@ function CleanupBoardHosts(mesTextEl) {
     });
 }
 
+function CleanupEmptyMessageNodes(messageTextEl) {
+    if (!messageTextEl) return;
+
+    const isEmptyNode = (node) => {
+        if (!node) return true;
+
+        if (node.nodeType === Node.TEXT_NODE) {
+            return !String(node.textContent || "").trim();
+        }
+
+        if (node.nodeType !== Node.ELEMENT_NODE) return true;
+
+        if (node.classList?.contains("ib-board-host") || node.classList?.contains("ib-board")) {
+            return false;
+        }
+
+        const tag = node.tagName?.toLowerCase();
+
+        if (tag === "br") return true;
+
+        const text = String(node.textContent || "")
+            .replace(/\u00a0/g, " ")
+            .trim();
+
+        if (!text && node.querySelectorAll("img, video, audio, iframe, svg, canvas").length === 0) {
+            const meaningfulChildren = [...node.children].filter(child => {
+                const childTag = child.tagName?.toLowerCase();
+                return childTag !== "br" && !child.classList?.contains("ib-board-host");
+            });
+
+            return meaningfulChildren.length === 0;
+        }
+
+        return false;
+    };
+
+    const children = [...messageTextEl.childNodes];
+
+    for (const node of children) {
+        if (node.nodeType === Node.ELEMENT_NODE && node.classList?.contains("ib-board-host")) {
+            break;
+        }
+
+        if (isEmptyNode(node)) {
+            node.remove();
+        }
+    }
+}
+
 function RemoveRawXmlFromText(messageTextEl) {
     if (!gHideRaw || !messageTextEl) return;
 
@@ -1374,6 +1423,7 @@ function RenderBoardIntoMessage(mesTextEl, parsed, isFresh, prevState) {
 
     RemoveRawXmlFromText(mesTextEl);
     RemoveThoughtLeaksInContainer(mesTextEl, parsed);
+    CleanupEmptyMessageNodes(mesTextEl);
 
     const host = GetOrCreateBoardHost(mesTextEl);
     host.innerHTML = RenderBoard(parsed, isFresh, prevState);
@@ -1385,6 +1435,7 @@ function RenderBoardIntoMessage(mesTextEl, parsed, isFresh, prevState) {
     }
 
     CleanupBoardHosts(mesTextEl);
+    CleanupEmptyMessageNodes(mesTextEl);
 }
 
 function ProcessMessage(messageDiv, msgIndex, isFresh = true, prevState = null) {
