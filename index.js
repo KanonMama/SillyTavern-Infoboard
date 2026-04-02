@@ -472,7 +472,17 @@ function NamesLikelyMatch(a, b) {
         for (const y of bAliases) {
             if (!x || !y) continue;
             if (x === y) return true;
-            if (x.includes(y) || y.includes(x)) return true;
+
+            const minLen = Math.min(x.length, y.length);
+            const maxLen = Math.max(x.length, y.length);
+
+            if (minLen >= 4) {
+                if (x.includes(y) || y.includes(x)) {
+                    if (minLen / maxLen >= 0.65) {
+                        return true;
+                    }
+                }
+            }
         }
     }
 
@@ -574,16 +584,28 @@ function NormalizeThoughtOwners(result) {
         .map(t => {
             let thoughtName = t.name;
 
-            if (
+            const isUnassigned =
                 NormalizeName(thoughtName) === "__unassigned__" ||
-                NormalizeName(thoughtName) === "npc"
-            ) {
-                thoughtName = singleRelName || singleCharName || thoughtName;
+                NormalizeName(thoughtName) === "npc";
+
+            if (isUnassigned) {
+                if (singleRelName || singleCharName) {
+                    thoughtName = singleRelName || singleCharName;
+                } else {
+                    return {
+                        ...t,
+                        name: "__UNASSIGNED__"
+                    };
+                }
             }
 
-            const matchedRel = result.rels.find(r => NamesLikelyMatch(r.source, thoughtName));
-            const matchedChar = result.chars.find(c => NamesLikelyMatch(c.name, thoughtName));
-            const canonicalName = matchedRel?.source || matchedChar?.name || thoughtName;
+            const relMatches = result.rels.filter(r => NamesLikelyMatch(r.source, thoughtName));
+            const charMatches = result.chars.filter(c => NamesLikelyMatch(c.name, thoughtName));
+
+            const canonicalName =
+                relMatches.length === 1 ? relMatches[0].source :
+                charMatches.length === 1 ? charMatches[0].name :
+                thoughtName;
 
             return {
                 ...t,
@@ -677,14 +699,19 @@ function ParseInfoboard(text) {
     }
 
     if (result.rels.length && result.chars.length) {
-        result.rels = result.rels.map(r => {
-            const matchedChar = result.chars.find(c => NamesLikelyMatch(c.name, r.source));
+    result.rels = result.rels.map(r => {
+        const matches = result.chars.filter(c => NamesLikelyMatch(c.name, r.source));
+
+        if (matches.length === 1) {
             return {
                 ...r,
-                source: matchedChar?.name || r.source
+                source: matches[0].name
             };
-        });
-    }
+        }
+
+        return r;
+    });
+}
 
     const thk = doc.querySelector("thk");
     if (thk) {
@@ -934,21 +961,16 @@ function RenderRelMeter(type, value, delta, changed) {
     </div>`;
 }
 
-function RenderThoughtForNpc(thoughts, npcName, rels = []) {
+function RenderThoughtForNpc(thoughts, npcName) {
     if (!Array.isArray(thoughts) || !npcName) return "";
 
-    let found = thoughts.find(t => NamesLikelyMatch(t.name, npcName));
-
-    if (!found && thoughts.length === 1 && rels.length === 1) {
-        found = thoughts[0];
-    }
-
-    if (!found) return "";
+    const matches = thoughts.filter(t => NamesLikelyMatch(t.name, npcName));
+    if (matches.length !== 1) return "";
 
     return `
     <div class="ib-rel-thought">
         <div class="ib-rel-subtitle">💭</div>
-        <div class="ib-rel-thought-text">${EscapeHtml(found.text)}</div>
+        <div class="ib-rel-thought-text">${EscapeHtml(matches[0].text)}</div>
     </div>`;
 }
 
