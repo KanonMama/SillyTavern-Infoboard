@@ -291,6 +291,7 @@ Rules:
 - Never include {{user}} thoughts in <thk>
 - Omit <nsfw /> if the scene is not intimate
 - No extra XML tags or commentary
+- Never output private NPC thoughts in the visible narrative text; private thoughts must appear only inside <thk>
 
 <thk> strict format:
 - Use the exact full NPC name exactly as in <chars>
@@ -336,6 +337,7 @@ Rules:
 - Never include {{user}} thoughts in <thk>
 - Omit <nsfw /> if the scene is not intimate
 - No extra XML tags or commentary
+- Never output private NPC thoughts in the visible narrative text; private thoughts must appear only inside <thk>
 
 <thk> strict format:
 - Use the exact full NPC name exactly as in <chars>
@@ -511,10 +513,25 @@ function NormalizeName(str) {
 function NormalizeLooseText(str) {
     return String(str ?? "")
         .toLowerCase()
-        .replace(/[*_~`"]/g, "")
+        .replace(/[«»„“”"']/g, "")
+        .replace(/[…]+/g, "...")
+        .replace(/\.\.\.+/g, "...")
         .replace(/[—–]/g, ":")
+        .replace(/[*_~`]/g, "")
         .replace(/\s+/g, " ")
         .trim();
+}
+
+function NormalizeThoughtText(str) {
+    return NormalizeLooseText(str)
+        .replace(/[,:;!?]/g, "")
+        .replace(/\.\.\./g, " ")
+        .replace(/\s+/g, " ")
+        .trim();
+}
+
+function EscapeRegex(str) {
+    return String(str ?? "").replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
 function StripNameDecorators(str) {
@@ -1453,11 +1470,20 @@ function RemoveRawXmlFromText(messageTextEl) {
 function RemoveThoughtLeaksInContainer(messageTextEl, parsed) {
     if (!messageTextEl || !parsed?.thoughts?.length) return;
 
-    const thoughtEntries = parsed.thoughts.map(t => ({
-        full: NormalizeLooseText(`${t.name}: ${t.text}`),
-        text: NormalizeLooseText(t.text),
-        aliases: GetNameAliases(t.name).map(NormalizeLooseText),
-    }));
+    const thoughtEntries = parsed.thoughts.map(t => {
+        const rawFull = `${t.name}: ${t.text}`;
+        const normalizedFull = NormalizeLooseText(rawFull);
+        const normalizedText = NormalizeLooseText(t.text);
+        const softText = NormalizeThoughtText(t.text);
+
+        return {
+            rawFull,
+            normalizedFull,
+            normalizedText,
+            softText,
+            aliases: GetNameAliases(t.name).map(NormalizeLooseText),
+        };
+    });
 
     const walker = document.createTreeWalker(
         messageTextEl,
@@ -1467,17 +1493,24 @@ function RemoveThoughtLeaksInContainer(messageTextEl, parsed) {
                 if (!node?.parentElement) return NodeFilter.FILTER_REJECT;
                 if (node.parentElement.closest(".ib-board-host, .ib-board")) return NodeFilter.FILTER_REJECT;
 
-                const text = NormalizeLooseText(node.textContent || "");
+                const raw = node.textContent || "";
+                const text = NormalizeLooseText(raw);
+                const soft = NormalizeThoughtText(raw);
+
                 if (!text) return NodeFilter.FILTER_SKIP;
 
                 const isThoughtLeak = thoughtEntries.some(t => {
                     const aliasHit = t.aliases.some(a => a && text.includes(a));
-                    const textHit =
-                        (t.full && text.includes(t.full)) ||
-                        (t.text && text.includes(t.text)) ||
-                        (t.text && t.text.includes(text) && text.length > 20);
 
-                    return textHit || (aliasHit && t.text && text.includes(t.text.slice(0, 16)));
+                    const exactishHit =
+                        (t.normalizedFull && text.includes(t.normalizedFull)) ||
+                        (t.normalizedText && text.includes(t.normalizedText));
+
+                    const softHit =
+                        (t.softText && soft.includes(t.softText)) ||
+                        (t.softText && t.softText.includes(soft) && soft.length > 18);
+
+                    return exactishHit || softHit || (aliasHit && t.softText && soft.includes(t.softText.slice(0, 14)));
                 });
 
                 return isThoughtLeak ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_SKIP;
@@ -1496,13 +1529,50 @@ function RemoveThoughtLeaksInContainer(messageTextEl, parsed) {
         const parent = node.parentElement;
         if (!parent) continue;
 
-        const normalized = NormalizeLooseText(node.textContent || "");
+        const raw = node.textContent || "";
+        const text = NormalizeLooseText(raw);
+        const soft = NormalizeThoughtText(raw);
+
+        const matchedThought = thoughtEntries.find(t => {
+            return (
+                (t.normalizedFull && text.includes(t.normalizedFull)) ||
+                (t.normalizedText && text.includes(t.normalizedText)) ||
+                (t.softText && soft.includes(t.softText))
+            );
+        });
+
         const shouldRemoveWholeParent =
             parent.childNodes.length === 1 &&
-            normalized.length > 0;
+            (text.length > 0 || soft.length > 0);
 
         if (shouldRemoveWholeParent && !parent.closest(".ib-board-host, .ib-board")) {
             parent.remove();
+            continue;
+        }
+
+        if (matchedThought) {
+            let cleaned = raw;
+
+            if (matchedThought.rawFull) {
+                cleaned = cleaned.replace(new RegExp(EscapeRegex(matchedThought.rawFull), "gi"), "");
+            }
+
+            if (matchedThought.normalizedText) {
+                const textVariants = [
+                    matchedThought.rawFull,
+                    matchedThought.normalizedText,
+                ].filter(Boolean);
+
+                for (const variant of textVariants) {
+                    cleaned = cleaned.replace(new RegExp(EscapeRegex(variant), "gi"), "");
+                }
+            }
+
+            if (NormalizeLooseText(cleaned) === text || NormalizeThoughtText(cleaned) === soft) {
+                node.textContent = "";
+            } else {
+                node.textContent = cleaned;
+            }
         } else {
             node.textContent = "";
         }
