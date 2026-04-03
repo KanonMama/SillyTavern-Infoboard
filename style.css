@@ -338,32 +338,66 @@
     --ib-header-glow: radial-gradient(circle at top right, rgba(255, 223, 130, 0.08), transparent 46%);
 }
 
-/* HOGWARTS DECORATIVE DETAILS — TITLE MOTIF VERSION */
+/* HOGWARTS DECORATIVE DETAILS — TITLE SYSTEM */
+
+.ib-title-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    margin-bottom: 10px;
+    position: relative;
+    z-index: 2;
+}
+
+.ib-title {
+    text-align: center;
+    font-size: 10px;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: var(--ib-dim);
+    margin-bottom: 0;
+    position: relative;
+    z-index: 2;
+    line-height: 1.2;
+}
+
+.ib-title-sub {
+    text-align: center;
+    font-size: 11px;
+    line-height: 1.2;
+    color: var(--ib-muted);
+    opacity: 0.92;
+    white-space: pre-wrap;
+    word-break: break-word;
+    max-width: 100%;
+}
 
 .ib-theme-gryffindor .ib-board::before {
     background:
-        linear-gradient(120deg, rgba(255,255,255,0.026), transparent 34%),
-        radial-gradient(circle at 12% 0%, rgba(255,225,170,0.06), transparent 24%),
-        radial-gradient(circle at 88% 18%, rgba(255,170,90,0.06), transparent 18%);
+        linear-gradient(120deg, rgba(255,255,255,0.028), transparent 34%),
+        radial-gradient(circle at 12% 0%, rgba(255,225,170,0.07), transparent 24%),
+        radial-gradient(circle at 88% 18%, rgba(255,170,90,0.07), transparent 18%);
     opacity: 0.92;
 }
 
 .ib-theme-gryffindor .ib-title {
     font-family: Georgia, "Times New Roman", serif;
-    letter-spacing: 2.8px;
-    position: relative;
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: 1.2px;
+    text-transform: none;
+    color: #f3dfb4;
+    text-shadow:
+        0 0 10px rgba(212, 169, 78, 0.08),
+        0 0 18px rgba(240, 210, 138, 0.05);
 }
 
-.ib-theme-gryffindor .ib-title::before,
-.ib-theme-gryffindor .ib-title::after {
-    content: "🦁";
-    opacity: 0.78;
-    margin: 0 10px;
-    filter: drop-shadow(0 0 6px rgba(240, 210, 138, 0.14));
-}
-
-.ib-theme-gryffindor .ib-title {
-    text-shadow: 0 0 10px rgba(212, 169, 78, 0.08);
+.ib-theme-gryffindor .ib-title-sub {
+    color: #d9bf8b;
+    font-size: 12px;
+    letter-spacing: 0.4px;
 }
 
 .ib-theme-gryffindor .ib-header::before {
@@ -389,20 +423,20 @@
 
 .ib-theme-slytherin .ib-title {
     font-family: "Trebuchet MS", "Gill Sans", "Segoe UI", sans-serif;
-    letter-spacing: 2.4px;
-    position: relative;
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: none;
+    color: #cfe7db;
+    text-shadow:
+        0 0 10px rgba(125, 200, 162, 0.08),
+        0 0 16px rgba(199, 210, 207, 0.04);
 }
 
-.ib-theme-slytherin .ib-title::before,
-.ib-theme-slytherin .ib-title::after {
-    content: "🐍";
-    opacity: 0.78;
-    margin: 0 10px;
-    filter: drop-shadow(0 0 6px rgba(199, 210, 207, 0.12));
-}
-
-.ib-theme-slytherin .ib-title {
-    text-shadow: 0 0 10px rgba(125, 200, 162, 0.07);
+.ib-theme-slytherin .ib-title-sub {
+    color: #a9c8bb;
+    font-size: 12px;
+    letter-spacing: 0.3px;
 }
 
 .ib-theme-slytherin .ib-header::before {
@@ -428,20 +462,20 @@
 
 .ib-theme-ravenclaw .ib-title {
     font-family: Georgia, "Times New Roman", serif;
-    letter-spacing: 2.8px;
-    position: relative;
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: 1.1px;
+    text-transform: none;
+    color: #d9e5fb;
+    text-shadow:
+        0 0 10px rgba(141, 168, 216, 0.08),
+        0 0 16px rgba(184, 137, 79, 0.04);
 }
 
-.ib-theme-ravenclaw .ib-title::before,
-.ib-theme-ravenclaw .ib-title::after {
-    content: "🪶";
-    opacity: 0.80;
-    margin: 0 10px;
-    filter: drop-shadow(0 0 6px rgba(141, 168, 216, 0.12));
-}
-
-.ib-theme-ravenclaw .ib-title {
-    text-shadow: 0 0 10px rgba(141, 168, 216, 0.07);
+.ib-theme-ravenclaw .ib-title-sub {
+    color: #bda178;
+    font-size: 12px;
+    letter-spacing: 0.35px;
 }
 
 .ib-theme-ravenclaw .ib-header::before {
@@ -450,7 +484,7 @@
 }
 
 .ib-theme-ravenclaw .ib-collapsed-action::before {
-    content: "🦅 ";
+    content: "𓅓 ";
     opacity: 0.86;
 }
 
@@ -468,19 +502,20 @@
 
 .ib-theme-hufflepuff .ib-title {
     font-family: "Trebuchet MS", "Verdana", "Segoe UI", sans-serif;
-    letter-spacing: 2.6px;
-    position: relative;
-    text-shadow: 0 0 10px rgba(224, 185, 74, 0.06);
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: none;
+    color: #f1dda7;
+    text-shadow:
+        0 0 10px rgba(224, 185, 74, 0.07),
+        0 0 16px rgba(243, 216, 137, 0.04);
 }
 
-.ib-theme-hufflepuff .ib-title::before,
-.ib-theme-hufflepuff .ib-title::after {
-    content: "⬢";
-    color: #f3d889;
-    opacity: 0.72;
-    margin: 0 10px;
-    font-size: 11px;
-    filter: drop-shadow(0 0 5px rgba(243, 216, 137, 0.12));
+.ib-theme-hufflepuff .ib-title-sub {
+    color: #d8be72;
+    font-size: 12px;
+    letter-spacing: 0.35px;
 }
 
 .ib-theme-hufflepuff .ib-header::before {
@@ -497,12 +532,13 @@
     box-shadow: 0 0 12px rgba(224, 185, 74, 0.18);
 }
 
-.ib-theme-hufflepuff .ib-section-title::after {
-    content: " ⬢ ⬢";
-    color: rgba(243, 216, 137, 0.50);
-    letter-spacing: 1px;
-    margin-left: 6px;
-    font-size: 9px;
+/* polish for faculty section icons */
+.ib-theme-gryffindor .ib-section-title,
+.ib-theme-slytherin .ib-section-title,
+.ib-theme-ravenclaw .ib-section-title,
+.ib-theme-hufflepuff .ib-section-title {
+    font-size: 11px;
+    letter-spacing: 1.4px;
 }
 
 /* MINI-STATS FOR HOGWARTS THEMES */
