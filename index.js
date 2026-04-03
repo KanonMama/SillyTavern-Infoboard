@@ -372,7 +372,7 @@ function GetThemeTitleData(theme = gTheme) {
             sub: "⊹₊˚‧︵‿₊🐍₊‿︵‧˚₊⊹"
         },
         ravenclaw: {
-            main: "𓅓 ℜ𝔞𝔳𝔢𝔫𝔠𝔩𝔞𝔴 𓅓",
+            main: "𓄿 ℜ𝔞𝔳𝔢𝔫𝔠𝔩𝔞𝔴 𓄿",
             sub: "✦•┈๑⋅⋯🦅⋯⋅๑┈•✦"
         },
         hufflepuff: {
