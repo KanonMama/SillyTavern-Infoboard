@@ -361,6 +361,51 @@ function T(key) {
     return kLang[gLang]?.[key] ?? key;
 }
 
+function GetThemeTitleData(theme = gTheme) {
+    const map = {
+        gryffindor: {
+            main: "𓃬 𝔊𝔯𝔶𝔣𝔣𝔦𝔫𝔡𝔬𝔯 𓃬",
+            sub: "✩₊˚.⋆🦁⋆⁺₊✧"
+        },
+        slytherin: {
+            main: "𓆙 𝔖𝔩𝔶𝔱𝔥𝔢𝔯𝔦𝔫 𓆙",
+            sub: "⊹₊˚‧︵‿₊🐍₊‿︵‧˚₊⊹"
+        },
+        ravenclaw: {
+            main: "𓅓 ℜ𝔞𝔳𝔢𝔫𝔠𝔩𝔞𝔴 𓅓",
+            sub: "✦•┈๑⋅⋯🦅⋯⋅๑┈•✦"
+        },
+        hufflepuff: {
+            main: "𓃮 ℌ𝔲𝔣𝔣𝔩𝔢𝔭𝔲𝔣𝔣 𓃮",
+            sub: "-ˋˏ ༻❁🦡❀༺ ˎˊ-"
+        }
+    };
+
+    return map[theme] || {
+        main: T("title"),
+        sub: ""
+    };
+}
+
+function GetThemeLocationIcon(theme = gTheme) {
+    return "📜";
+}
+
+function GetThemeCharsIcon(theme = gTheme) {
+    return "🪶";
+}
+
+function GetThemeRelationsIcon(theme = gTheme) {
+    const map = {
+        gryffindor: "❤️",
+        slytherin: "💚",
+        ravenclaw: "💙",
+        hufflepuff: "💛"
+    };
+
+    return map[theme] || "🤍";
+}
+
 function GetThemePreview(theme = gTheme) {
     return kThemePreviewMap[theme] || kThemePreviewMap.nocturne;
 }
@@ -1012,7 +1057,7 @@ function RenderChars(chars) {
 
     return `
     <div class="ib-section">
-        <div class="ib-section-title">${T("chars")}</div>
+        <div class="ib-section-title">${GetThemeCharsIcon()} ${T("chars")}</div>
         <div class="ib-chars">
             ${chars.map(c => `
                 <div class="ib-char">
@@ -1101,7 +1146,7 @@ function RenderRelations(rels, thoughts = [], prevState = null) {
 
     return `
     <div class="ib-section">
-        <div class="ib-section-title">${T("rels")}</div>
+        <div class="ib-section-title">${GetThemeRelationsIcon()} ${T("rels")}</div>
         ${sorted.map(r => RenderRelCard(r, thoughts, prevState, rels)).join("")}
     </div>`;
 }
@@ -1146,14 +1191,19 @@ function RenderCompactRelations(state, prevState = null) {
 }
 
 function RenderBoard(state, isFresh = false, prevState = null) {
+    const themeTitle = GetThemeTitleData();
+
     return `
     <div class="ib-board ib-theme-${EscapeHtml(gTheme)} ib-bars-${EscapeHtml(gBarStyle)} ${gHoverFx ? "ib-hoverfx" : ""} ib-mode-full ${isFresh ? "ib-fresh" : ""}">
-        <div class="ib-title">${T("title")}</div>
+        <div class="ib-title-wrap">
+            <div class="ib-title">${EscapeHtml(themeTitle.main)}</div>
+            ${themeTitle.sub ? `<div class="ib-title-sub">${EscapeHtml(themeTitle.sub)}</div>` : ""}
+        </div>
 
         <div class="ib-collapsed-wrap">
             <div class="ib-collapsed-tag">
                 <span></span>
-                <span class="ib-collapsed-title">✦ ${T("title")}</span>
+                <span class="ib-collapsed-title">✦ ${EscapeHtml(T("title"))}</span>
                 <span class="ib-collapsed-action">OPEN</span>
             </div>
         </div>
@@ -1169,14 +1219,14 @@ function RenderBoard(state, isFresh = false, prevState = null) {
                     <div class="ib-control-btn ib-btn-collapse" title="Collapse">✕</div>
                 </div>
             </div>
-            <div class="ib-compact-loc">📍 ${RenderMaybeUnknown(state.loc)}</div>
+            <div class="ib-compact-loc">${GetThemeLocationIcon()} ${RenderMaybeUnknown(state.loc)}</div>
         </div>
 
         <div class="ib-full-wrap">
             <div class="ib-header">
                 <div class="ib-header-main">
                     <div class="ib-header-location">
-                        <span class="ib-header-location-icon">📍</span>
+                        <span class="ib-header-location-icon">${GetThemeLocationIcon()}</span>
                         <span class="ib-header-location-text">${RenderMaybeUnknown(state.loc)}</span>
                     </div>
 
