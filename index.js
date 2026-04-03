@@ -534,6 +534,36 @@ function EscapeRegex(str) {
     return String(str ?? "").replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
+function LooksLikeStandaloneThoughtFragment(rawText, thoughtEntries = []) {
+    const raw = String(rawText || "").trim();
+    if (!raw) return false;
+
+    const normalized = NormalizeLooseText(raw);
+    const soft = NormalizeThoughtText(raw);
+
+    if (!normalized || soft.length < 3) return false;
+
+    const looksQuoted =
+        /^[«"„“].+[»"“”]$/.test(raw) ||
+        /^["'][^"']+["']$/.test(raw);
+
+    const looksShortFragment =
+        raw.length <= 80 &&
+        (looksQuoted || /^\.{0,3}[^.!?]{1,80}\.{0,3}$/.test(raw));
+
+    if (!looksShortFragment) return false;
+
+    return thoughtEntries.some(t => {
+        if (!t?.softText) return false;
+
+        return (
+            t.softText.includes(soft) ||
+            t.normalizedText.includes(normalized) ||
+            t.normalizedFull.includes(normalized)
+        );
+    });
+}
+
 function StripNameDecorators(str) {
     return String(str ?? "")
         .replace(/[*_~`"“”„]/g, "")
@@ -1499,21 +1529,23 @@ function RemoveThoughtLeaksInContainer(messageTextEl, parsed) {
 
                 if (!text) return NodeFilter.FILTER_SKIP;
 
-                const isThoughtLeak = thoughtEntries.some(t => {
-                    const aliasHit = t.aliases.some(a => a && text.includes(a));
+                const standaloneFragmentHit = LooksLikeStandaloneThoughtFragment(raw, thoughtEntries);
 
-                    const exactishHit =
-                        (t.normalizedFull && text.includes(t.normalizedFull)) ||
-                        (t.normalizedText && text.includes(t.normalizedText));
+const isThoughtLeak = thoughtEntries.some(t => {
+    const aliasHit = t.aliases.some(a => a && text.includes(a));
 
-                    const softHit =
-                        (t.softText && soft.includes(t.softText)) ||
-                        (t.softText && t.softText.includes(soft) && soft.length > 18);
+    const exactishHit =
+        (t.normalizedFull && text.includes(t.normalizedFull)) ||
+        (t.normalizedText && text.includes(t.normalizedText));
 
-                    return exactishHit || softHit || (aliasHit && t.softText && soft.includes(t.softText.slice(0, 14)));
-                });
+    const softHit =
+        (t.softText && soft.includes(t.softText)) ||
+        (t.softText && t.softText.includes(soft) && soft.length > 18);
 
-                return isThoughtLeak ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_SKIP;
+    return exactishHit || softHit || (aliasHit && t.softText && soft.includes(t.softText.slice(0, 14)));
+}) || standaloneFragmentHit;
+
+return isThoughtLeak ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_SKIP;
             }
         }
     );
@@ -1533,13 +1565,14 @@ function RemoveThoughtLeaksInContainer(messageTextEl, parsed) {
         const text = NormalizeLooseText(raw);
         const soft = NormalizeThoughtText(raw);
 
-        const matchedThought = thoughtEntries.find(t => {
-            return (
-                (t.normalizedFull && text.includes(t.normalizedFull)) ||
-                (t.normalizedText && text.includes(t.normalizedText)) ||
-                (t.softText && soft.includes(t.softText))
-            );
-        });
+const matchedThought = thoughtEntries.find(t => {
+    return (
+        (t.normalizedFull && text.includes(t.normalizedFull)) ||
+        (t.normalizedText && text.includes(t.normalizedText)) ||
+        (t.softText && soft.includes(t.softText)) ||
+        (soft.length >= 3 && t.softText && t.softText.includes(soft) && raw.trim().length <= 80)
+    );
+});
 
         const shouldRemoveWholeParent =
             parent.childNodes.length === 1 &&
@@ -1568,11 +1601,19 @@ function RemoveThoughtLeaksInContainer(messageTextEl, parsed) {
                 }
             }
 
-            if (NormalizeLooseText(cleaned) === text || NormalizeThoughtText(cleaned) === soft) {
-                node.textContent = "";
-            } else {
-                node.textContent = cleaned;
-            }
+            const cleanedLoose = NormalizeLooseText(cleaned);
+const cleanedSoft = NormalizeThoughtText(cleaned);
+
+if (
+    !cleaned.trim() ||
+    cleanedLoose === text ||
+    cleanedSoft === soft ||
+    LooksLikeStandaloneThoughtFragment(raw, thoughtEntries)
+) {
+    node.textContent = "";
+} else {
+    node.textContent = cleaned;
+}
         } else {
             node.textContent = "";
         }
