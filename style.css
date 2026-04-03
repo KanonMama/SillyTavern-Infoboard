@@ -338,48 +338,37 @@
     --ib-header-glow: radial-gradient(circle at top right, rgba(255, 223, 130, 0.08), transparent 46%);
 }
 
-/* HOGWARTS DECORATIVE DETAILS — EMBLEM VERSION */
+/* HOGWARTS DECORATIVE DETAILS — TITLE MOTIF VERSION */
 
 .ib-theme-gryffindor .ib-board::before {
     background:
-        linear-gradient(120deg, rgba(255,255,255,0.028), transparent 34%),
-        radial-gradient(circle at 12% 0%, rgba(255,225,170,0.07), transparent 24%),
-        radial-gradient(circle at 88% 18%, rgba(255,170,90,0.08), transparent 18%);
-    opacity: 0.96;
+        linear-gradient(120deg, rgba(255,255,255,0.026), transparent 34%),
+        radial-gradient(circle at 12% 0%, rgba(255,225,170,0.06), transparent 24%),
+        radial-gradient(circle at 88% 18%, rgba(255,170,90,0.06), transparent 18%);
+    opacity: 0.92;
 }
 
-.ib-theme-gryffindor .ib-header {
+.ib-theme-gryffindor .ib-title {
+    font-family: Georgia, "Times New Roman", serif;
+    letter-spacing: 2.8px;
     position: relative;
-    overflow: hidden;
-    box-shadow: inset 0 1px 0 rgba(255, 225, 170, 0.05);
-}
-
-.ib-theme-gryffindor .ib-header::before {
-    background: linear-gradient(90deg, transparent, #d4a94e, #f0d28a, transparent);
-    opacity: 0.9;
-}
-
-.ib-theme-gryffindor .ib-header::after {
-    content: "";
-    position: absolute;
-    top: 8px;
-    right: 12px;
-    width: 86px;
-    height: 54px;
-    pointer-events: none;
-    opacity: 0.22;
-    background:
-        radial-gradient(circle at 50% 50%, rgba(240, 210, 138, 0.75) 0 18px, transparent 19px),
-        linear-gradient(90deg, transparent 0 48%, rgba(240, 210, 138, 0.85) 49% 51%, transparent 52%),
-        linear-gradient(0deg, transparent 0 48%, rgba(240, 210, 138, 0.72) 49% 51%, transparent 52%);
-    border-radius: 18px;
-    filter: blur(0.2px) drop-shadow(0 0 8px rgba(240, 210, 138, 0.10));
 }
 
 .ib-theme-gryffindor .ib-title::before,
 .ib-theme-gryffindor .ib-title::after {
     content: "🦁";
-    opacity: 0.74;
+    opacity: 0.78;
+    margin: 0 10px;
+    filter: drop-shadow(0 0 6px rgba(240, 210, 138, 0.14));
+}
+
+.ib-theme-gryffindor .ib-title {
+    text-shadow: 0 0 10px rgba(212, 169, 78, 0.08);
+}
+
+.ib-theme-gryffindor .ib-header::before {
+    background: linear-gradient(90deg, transparent, #d4a94e, #f0d28a, transparent);
+    opacity: 0.88;
 }
 
 .ib-theme-gryffindor .ib-collapsed-action::before {
@@ -391,50 +380,34 @@
     box-shadow: 0 0 12px rgba(212, 169, 78, 0.18);
 }
 
-.ib-theme-gryffindor .ib-title,
-.ib-theme-gryffindor .ib-section-title,
-.ib-theme-gryffindor .ib-collapsed-tag {
-    font-family: Georgia, "Times New Roman", serif;
-    letter-spacing: 2.8px;
-}
-
 .ib-theme-slytherin .ib-board::before {
     background:
         linear-gradient(120deg, rgba(255,255,255,0.02), transparent 34%),
         radial-gradient(circle at 10% 0%, rgba(220,255,240,0.04), transparent 22%);
-    opacity: 0.95;
+    opacity: 0.92;
 }
 
-.ib-theme-slytherin .ib-header {
+.ib-theme-slytherin .ib-title {
+    font-family: "Trebuchet MS", "Gill Sans", "Segoe UI", sans-serif;
+    letter-spacing: 2.4px;
     position: relative;
-    overflow: hidden;
-    box-shadow: inset 0 1px 0 rgba(199, 210, 207, 0.05);
-}
-
-.ib-theme-slytherin .ib-header::before {
-    background: linear-gradient(90deg, transparent, #7dc8a2, #c7d2cf, transparent);
-    opacity: 0.84;
-}
-
-.ib-theme-slytherin .ib-header::after {
-    content: "";
-    position: absolute;
-    top: 8px;
-    right: 12px;
-    width: 88px;
-    height: 54px;
-    pointer-events: none;
-    opacity: 0.20;
-    background:
-        radial-gradient(ellipse at 28% 35%, transparent 0 13px, rgba(199, 210, 207, 0.85) 14px 15px, transparent 16px),
-        radial-gradient(ellipse at 68% 65%, transparent 0 13px, rgba(125, 200, 162, 0.82) 14px 15px, transparent 16px);
-    filter: drop-shadow(0 0 6px rgba(199, 210, 207, 0.10));
 }
 
 .ib-theme-slytherin .ib-title::before,
 .ib-theme-slytherin .ib-title::after {
     content: "🐍";
-    opacity: 0.72;
+    opacity: 0.78;
+    margin: 0 10px;
+    filter: drop-shadow(0 0 6px rgba(199, 210, 207, 0.12));
+}
+
+.ib-theme-slytherin .ib-title {
+    text-shadow: 0 0 10px rgba(125, 200, 162, 0.07);
+}
+
+.ib-theme-slytherin .ib-header::before {
+    background: linear-gradient(90deg, transparent, #7dc8a2, #c7d2cf, transparent);
+    opacity: 0.84;
 }
 
 .ib-theme-slytherin .ib-collapsed-action::before {
@@ -446,53 +419,34 @@
     box-shadow: 0 0 12px rgba(125, 200, 162, 0.16);
 }
 
-.ib-theme-slytherin .ib-title,
-.ib-theme-slytherin .ib-section-title,
-.ib-theme-slytherin .ib-collapsed-tag {
-    font-family: "Trebuchet MS", "Gill Sans", "Segoe UI", sans-serif;
-    letter-spacing: 2.4px;
-}
-
 .ib-theme-ravenclaw .ib-board::before {
     background:
-        linear-gradient(120deg, rgba(255,255,255,0.024), transparent 34%),
-        radial-gradient(circle at 10% 0%, rgba(225,235,255,0.05), transparent 22%);
-    opacity: 0.96;
+        linear-gradient(120deg, rgba(255,255,255,0.022), transparent 34%),
+        radial-gradient(circle at 10% 0%, rgba(225,235,255,0.045), transparent 22%);
+    opacity: 0.94;
 }
 
-.ib-theme-ravenclaw .ib-header {
+.ib-theme-ravenclaw .ib-title {
+    font-family: Georgia, "Times New Roman", serif;
+    letter-spacing: 2.8px;
     position: relative;
-    overflow: hidden;
-    box-shadow: inset 0 1px 0 rgba(184, 137, 79, 0.05);
+}
+
+.ib-theme-ravenclaw .ib-title::before,
+.ib-theme-ravenclaw .ib-title::after {
+    content: "🪶";
+    opacity: 0.80;
+    margin: 0 10px;
+    filter: drop-shadow(0 0 6px rgba(141, 168, 216, 0.12));
+}
+
+.ib-theme-ravenclaw .ib-title {
+    text-shadow: 0 0 10px rgba(141, 168, 216, 0.07);
 }
 
 .ib-theme-ravenclaw .ib-header::before {
     background: linear-gradient(90deg, transparent, #8da8d8, #b8894f, transparent);
     opacity: 0.86;
-}
-
-.ib-theme-ravenclaw .ib-header::after {
-    content: "";
-    position: absolute;
-    top: 8px;
-    right: 12px;
-    width: 88px;
-    height: 54px;
-    pointer-events: none;
-    opacity: 0.22;
-    background:
-        linear-gradient(135deg, transparent 46%, rgba(184, 137, 79, 0.86) 48% 50%, transparent 52%),
-        linear-gradient(45deg, transparent 46%, rgba(141, 168, 216, 0.82) 48% 50%, transparent 52%);
-    background-size: 38px 38px, 38px 38px;
-    background-position: 12px 10px, 38px 14px;
-    background-repeat: no-repeat;
-    filter: drop-shadow(0 0 6px rgba(141, 168, 216, 0.08));
-}
-
-.ib-theme-ravenclaw .ib-title::before,
-.ib-theme-ravenclaw .ib-title::after {
-    content: "🦅";
-    opacity: 0.72;
 }
 
 .ib-theme-ravenclaw .ib-collapsed-action::before {
@@ -504,87 +458,34 @@
     box-shadow: 0 0 12px rgba(141, 168, 216, 0.16);
 }
 
-.ib-theme-ravenclaw .ib-title,
-.ib-theme-ravenclaw .ib-section-title,
-.ib-theme-ravenclaw .ib-collapsed-tag {
-    font-family: Georgia, "Times New Roman", serif;
-    letter-spacing: 2.8px;
-}
-
 .ib-theme-hufflepuff .ib-board::before {
     background:
-        linear-gradient(120deg, rgba(255,255,255,0.03), transparent 34%),
-        radial-gradient(circle at 10% 0%, rgba(255,232,170,0.08), transparent 24%),
-        radial-gradient(circle at 88% 16%, rgba(255,215,110,0.08), transparent 18%);
-    opacity: 0.97;
+        linear-gradient(120deg, rgba(255,255,255,0.028), transparent 34%),
+        radial-gradient(circle at 10% 0%, rgba(255,232,170,0.07), transparent 24%),
+        radial-gradient(circle at 88% 16%, rgba(255,215,110,0.06), transparent 18%);
+    opacity: 0.94;
 }
 
-.ib-theme-hufflepuff .ib-header {
+.ib-theme-hufflepuff .ib-title {
+    font-family: "Trebuchet MS", "Verdana", "Segoe UI", sans-serif;
+    letter-spacing: 2.6px;
     position: relative;
-    overflow: hidden;
-    box-shadow: inset 0 1px 0 rgba(255, 230, 160, 0.06);
-}
-
-.ib-theme-hufflepuff .ib-header::before {
-    background: linear-gradient(90deg, transparent, #e0b94a, #f3d889, transparent);
-    opacity: 0.9;
-}
-
-.ib-theme-hufflepuff .ib-header::after {
-    content: "";
-    position: absolute;
-    top: 8px;
-    right: 12px;
-    width: 88px;
-    height: 54px;
-    pointer-events: none;
-    opacity: 0.22;
-    background:
-        polygon(0 0);
-    filter: drop-shadow(0 0 6px rgba(243, 216, 137, 0.10));
-}
-
-/* actual honeycomb cells */
-.ib-theme-hufflepuff .ib-header::after {
-    background:
-        linear-gradient(30deg, rgba(243, 216, 137, 0.88) 12%, transparent 12.5%, transparent 87%, rgba(243, 216, 137, 0.88) 87.5%, rgba(243, 216, 137, 0.88)),
-        linear-gradient(150deg, rgba(243, 216, 137, 0.88) 12%, transparent 12.5%, transparent 87%, rgba(243, 216, 137, 0.88) 87.5%, rgba(243, 216, 137, 0.88)),
-        linear-gradient(90deg, rgba(243, 216, 137, 0.72) 2%, transparent 2.5%, transparent 97%, rgba(243, 216, 137, 0.72) 97.5%, rgba(243, 216, 137, 0.72));
-    background-size: 18px 30px, 18px 30px, 18px 30px;
-    background-position: 4px 8px, 13px 23px, 4px 8px;
-    background-repeat: repeat;
-    border-radius: 10px;
-    mask-image: linear-gradient(90deg, transparent 0%, rgba(0,0,0,1) 20%, rgba(0,0,0,1) 100%);
-    -webkit-mask-image: linear-gradient(90deg, transparent 0%, rgba(0,0,0,1) 20%, rgba(0,0,0,1) 100%);
-}
-
-.ib-theme-hufflepuff .ib-section {
-    position: relative;
-    overflow: hidden;
-}
-
-.ib-theme-hufflepuff .ib-section::before {
-    content: "";
-    position: absolute;
-    top: -8px;
-    right: 18px;
-    width: 62px;
-    height: 34px;
-    pointer-events: none;
-    opacity: 0.08;
-    background:
-        linear-gradient(30deg, rgba(243, 216, 137, 0.74) 12%, transparent 12.5%, transparent 87%, rgba(243, 216, 137, 0.74) 87.5%, rgba(243, 216, 137, 0.74)),
-        linear-gradient(150deg, rgba(243, 216, 137, 0.74) 12%, transparent 12.5%, transparent 87%, rgba(243, 216, 137, 0.74) 87.5%, rgba(243, 216, 137, 0.74)),
-        linear-gradient(90deg, rgba(243, 216, 137, 0.52) 2%, transparent 2.5%, transparent 97%, rgba(243, 216, 137, 0.52) 97.5%, rgba(243, 216, 137, 0.52));
-    background-size: 14px 24px, 14px 24px, 14px 24px;
-    background-position: 0 0, 7px 12px, 0 0;
-    border-radius: 8px;
+    text-shadow: 0 0 10px rgba(224, 185, 74, 0.06);
 }
 
 .ib-theme-hufflepuff .ib-title::before,
 .ib-theme-hufflepuff .ib-title::after {
-    content: "🦡";
-    opacity: 0.74;
+    content: "⬢";
+    color: #f3d889;
+    opacity: 0.72;
+    margin: 0 10px;
+    font-size: 11px;
+    filter: drop-shadow(0 0 5px rgba(243, 216, 137, 0.12));
+}
+
+.ib-theme-hufflepuff .ib-header::before {
+    background: linear-gradient(90deg, transparent, #e0b94a, #f3d889, transparent);
+    opacity: 0.90;
 }
 
 .ib-theme-hufflepuff .ib-collapsed-action::before {
@@ -596,16 +497,12 @@
     box-shadow: 0 0 12px rgba(224, 185, 74, 0.18);
 }
 
-.ib-theme-hufflepuff .ib-title,
-.ib-theme-hufflepuff .ib-section-title,
-.ib-theme-hufflepuff .ib-collapsed-tag {
-    font-family: "Trebuchet MS", "Verdana", "Segoe UI", sans-serif;
-    letter-spacing: 2.6px;
-}
-
-.ib-theme-hufflepuff .ib-status-complex .ib-status-icon,
-.ib-theme-hufflepuff .ib-status-romantic .ib-status-icon {
-    color: #f3d889;
+.ib-theme-hufflepuff .ib-section-title::after {
+    content: " ⬢ ⬢";
+    color: rgba(243, 216, 137, 0.50);
+    letter-spacing: 1px;
+    margin-left: 6px;
+    font-size: 9px;
 }
 
 /* MINI-STATS FOR HOGWARTS THEMES */
