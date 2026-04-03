@@ -111,6 +111,43 @@ const kThemePreviewMap = {
         accent2: "#cfa98e",
         text: "#f5eadc",
         danger: "#d98b7d"
+    },
+
+    gryffindor: {
+        label: { ru: "Гриффиндор: бордо, золото и гербовый жар", en: "Gryffindor: crimson, gold, heraldic warmth" },
+        bg: "#2a1114",
+        bg2: "#4a161b",
+        accent: "#d4a94e",
+        accent2: "#f0d28a",
+        text: "#f9e8db",
+        danger: "#ff8b7f"
+    },
+    slytherin: {
+        label: { ru: "Слизерин: изумруд, серебро и холодный блеск", en: "Slytherin: emerald, silver, cold sheen" },
+        bg: "#0f1b16",
+        bg2: "#173027",
+        accent: "#7dc8a2",
+        accent2: "#c7d2cf",
+        text: "#e6f2ed",
+        danger: "#c98f98"
+    },
+    ravenclaw: {
+        label: { ru: "Когтевран: тёмный сапфир и бронза", en: "Ravenclaw: deep sapphire and bronze" },
+        bg: "#121c2f",
+        bg2: "#1b2d4a",
+        accent: "#8da8d8",
+        accent2: "#b8894f",
+        text: "#edf2fb",
+        danger: "#d58d86"
+    },
+    hufflepuff: {
+        label: { ru: "Пуффендуй: мёд, янтарь и тёплые соты", en: "Hufflepuff: honey, amber and warm combs" },
+        bg: "#241d13",
+        bg2: "#3a2b14",
+        accent: "#e0b94a",
+        accent2: "#f3d889",
+        text: "#f8eed5",
+        danger: "#d69a62"
     }
 };
 
