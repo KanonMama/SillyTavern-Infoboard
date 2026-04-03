@@ -165,9 +165,9 @@ const kLang = {
         currentState: "Текущее состояние:",
         noRecentUpdates: "Нет недавних изменений.",
         disabledPrompt: "Отключено — промт не инжектится.",
-        chars: "💖 Персонажи в сцене",
-        rels: "🤍 Отношения к тебе",
-        nsfw: "🔥 Интимный контекст",
+        chars: "Персонажи в сцене",
+        rels: "Отношения к тебе",
+        nsfw: "Интимный контекст",
         affection: "💚 Симпатия",
         trust: "💙 Доверие",
         love: "💜 Любовь",
@@ -215,9 +215,9 @@ const kLang = {
         currentState: "Current State:",
         noRecentUpdates: "No recent updates.",
         disabledPrompt: "Disabled — not injecting prompts.",
-        chars: "💖 Characters in Scene",
-        rels: "🤍 Feelings Toward You",
-        nsfw: "🔥 Intimate Context",
+        chars: "Characters in Scene",
+        rels: "Feelings Toward You",
+        nsfw: "Intimate Context",
         affection: "💚 Affection",
         trust: "💙 Trust",
         love: "💜 Love",
@@ -388,11 +388,13 @@ function GetThemeTitleData(theme = gTheme) {
 }
 
 function GetThemeLocationIcon(theme = gTheme) {
-    return "📜";
+    const facultyThemes = ["gryffindor", "slytherin", "ravenclaw", "hufflepuff"];
+    return facultyThemes.includes(theme) ? "📜" : "📍";
 }
 
 function GetThemeCharsIcon(theme = gTheme) {
-    return "🪶";
+    const facultyThemes = ["gryffindor", "slytherin", "ravenclaw", "hufflepuff"];
+    return facultyThemes.includes(theme) ? "🪶" : "💖";
 }
 
 function GetThemeRelationsIcon(theme = gTheme) {
