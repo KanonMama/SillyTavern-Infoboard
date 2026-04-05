@@ -1574,14 +1574,6 @@ const matchedThought = thoughtEntries.find(t => {
     );
 });
 
-        const shouldRemoveWholeParent =
-            parent.childNodes.length === 1 &&
-            (text.length > 0 || soft.length > 0);
-
-        if (shouldRemoveWholeParent && !parent.closest(".ib-board-host, .ib-board")) {
-            parent.remove();
-            continue;
-        }
 
         if (matchedThought) {
             let cleaned = raw;
