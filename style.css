@@ -3477,3 +3477,76 @@
     color: var(--ib-text);
     border-color: var(--ib-chip-border) !important;
 }
+
+/* CONTROL PACK */
+
+.ib-pin-btn {
+    width: 22px;
+    height: 22px;
+    border-radius: 999px;
+    border: 1px solid var(--ib-soft-border);
+    background: rgba(255,255,255,0.035);
+    color: var(--ib-dim);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    line-height: 1;
+    cursor: pointer;
+    padding: 0;
+    transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease, transform 0.15s ease;
+    flex-shrink: 0;
+}
+
+.ib-pin-btn:hover {
+    color: var(--ib-text);
+    border-color: var(--ib-border);
+    background: rgba(255,255,255,0.07);
+    transform: translateY(-1px);
+}
+
+.ib-pin-btn.ib-pinned {
+    color: var(--ib-accent-2);
+    border-color: var(--ib-chip-border);
+    background:
+        radial-gradient(circle at top left, rgba(255,255,255,0.10), transparent 54%),
+        var(--ib-chip-bg);
+    box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.08),
+        0 0 10px rgba(192, 156, 255, 0.10);
+}
+
+.ib-filter-note {
+    margin-bottom: 8px;
+    padding: 8px 10px;
+    border-radius: 10px;
+    border: 1px dashed var(--ib-soft-border);
+    background: rgba(255,255,255,0.025);
+    color: var(--ib-dim);
+    font-size: 11px;
+}
+
+.ib-debug-wrap {
+    margin: 8px 0 12px;
+}
+
+.ib-debug-copy {
+    margin-bottom: 6px;
+    padding: 5px 9px;
+    border-radius: 8px;
+    border: 1px solid var(--ib-soft-border);
+    background: rgba(255,255,255,0.045);
+    color: var(--ib-muted);
+    font-size: 11px;
+    cursor: pointer;
+}
+
+.ib-debug-copy:hover {
+    color: var(--ib-text);
+    border-color: var(--ib-border);
+    background: rgba(255,255,255,0.08);
+}
+
+.ib-debug-wrap .ib-debug-xml {
+    margin-top: 0;
+}
