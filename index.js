@@ -1124,9 +1124,12 @@ function GetCompactMetricMeta(type, value, delta = 0) {
     const abs = Math.abs(v);
     const width = Math.max(6, Math.round((abs / 100) * 100));
 
+    const highCls = abs >= 70 ? " ib-mini-stat-high" : "";
+    const extremeCls = abs >= 90 ? " ib-mini-stat-extreme" : "";
+
     if (type === "a") {
         return {
-            cls: v >= 0 ? "ib-mini-stat-aff-pos" : "ib-mini-stat-aff-neg ib-mini-stat-neg",
+            cls: `${v >= 0 ? "ib-mini-stat-aff-pos" : "ib-mini-stat-aff-neg ib-mini-stat-neg"}${highCls}${extremeCls}`,
             label: "A",
             value: `${v}`,
             delta: parseInt(delta) || 0,
@@ -1136,7 +1139,7 @@ function GetCompactMetricMeta(type, value, delta = 0) {
 
     if (type === "tr") {
         return {
-            cls: v >= 0 ? "ib-mini-stat-tr-pos" : "ib-mini-stat-tr-neg ib-mini-stat-neg",
+            cls: `${v >= 0 ? "ib-mini-stat-tr-pos" : "ib-mini-stat-tr-neg ib-mini-stat-neg"}${highCls}${extremeCls}`,
             label: "T",
             value: `${v}`,
             delta: parseInt(delta) || 0,
@@ -1145,7 +1148,7 @@ function GetCompactMetricMeta(type, value, delta = 0) {
     }
 
     return {
-        cls: v >= 0 ? "ib-mini-stat-love-pos" : "ib-mini-stat-love-neg ib-mini-stat-neg",
+        cls: `${v >= 0 ? "ib-mini-stat-love-pos" : "ib-mini-stat-love-neg ib-mini-stat-neg"}${highCls}${extremeCls}`,
         label: "L",
         value: `${v}`,
         delta: parseInt(delta) || 0,
@@ -1255,7 +1258,6 @@ function RenderRelCard(r, thoughts = [], prevState = null, rels = []) {
     <span class="ib-status-icon">${EscapeHtml(statusIcon)}</span>
     <span>${EscapeHtml(r.status)}</span>
 </span>
-${RenderRelationChangeSummary(r)}
             </div>
 
             <div class="ib-rel-toggle-preview">
@@ -1356,14 +1358,11 @@ function RenderCompactRelations(state, prevState = null) {
                     <span class="ib-compact-rel-status ${GetStatusClass(r.status)}">${EscapeHtml(GetStatusIcon(r.status))}</span>
                 </div>
 
-                ${gCompactMode === "changed"
-                    ? `<div class="ib-compact-delta-line">${deltaLine || EscapeHtml(T("noCompactChanges"))}</div>`
-                    : `<div class="ib-compact-minirow">
-                        ${RenderMiniStat(GetCompactMetricMeta("a", r.a, r.ac), changed.a)}
-                        ${RenderMiniStat(GetCompactMetricMeta("tr", r.tr, r.tc), changed.tr)}
-                        ${RenderMiniStat(GetCompactMetricMeta("l", r.l, r.lc), changed.l)}
-                    </div>`
-                }
+                <div class="ib-compact-minirow">
+    ${RenderMiniStat(GetCompactMetricMeta("a", r.a, r.ac), changed.a)}
+    ${RenderMiniStat(GetCompactMetricMeta("tr", r.tr, r.tc), changed.tr)}
+    ${RenderMiniStat(GetCompactMetricMeta("l", r.l, r.lc), changed.l)}
+</div>
             </div>`;
         }).join("")}
         ${more > 0 ? `<div class="ib-compact-more">+${more} ${EscapeHtml(T("compactMore"))}</div>` : ""}
