@@ -1689,8 +1689,12 @@ function RestoreFloatingLayout(host) {
 }
 
 function MakeFloatingDraggable(host) {
-    if (!host || host.dataset.dragReady === "true") return;
-    host.dataset.dragReady = "true";
+    if (!host) return;
+
+    if (host._ibDragCleanup) {
+        host._ibDragCleanup();
+        host._ibDragCleanup = null;
+    }
 
     const header = host.querySelector(".ib-floating-header");
     if (!header) return;
@@ -1700,24 +1704,19 @@ function MakeFloatingDraggable(host) {
     let startY = 0;
     let startLeft = 0;
     let startTop = 0;
+    let activePointerId = null;
 
-    const getPoint = (e) => {
-        const touch = e.touches?.[0] || e.changedTouches?.[0];
-        return {
-            x: touch ? touch.clientX : e.clientX,
-            y: touch ? touch.clientY : e.clientY
-        };
-    };
-
-    const onStart = (e) => {
+    const onPointerDown = (e) => {
         if (e.target.closest(".ib-floating-btn")) return;
+        if (e.button !== undefined && e.button !== 0) return;
 
-        const point = getPoint(e);
         const rect = host.getBoundingClientRect();
 
         dragging = true;
-        startX = point.x;
-        startY = point.y;
+        activePointerId = e.pointerId;
+
+        startX = e.clientX;
+        startY = e.clientY;
         startLeft = rect.left;
         startTop = rect.top;
 
@@ -1728,16 +1727,23 @@ function MakeFloatingDraggable(host) {
 
         document.body.classList.add("ib-floating-dragging");
 
+        try {
+            header.setPointerCapture?.(e.pointerId);
+        } catch {}
+
+        window.addEventListener("pointermove", onPointerMove);
+        window.addEventListener("pointerup", onPointerUp);
+        window.addEventListener("pointercancel", onPointerUp);
+
         e.preventDefault();
     };
 
-    const onMove = (e) => {
+    const onPointerMove = (e) => {
         if (!dragging) return;
+        if (activePointerId !== null && e.pointerId !== activePointerId) return;
 
-        const point = getPoint(e);
-
-        const dx = point.x - startX;
-        const dy = point.y - startY;
+        const dx = e.clientX - startX;
+        const dy = e.clientY - startY;
 
         const rect = host.getBoundingClientRect();
 
@@ -1755,24 +1761,38 @@ function MakeFloatingDraggable(host) {
 
         host.style.left = `${nextLeft}px`;
         host.style.top = `${nextTop}px`;
+        host.style.right = "auto";
+        host.style.bottom = "auto";
     };
 
-    const onEnd = () => {
+    const onPointerUp = (e) => {
         if (!dragging) return;
 
         dragging = false;
+        activePointerId = null;
+
         document.body.classList.remove("ib-floating-dragging");
+
+        try {
+            header.releasePointerCapture?.(e.pointerId);
+        } catch {}
+
+        window.removeEventListener("pointermove", onPointerMove);
+        window.removeEventListener("pointerup", onPointerUp);
+        window.removeEventListener("pointercancel", onPointerUp);
+
         SaveFloatingLayout(host);
     };
 
-    header.addEventListener("mousedown", onStart);
-    header.addEventListener("touchstart", onStart, { passive: false });
+    header.addEventListener("pointerdown", onPointerDown);
 
-    window.addEventListener("mousemove", onMove);
-    window.addEventListener("touchmove", onMove, { passive: false });
-
-    window.addEventListener("mouseup", onEnd);
-    window.addEventListener("touchend", onEnd);
+    host._ibDragCleanup = () => {
+        header.removeEventListener("pointerdown", onPointerDown);
+        window.removeEventListener("pointermove", onPointerMove);
+        window.removeEventListener("pointerup", onPointerUp);
+        window.removeEventListener("pointercancel", onPointerUp);
+        document.body.classList.remove("ib-floating-dragging");
+    };
 }
 
 function WatchFloatingResize(host) {
