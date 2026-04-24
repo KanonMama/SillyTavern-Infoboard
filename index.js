@@ -1675,9 +1675,13 @@ function RemoveThoughtLeaksInContainer(messageTextEl, parsed) {
                 if (!node?.parentElement) return NodeFilter.FILTER_REJECT;
                 if (node.parentElement.closest(".ib-board-host, .ib-board")) return NodeFilter.FILTER_REJECT;
 
-                const raw = node.textContent || "";
-                const text = NormalizeLooseText(raw);
-                const soft = NormalizeThoughtText(raw);
+const raw = node.textContent || "";
+const text = NormalizeLooseText(raw);
+const soft = NormalizeThoughtText(raw);
+
+if (soft.length < 18) {
+    continue;
+}
 
                 if (!text) return NodeFilter.FILTER_SKIP;
 
