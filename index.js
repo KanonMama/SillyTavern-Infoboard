@@ -537,33 +537,33 @@ function EscapeRegex(str) {
 function LooksLikeStandaloneThoughtFragment(rawText, thoughtEntries = []) {
     const raw = String(rawText || "").trim();
     if (!raw) return false;
-
     const normalized = NormalizeLooseText(raw);
     const soft = NormalizeThoughtText(raw);
-
-    if (!normalized || soft.length < 3) return false;
-
+    // Не трогаем короткие слова и короткие реплики.
+    // "Нет", "Да", "Ладно", "Что?" и прочее не должны исчезать.
+    if (!normalized || soft.length < 18) return false;
     const looksQuoted =
         /^[«"„“].+[»"“”]$/.test(raw) ||
         /^["'][^"']+["']$/.test(raw);
-
     const looksShortFragment =
-        raw.length <= 80 &&
-        (looksQuoted || /^\.{0,3}[^.!?]{1,80}\.{0,3}$/.test(raw));
-
+        raw.length <= 120 &&
+        (
+            looksQuoted ||
+            /^\.{0,3}[^.!?]{18,120}\.{0,3}$/.test(raw)
+        );
     if (!looksShortFragment) return false;
-
     return thoughtEntries.some(t => {
         if (!t?.softText) return false;
-
         return (
-            t.softText.includes(soft) ||
-            t.normalizedText.includes(normalized) ||
-            t.normalizedFull.includes(normalized)
+            soft.length >= 18 &&
+            (
+                t.softText.includes(soft) ||
+                t.normalizedText.includes(normalized) ||
+                t.normalizedFull.includes(normalized)
+            )
         );
     });
 }
-
 function StripNameDecorators(str) {
     return String(str ?? "")
         .replace(/[*_~`"“”„]/g, "")
@@ -1570,7 +1570,7 @@ const matchedThought = thoughtEntries.find(t => {
         (t.normalizedFull && text.includes(t.normalizedFull)) ||
         (t.normalizedText && text.includes(t.normalizedText)) ||
         (t.softText && soft.includes(t.softText)) ||
-        (soft.length >= 3 && t.softText && t.softText.includes(soft) && raw.trim().length <= 80)
+        (soft.length >= 18 && t.softText && t.softText.includes(soft) && raw.trim().length <= 120)
     );
 });
 
