@@ -2147,6 +2147,10 @@ function ReprocessChat() {
             return;
         }
 
+        if (parsed.rawXml) {
+            gLastRawXml = parsed.rawXml;
+        }
+
         const prevState = JSON.parse(JSON.stringify(rollingState));
 
         rollingState.time = parsed.time || rollingState.time;
@@ -2165,6 +2169,7 @@ function ReprocessChat() {
     SaveState();
     UpdateStatusDisplay();
     UpdateLastUpdateDisplay();
+    RenderFloatingBoard();
 }
 
 function OnChatChanged() {
