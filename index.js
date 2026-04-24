@@ -1570,9 +1570,9 @@ function EnsureFloatingTab() {
         tab = document.createElement("div");
         tab.id = "ib_floating_tab";
         tab.textContent = "✦ INFOBOARD";
-        tab.addEventListener("click", () => {
-            RenderFloatingBoard(true);
-        });
+tab.addEventListener("click", () => {
+    RenderFloatingBoard(true);
+});
         document.body.appendChild(tab);
     }
 
