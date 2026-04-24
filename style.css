@@ -3594,3 +3594,731 @@
         0 0 10px color-mix(in srgb, var(--ib-accent-2) 24%, transparent);
     opacity: 1;
 }
+
+/* =========================================================
+   INFOBOARD FINAL THEME POLISH / PIN SYSTEM / GENGAR THEME
+   Put this block at the very end of style.css
+   ========================================================= */
+
+/* ---------- PIN BUTTON SYSTEM ---------- */
+
+:root {
+    --ib-pin-color: var(--ib-dim);
+    --ib-pin-color-hover: var(--ib-text);
+    --ib-pin-color-active: var(--ib-accent-2);
+    --ib-pin-bg: rgba(255,255,255,0.025);
+    --ib-pin-bg-hover: rgba(255,255,255,0.07);
+    --ib-pin-bg-active: var(--ib-chip-bg);
+    --ib-pin-border: var(--ib-soft-border);
+    --ib-pin-border-hover: var(--ib-border);
+    --ib-pin-border-active: var(--ib-chip-border);
+    --ib-pin-glow: color-mix(in srgb, var(--ib-accent-2) 24%, transparent);
+    --ib-pin-icon-off: "☆";
+    --ib-pin-icon-on: "★";
+}
+
+.ib-pin-btn {
+    width: 23px !important;
+    height: 23px !important;
+    min-width: 23px !important;
+    min-height: 23px !important;
+    border-radius: 999px !important;
+    border: 1px solid var(--ib-pin-border) !important;
+    background:
+        radial-gradient(circle at top left, rgba(255,255,255,0.055), transparent 54%),
+        var(--ib-pin-bg) !important;
+    color: var(--ib-pin-color) !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    padding: 0 !important;
+    line-height: 1 !important;
+    cursor: pointer !important;
+    flex-shrink: 0 !important;
+    opacity: 0.76 !important;
+    font-size: 0 !important;
+    box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.045),
+        0 2px 8px rgba(0,0,0,0.10) !important;
+    transition:
+        background 0.15s ease,
+        color 0.15s ease,
+        border-color 0.15s ease,
+        transform 0.15s ease,
+        box-shadow 0.15s ease,
+        opacity 0.15s ease !important;
+}
+
+.ib-pin-btn::before {
+    content: var(--ib-pin-icon-off);
+    font-size: 13px;
+    line-height: 1;
+    transform: translateY(-0.5px);
+}
+
+.ib-pin-btn:hover {
+    color: var(--ib-pin-color-hover) !important;
+    border-color: var(--ib-pin-border-hover) !important;
+    background:
+        radial-gradient(circle at top left, rgba(255,255,255,0.10), transparent 54%),
+        var(--ib-pin-bg-hover) !important;
+    transform: translateY(-1px);
+    opacity: 1 !important;
+}
+
+.ib-pin-btn.ib-pinned {
+    color: var(--ib-pin-color-active) !important;
+    border-color: var(--ib-pin-border-active) !important;
+    background:
+        radial-gradient(circle at top left, rgba(255,255,255,0.13), transparent 54%),
+        var(--ib-pin-bg-active) !important;
+    box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.10),
+        0 0 11px var(--ib-pin-glow),
+        0 2px 8px rgba(0,0,0,0.14) !important;
+    opacity: 1 !important;
+}
+
+.ib-pin-btn.ib-pinned::before {
+    content: var(--ib-pin-icon-on);
+}
+
+/* ---------- PIN COLORS BY THEME ---------- */
+
+.ib-theme-nocturne {
+    --ib-pin-color-active: #c09cff;
+    --ib-pin-border-active: rgba(192, 156, 255, 0.34);
+    --ib-pin-bg-active: rgba(120, 150, 220, 0.14);
+    --ib-pin-glow: rgba(192, 156, 255, 0.18);
+}
+
+.ib-theme-burgundy {
+    --ib-pin-color-active: #e0a7ff;
+    --ib-pin-border-active: rgba(224, 167, 255, 0.34);
+    --ib-pin-bg-active: rgba(210, 120, 150, 0.15);
+    --ib-pin-glow: rgba(255, 155, 179, 0.18);
+}
+
+.ib-theme-ashrose {
+    --ib-pin-color-active: #f0a8c4;
+    --ib-pin-border-active: rgba(240, 168, 196, 0.36);
+    --ib-pin-bg-active: rgba(190, 145, 170, 0.16);
+    --ib-pin-glow: rgba(240, 168, 196, 0.18);
+}
+
+.ib-theme-coldsteel {
+    --ib-pin-color-active: #9ec7d9;
+    --ib-pin-border-active: rgba(158, 199, 217, 0.34);
+    --ib-pin-bg-active: rgba(130, 150, 160, 0.16);
+    --ib-pin-glow: rgba(158, 199, 217, 0.16);
+}
+
+.ib-theme-frostwhite {
+    --ib-pin-color-active: #a8bfff;
+    --ib-pin-border-active: rgba(168, 191, 255, 0.34);
+    --ib-pin-bg-active: rgba(125, 165, 215, 0.16);
+    --ib-pin-glow: rgba(127, 184, 255, 0.16);
+}
+
+.ib-theme-pixel {
+    --ib-pin-color-active: #a6ff78;
+    --ib-pin-border-active: rgba(166, 255, 120, 0.48);
+    --ib-pin-bg-active: rgba(166,255,120,0.12);
+    --ib-pin-glow: rgba(166, 255, 120, 0.22);
+    --ib-pin-icon-off: "◇";
+    --ib-pin-icon-on: "◆";
+}
+
+.ib-theme-pinkbite {
+    --ib-pin-color-active: #ffc2e6;
+    --ib-pin-border-active: rgba(255, 143, 199, 0.40);
+    --ib-pin-bg-active: rgba(255, 143, 199, 0.15);
+    --ib-pin-glow: rgba(255, 143, 199, 0.22);
+    --ib-pin-icon-off: "♡";
+    --ib-pin-icon-on: "♥";
+}
+
+.ib-theme-violetglass {
+    --ib-pin-color-active: #b69cff;
+    --ib-pin-border-active: rgba(182, 156, 255, 0.38);
+    --ib-pin-bg-active: rgba(170, 150, 255, 0.15);
+    --ib-pin-glow: rgba(182, 156, 255, 0.20);
+}
+
+.ib-theme-verdantgrove {
+    --ib-pin-color-active: #d6c68b;
+    --ib-pin-border-active: rgba(214, 198, 139, 0.36);
+    --ib-pin-bg-active: rgba(130, 175, 120, 0.15);
+    --ib-pin-glow: rgba(159, 203, 143, 0.17);
+    --ib-pin-icon-off: "✧";
+    --ib-pin-icon-on: "✦";
+}
+
+.ib-theme-sandalwood {
+    --ib-pin-color-active: #ddb27a;
+    --ib-pin-border-active: rgba(221, 178, 122, 0.38);
+    --ib-pin-bg-active: rgba(205, 165, 120, 0.15);
+    --ib-pin-glow: rgba(221, 178, 122, 0.17);
+}
+
+.ib-theme-gryffindor {
+    --ib-pin-color-active: #f0d28a;
+    --ib-pin-border-active: rgba(240, 210, 138, 0.40);
+    --ib-pin-bg-active: rgba(212, 169, 78, 0.14);
+    --ib-pin-glow: rgba(212, 169, 78, 0.20);
+    --ib-pin-icon-off: "♙";
+    --ib-pin-icon-on: "🦁";
+}
+
+.ib-theme-slytherin {
+    --ib-pin-color-active: #c7d2cf;
+    --ib-pin-border-active: rgba(199, 210, 207, 0.36);
+    --ib-pin-bg-active: rgba(125, 200, 162, 0.13);
+    --ib-pin-glow: rgba(125, 200, 162, 0.18);
+    --ib-pin-icon-off: "♢";
+    --ib-pin-icon-on: "🐍";
+}
+
+.ib-theme-ravenclaw {
+    --ib-pin-color-active: #b8894f;
+    --ib-pin-border-active: rgba(184, 137, 79, 0.38);
+    --ib-pin-bg-active: rgba(141, 168, 216, 0.13);
+    --ib-pin-glow: rgba(141, 168, 216, 0.17);
+    --ib-pin-icon-off: "✧";
+    --ib-pin-icon-on: "𓅓";
+}
+
+.ib-theme-hufflepuff {
+    --ib-pin-color-active: #f3d889;
+    --ib-pin-border-active: rgba(243, 216, 137, 0.40);
+    --ib-pin-bg-active: rgba(224, 185, 74, 0.14);
+    --ib-pin-glow: rgba(224, 185, 74, 0.18);
+    --ib-pin-icon-off: "✧";
+    --ib-pin-icon-on: "🦡";
+}
+
+/* ---------- GENGAR THEME ---------- */
+
+.ib-theme-gengar {
+    --ib-bg-1: #14091f;
+    --ib-bg-2: #25103d;
+    --ib-bg-3: #080510;
+
+    --ib-border: rgba(190, 92, 255, 0.28);
+    --ib-border-neon: rgba(212, 85, 255, 0.32);
+    --ib-soft-border: rgba(190, 92, 255, 0.14);
+
+    --ib-text: #f3e7ff;
+    --ib-muted: #c7a6e8;
+    --ib-dim: #8762a8;
+
+    --ib-accent: #b86cff;
+    --ib-accent-2: #ff5fd7;
+
+    --ib-green: #77ffc7;
+    --ib-blue: #7ab7ff;
+    --ib-purple: #c478ff;
+    --ib-warm: #ffca6a;
+    --ib-danger: #ff5d8f;
+
+    --ib-chip-bg: rgba(184, 108, 255, 0.14);
+    --ib-chip-border: rgba(255, 95, 215, 0.28);
+
+    --ib-shadow: 0 14px 34px rgba(5, 2, 12, 0.58);
+    --ib-neon:
+        0 0 18px rgba(184, 108, 255, 0.12),
+        0 0 28px rgba(255, 95, 215, 0.055);
+
+    --ib-header-glow:
+        radial-gradient(circle at top right, rgba(255, 95, 215, 0.13), transparent 42%),
+        radial-gradient(circle at bottom left, rgba(112, 50, 255, 0.10), transparent 40%);
+
+    --ib-pin-color-active: #ff5fd7;
+    --ib-pin-border-active: rgba(255, 95, 215, 0.48);
+    --ib-pin-bg-active: rgba(184, 108, 255, 0.18);
+    --ib-pin-glow:
+        rgba(255, 95, 215, 0.28);
+
+    --ib-pin-icon-off: "☽";
+    --ib-pin-icon-on: "☠";
+}
+
+.ib-theme-gengar .ib-board {
+    background:
+        radial-gradient(circle at 82% 4%, rgba(255, 95, 215, 0.13), transparent 28%),
+        radial-gradient(circle at 12% 88%, rgba(112, 50, 255, 0.10), transparent 34%),
+        linear-gradient(135deg, #14091f, #25103d 52%, #080510);
+    border-color: rgba(190, 92, 255, 0.30);
+    box-shadow:
+        0 14px 34px rgba(5, 2, 12, 0.58),
+        0 0 18px rgba(184, 108, 255, 0.13),
+        0 0 30px rgba(255, 95, 215, 0.07),
+        inset 0 0 0 1px rgba(255,255,255,0.014);
+}
+
+.ib-theme-gengar .ib-board::before {
+    background:
+        radial-gradient(circle at 8% 10%, rgba(255,255,255,0.045), transparent 18%),
+        radial-gradient(circle at 92% 8%, rgba(255, 95, 215, 0.10), transparent 20%),
+        linear-gradient(120deg, rgba(255,255,255,0.03), transparent 34%);
+    opacity: 0.95;
+}
+
+.ib-theme-gengar .ib-board::after {
+    box-shadow:
+        inset 0 0 0 1px rgba(255, 95, 215, 0.20),
+        inset 0 0 20px rgba(184, 108, 255, 0.055),
+        0 0 18px rgba(255, 95, 215, 0.14);
+    opacity: 0.58;
+}
+
+.ib-theme-gengar .ib-title {
+    color: #d9b8ff;
+    text-shadow:
+        0 0 10px rgba(184, 108, 255, 0.24),
+        0 0 18px rgba(255, 95, 215, 0.12);
+}
+
+.ib-theme-gengar .ib-title::before,
+.ib-theme-gengar .ib-title::after {
+    content: "☠";
+    color: #ff5fd7;
+    opacity: 0.72;
+    text-shadow: 0 0 10px rgba(255, 95, 215, 0.32);
+}
+
+.ib-theme-gengar .ib-header,
+.ib-theme-gengar .ib-section,
+.ib-theme-gengar .ib-rel-card,
+.ib-theme-gengar .ib-compact-wrap,
+.ib-theme-gengar .ib-collapsed-tag {
+    background:
+        radial-gradient(circle at top left, rgba(255,255,255,0.035), transparent 42%),
+        rgba(255, 255, 255, 0.028);
+    border-color: rgba(190, 92, 255, 0.16);
+}
+
+.ib-theme-gengar .ib-header::before {
+    background:
+        linear-gradient(90deg, transparent, #b86cff, #ff5fd7, transparent);
+    opacity: 0.92;
+    box-shadow: 0 0 12px rgba(255, 95, 215, 0.18);
+}
+
+.ib-theme-gengar .ib-section-title {
+    color: #b991ea;
+    text-shadow: 0 0 8px rgba(184, 108, 255, 0.16);
+}
+
+.ib-theme-gengar .ib-char-icon-wrap {
+    border-color: rgba(255, 95, 215, 0.28);
+    background:
+        radial-gradient(circle at 35% 25%, rgba(255,255,255,0.10), transparent 36%),
+        rgba(184, 108, 255, 0.10);
+    box-shadow:
+        0 0 12px rgba(184, 108, 255, 0.18),
+        0 0 18px rgba(255, 95, 215, 0.08);
+}
+
+.ib-theme-gengar .ib-tag,
+.ib-theme-gengar .ib-meta-pill,
+.ib-theme-gengar .ib-control-btn,
+.ib-theme-gengar .ib-status-chip,
+.ib-theme-gengar .ib-presence-chip,
+.ib-theme-gengar .ib-mini-stat {
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+}
+
+.ib-theme-gengar .ib-tag {
+    color: #d7b7ff;
+    background: rgba(184, 108, 255, 0.12);
+    border-color: rgba(184, 108, 255, 0.24);
+}
+
+.ib-theme-gengar .ib-mood-tag {
+    color: #ff9fe8;
+    border-color: rgba(255, 95, 215, 0.34);
+    background:
+        radial-gradient(circle at top left, rgba(255,255,255,0.11), transparent 52%),
+        rgba(255, 95, 215, 0.13);
+    text-shadow: 0 0 8px rgba(255, 95, 215, 0.18);
+}
+
+.ib-theme-gengar .ib-mood-tag::before {
+    content: "☠ ";
+    opacity: 0.78;
+}
+
+.ib-theme-gengar .ib-status-neutral {
+    background: rgba(150, 120, 190, 0.14);
+    color: #d6c4ff;
+    border-color: rgba(190, 150, 255, 0.26);
+}
+
+.ib-theme-gengar .ib-status-romantic {
+    background: rgba(255, 95, 215, 0.15);
+    color: #ffb7ed;
+    border-color: rgba(255, 95, 215, 0.32);
+}
+
+.ib-theme-gengar .ib-status-negative {
+    background: rgba(255, 73, 128, 0.16);
+    color: #ff9fbd;
+    border-color: rgba(255, 73, 128, 0.34);
+}
+
+.ib-theme-gengar .ib-status-complex {
+    background: rgba(255, 202, 106, 0.14);
+    color: #ffdda0;
+    border-color: rgba(255, 202, 106, 0.28);
+}
+
+.ib-theme-gengar .ib-presence-focus {
+    background: rgba(122, 183, 255, 0.14);
+    color: #b8d9ff;
+    border-color: rgba(122, 183, 255, 0.28);
+}
+
+.ib-theme-gengar .ib-presence-active {
+    background: rgba(119, 255, 199, 0.13);
+    color: #b1ffe0;
+    border-color: rgba(119, 255, 199, 0.26);
+}
+
+.ib-theme-gengar .ib-presence-near {
+    background: rgba(255, 202, 106, 0.13);
+    color: #ffe0a3;
+    border-color: rgba(255, 202, 106, 0.26);
+}
+
+.ib-theme-gengar .ib-presence-watch {
+    background: rgba(196, 120, 255, 0.15);
+    color: #dec0ff;
+    border-color: rgba(196, 120, 255, 0.30);
+}
+
+.ib-theme-gengar .ib-presence-background {
+    background: rgba(150, 120, 190, 0.12);
+    color: #c6b4dd;
+    border-color: rgba(150, 120, 190, 0.24);
+}
+
+.ib-theme-gengar .ib-presence-left {
+    background: rgba(255, 93, 143, 0.14);
+    color: #ffadc6;
+    border-color: rgba(255, 93, 143, 0.28);
+}
+
+.ib-theme-gengar .ib-control-btn {
+    color: #c7a6e8;
+    background: rgba(184, 108, 255, 0.08);
+    border-color: rgba(190, 92, 255, 0.18);
+}
+
+.ib-theme-gengar .ib-control-btn:hover,
+.ib-theme-gengar .ib-control-btn.ib-active {
+    color: #f3e7ff;
+    background: rgba(255, 95, 215, 0.13);
+    border-color: rgba(255, 95, 215, 0.34);
+    box-shadow: 0 0 10px rgba(255, 95, 215, 0.11);
+}
+
+.ib-theme-gengar .ib-rel-card::before {
+    background: linear-gradient(180deg, #ff5fd7, rgba(184, 108, 255, 0.05));
+    opacity: 0.58;
+}
+
+.ib-theme-gengar .ib-rel-thought {
+    background:
+        radial-gradient(circle at top left, rgba(255, 95, 215, 0.06), transparent 42%),
+        rgba(255,255,255,0.024);
+    border-color: rgba(190, 92, 255, 0.16);
+}
+
+.ib-theme-gengar .ib-rel-subtitle {
+    color: #ff9fe8;
+}
+
+.ib-theme-gengar .ib-rel-thought-text {
+    color: #f3e7ff;
+}
+
+.ib-theme-gengar .ib-collapsed-action::before {
+    content: "☠ ";
+    opacity: 0.82;
+    color: #ff5fd7;
+}
+
+/* Gengar mini-stats */
+
+.ib-theme-gengar .ib-mini-stat {
+    border-color: rgba(190, 92, 255, 0.18);
+    box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.09),
+        0 2px 10px rgba(0,0,0,0.20),
+        0 0 10px rgba(184, 108, 255, 0.045);
+}
+
+.ib-theme-gengar .ib-mini-stat-value {
+    color: #f3e7ff;
+}
+
+.ib-theme-gengar .ib-mini-stat-aff-pos {
+    color: #a9ffd9;
+    background: linear-gradient(135deg, rgba(119, 255, 199, 0.18), rgba(35, 116, 92, 0.10));
+}
+
+.ib-theme-gengar .ib-mini-stat-aff-pos .ib-mini-stat-progress {
+    background: linear-gradient(90deg, #9effd6, #35dba0);
+}
+
+.ib-theme-gengar .ib-mini-stat-aff-neg {
+    color: #ff9fbd;
+    background: linear-gradient(135deg, rgba(255, 93, 143, 0.21), rgba(108, 30, 61, 0.13));
+}
+
+.ib-theme-gengar .ib-mini-stat-aff-neg .ib-mini-stat-progress {
+    background: linear-gradient(90deg, #ffadc7, #e94f86);
+}
+
+.ib-theme-gengar .ib-mini-stat-tr-pos {
+    color: #b7d8ff;
+    background: linear-gradient(135deg, rgba(122, 183, 255, 0.19), rgba(43, 75, 145, 0.11));
+}
+
+.ib-theme-gengar .ib-mini-stat-tr-pos .ib-mini-stat-progress {
+    background: linear-gradient(90deg, #b8dcff, #679dff);
+}
+
+.ib-theme-gengar .ib-mini-stat-tr-neg {
+    color: #ffdea8;
+    background: linear-gradient(135deg, rgba(255, 202, 106, 0.19), rgba(116, 73, 31, 0.12));
+}
+
+.ib-theme-gengar .ib-mini-stat-tr-neg .ib-mini-stat-progress {
+    background: linear-gradient(90deg, #ffe1a9, #e59a47);
+}
+
+.ib-theme-gengar .ib-mini-stat-love-pos {
+    color: #ffc3f0;
+    background: linear-gradient(135deg, rgba(255, 95, 215, 0.23), rgba(111, 38, 134, 0.12));
+}
+
+.ib-theme-gengar .ib-mini-stat-love-pos .ib-mini-stat-progress {
+    background: linear-gradient(90deg, #ffb8ee, #c478ff 45%, #ff5fd7);
+}
+
+.ib-theme-gengar .ib-mini-stat-love-neg {
+    color: #ff9ab8;
+    background: linear-gradient(135deg, rgba(255, 73, 128, 0.23), rgba(100, 23, 54, 0.13));
+}
+
+.ib-theme-gengar .ib-mini-stat-love-neg .ib-mini-stat-progress {
+    background: linear-gradient(90deg, #ffadc7, #ff5d8f 48%, #b82661);
+}
+
+.ib-theme-gengar .ib-mini-stat-high {
+    box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.13),
+        0 0 12px rgba(255, 95, 215, 0.10),
+        0 2px 10px rgba(0,0,0,0.20);
+}
+
+.ib-theme-gengar .ib-mini-stat-extreme::before {
+    border-color: rgba(255, 95, 215, 0.18);
+    box-shadow:
+        0 0 14px rgba(255, 95, 215, 0.18),
+        inset 0 0 10px rgba(184, 108, 255, 0.08);
+    opacity: 0.36;
+}
+
+/* Gengar bars */
+
+.ib-theme-gengar .ib-bar {
+    background:
+        linear-gradient(180deg, rgba(255,255,255,0.045), rgba(0,0,0,0.14)),
+        rgba(8, 5, 16, 0.45);
+    border: 1px solid rgba(190, 92, 255, 0.10);
+    box-shadow:
+        inset 0 1px 1px rgba(255,255,255,0.035),
+        inset 0 -1px 2px rgba(0,0,0,0.20);
+}
+
+.ib-theme-gengar .ib-bar-affection-pos {
+    background: linear-gradient(90deg, #92ffd1, #39d49c 55%, #17865f);
+    color: #92ffd1;
+}
+
+.ib-theme-gengar .ib-bar-affection-neg {
+    background: linear-gradient(90deg, #ff9fbd, #e94f86 55%, #8e264f);
+    color: #ff9fbd;
+}
+
+.ib-theme-gengar .ib-bar-trust-pos {
+    background: linear-gradient(90deg, #b7d8ff, #679dff 55%, #3b5db8);
+    color: #b7d8ff;
+}
+
+.ib-theme-gengar .ib-bar-trust-neg {
+    background: linear-gradient(90deg, #ffdea8, #e59a47 55%, #8a5524);
+    color: #ffdea8;
+}
+
+.ib-theme-gengar .ib-bar-love-pos {
+    background: linear-gradient(90deg, #ffc3f0, #c478ff 44%, #ff5fd7 78%, #8a35c9);
+    color: #ffc3f0;
+}
+
+.ib-theme-gengar .ib-bar-love-neg {
+    background: linear-gradient(90deg, #ff9ab8, #ff5d8f 55%, #982956);
+    color: #ff9ab8;
+}
+
+/* Gengar + special bar styles */
+
+.ib-theme-gengar.ib-bars-pixel .ib-board,
+.ib-theme-gengar.ib-bars-pixel .ib-header,
+.ib-theme-gengar.ib-bars-pixel .ib-section,
+.ib-theme-gengar.ib-bars-pixel .ib-char,
+.ib-theme-gengar.ib-bars-pixel .ib-rel-card,
+.ib-theme-gengar.ib-bars-pixel .ib-compact-wrap,
+.ib-theme-gengar.ib-bars-pixel .ib-collapsed-tag,
+.ib-theme-gengar.ib-bars-pixel .ib-meta-pill,
+.ib-theme-gengar.ib-bars-pixel .ib-tag,
+.ib-theme-gengar.ib-bars-pixel .ib-control-btn,
+.ib-theme-gengar.ib-bars-pixel .ib-presence-chip,
+.ib-theme-gengar.ib-bars-pixel .ib-mini-stat {
+    border-radius: 0 !important;
+}
+
+.ib-theme-gengar.ib-bars-sigil .ib-bar {
+    border-color: rgba(255, 95, 215, 0.18);
+    background:
+        linear-gradient(180deg, rgba(255,255,255,0.08), rgba(255,255,255,0.01)),
+        linear-gradient(90deg, rgba(255, 95, 215, 0.055) 1px, transparent 1px) 0 0 / 12px 100%,
+        rgba(8, 5, 16, 0.44);
+}
+
+/* Gengar floating */
+
+#ib_floating_host.ib-theme-gengar .ib-floating-shell {
+    background:
+        radial-gradient(circle at top right, rgba(255, 95, 215, 0.14), transparent 42%),
+        radial-gradient(circle at bottom left, rgba(112, 50, 255, 0.11), transparent 40%),
+        linear-gradient(
+            135deg,
+            color-mix(in srgb, #14091f 84%, transparent),
+            color-mix(in srgb, #25103d 78%, transparent),
+            color-mix(in srgb, #080510 86%, transparent)
+        ) !important;
+    border-color: rgba(190, 92, 255, 0.28) !important;
+    box-shadow:
+        0 18px 42px rgba(0,0,0,0.48),
+        0 0 0 1px rgba(255, 95, 215, 0.10),
+        0 0 24px rgba(184, 108, 255, 0.11),
+        0 0 34px rgba(255, 95, 215, 0.06) !important;
+}
+
+#ib_floating_host.ib-theme-gengar .ib-floating-header {
+    background:
+        linear-gradient(
+            135deg,
+            color-mix(in srgb, #25103d 58%, transparent),
+            color-mix(in srgb, #080510 66%, transparent)
+        ) !important;
+    border-bottom-color: rgba(190, 92, 255, 0.16) !important;
+}
+
+#ib_floating_host.ib-theme-gengar .ib-floating-title {
+    color: #c7a6e8;
+    text-shadow:
+        0 0 10px rgba(184, 108, 255, 0.24),
+        0 0 16px rgba(255, 95, 215, 0.10);
+}
+
+#ib_floating_host.ib-theme-gengar .ib-floating-title::before {
+    content: "☠ ";
+    color: #ff5fd7;
+    opacity: 0.8;
+}
+
+#ib_floating_host.ib-theme-gengar .ib-floating-btn {
+    color: #c7a6e8;
+    background: rgba(184, 108, 255, 0.10);
+    border-color: rgba(190, 92, 255, 0.22);
+}
+
+#ib_floating_host.ib-theme-gengar .ib-floating-btn:hover {
+    color: #f3e7ff;
+    background: rgba(255, 95, 215, 0.16);
+    border-color: rgba(255, 95, 215, 0.38);
+}
+
+#ib_floating_tab.ib-theme-gengar {
+    color: #c7a6e8;
+    background:
+        radial-gradient(circle at top left, rgba(255, 95, 215, 0.16), transparent 48%),
+        linear-gradient(
+            135deg,
+            color-mix(in srgb, #14091f 84%, transparent),
+            color-mix(in srgb, #25103d 74%, transparent)
+        ) !important;
+    border-color: rgba(190, 92, 255, 0.30) !important;
+    box-shadow:
+        0 10px 24px rgba(0,0,0,0.38),
+        0 0 16px rgba(184, 108, 255, 0.12),
+        inset 0 1px 0 rgba(255,255,255,0.06);
+}
+
+#ib_floating_tab.ib-theme-gengar::before {
+    content: "☠ ";
+    color: #ff5fd7;
+}
+
+#ib_floating_tab.ib-theme-gengar:hover {
+    color: #f3e7ff;
+    border-color: rgba(255, 95, 215, 0.44) !important;
+}
+
+/* Gengar debug */
+
+.ib-theme-gengar .ib-debug-copy {
+    color: #c7a6e8;
+    background: rgba(184, 108, 255, 0.09);
+    border-color: rgba(190, 92, 255, 0.20);
+}
+
+.ib-theme-gengar .ib-debug-copy:hover {
+    color: #f3e7ff;
+    background: rgba(255, 95, 215, 0.14);
+    border-color: rgba(255, 95, 215, 0.36);
+}
+
+.ib-theme-gengar .ib-debug-xml {
+    background:
+        radial-gradient(circle at top left, rgba(255, 95, 215, 0.055), transparent 42%),
+        rgba(5, 2, 12, 0.48);
+    border-color: rgba(190, 92, 255, 0.18);
+    color: #c7a6e8;
+}
+
+/* Mobile safety */
+
+@media (max-width: 760px) {
+    .ib-pin-btn {
+        width: 26px !important;
+        height: 26px !important;
+        min-width: 26px !important;
+        min-height: 26px !important;
+    }
+
+    .ib-pin-btn::before {
+        font-size: 14px;
+    }
+
+    .ib-theme-gengar .ib-board::before,
+    .ib-theme-gengar .ib-board::after {
+        opacity: 0.35;
+    }
+}
