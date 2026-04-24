@@ -3550,3 +3550,47 @@
 .ib-debug-wrap .ib-debug-xml {
     margin-top: 0;
 }
+
+.ib-pin-btn {
+    width: 23px;
+    height: 23px;
+    border-radius: 999px;
+    border: 1px solid var(--ib-soft-border);
+    background: rgba(255,255,255,0.025);
+    color: var(--ib-dim);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    line-height: 1;
+    cursor: pointer;
+    padding: 0;
+    transition:
+        background 0.15s ease,
+        color 0.15s ease,
+        border-color 0.15s ease,
+        transform 0.15s ease,
+        box-shadow 0.15s ease;
+    flex-shrink: 0;
+    opacity: 0.72;
+}
+
+.ib-pin-btn:hover {
+    color: var(--ib-text);
+    border-color: var(--ib-border);
+    background: rgba(255,255,255,0.07);
+    transform: translateY(-1px);
+    opacity: 1;
+}
+
+.ib-pin-btn.ib-pinned {
+    color: var(--ib-accent-2);
+    border-color: var(--ib-chip-border);
+    background:
+        radial-gradient(circle at top left, rgba(255,255,255,0.12), transparent 54%),
+        var(--ib-chip-bg);
+    box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.10),
+        0 0 10px color-mix(in srgb, var(--ib-accent-2) 24%, transparent);
+    opacity: 1;
+}
