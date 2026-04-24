@@ -123,6 +123,16 @@ const kThemePreviewMap = {
         danger: "#d98b7d"
     },
 
+    gengar: {
+    label: { ru: "Gengar: фиолетовый неон и призрачная пакость", en: "Gengar: purple neon ghost mischief" },
+    bg: "#14091f",
+    bg2: "#25103d",
+    accent: "#b86cff",
+    accent2: "#ff5fd7",
+    text: "#f3e7ff",
+    danger: "#ff5d8f"
+},
+
     gryffindor: {
         label: { ru: "Гриффиндор: бордо, золото и гербовый жар", en: "Gryffindor: crimson, gold, heraldic warmth" },
         bg: "#2a1114",
@@ -432,7 +442,11 @@ function GetThemeTitleData(theme = gTheme) {
         hufflepuff: {
             main: "𓃮 ℌ𝔲𝔣𝔣𝔩𝔢𝔭𝔲𝔣𝔣 𓃮",
             sub: "-ˋˏ ༻❁🦡❀༺ ˎˊ-"
-        }
+        },
+        gengar: {
+    main: "☠ 𝔊𝔢𝔫𝔤𝔞𝔯 ☠",
+    sub: "✦ ghost poison neon grin ✦"
+}
     };
 
     return map[theme] || {
@@ -444,11 +458,13 @@ function GetThemeTitleData(theme = gTheme) {
 function GetThemeLocationIcon(theme = gTheme) {
     const facultyThemes = ["gryffindor", "slytherin", "ravenclaw", "hufflepuff"];
     return facultyThemes.includes(theme) ? "📜" : "📍";
+    if (theme === "gengar") return "🕯️";
 }
 
 function GetThemeCharsIcon(theme = gTheme) {
     const facultyThemes = ["gryffindor", "slytherin", "ravenclaw", "hufflepuff"];
     return facultyThemes.includes(theme) ? "🪶" : "💖";
+    if (theme === "gengar") return "👻";
 }
 
 function GetThemeRelationsIcon(theme = gTheme) {
@@ -456,7 +472,8 @@ function GetThemeRelationsIcon(theme = gTheme) {
         gryffindor: "❤️",
         slytherin: "💚",
         ravenclaw: "💙",
-        hufflepuff: "💛"
+        hufflepuff: "💛",
+        gengar: "💜"
     };
 
     return map[theme] || "🤍";
