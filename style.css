@@ -4331,3 +4331,326 @@
 .ib-pin-btn::before {
     text-indent: 0 !important;
 }
+
+/* =========================================================
+   PIN BUTTON FINAL COLOR FIX
+   Must stay at the very end of style.css
+   ========================================================= */
+
+:root {
+    --ib-pin-bg-off: rgba(255,255,255,0.025);
+    --ib-pin-bg-hover: rgba(255,255,255,0.07);
+    --ib-pin-bg-on: var(--ib-chip-bg);
+
+    --ib-pin-border-off: var(--ib-soft-border);
+    --ib-pin-border-hover: var(--ib-border);
+    --ib-pin-border-on: var(--ib-chip-border);
+
+    --ib-pin-color-off: var(--ib-dim);
+    --ib-pin-color-hover: var(--ib-text);
+    --ib-pin-color-on: var(--ib-accent-2);
+
+    --ib-pin-glow-on: color-mix(in srgb, var(--ib-accent-2) 24%, transparent);
+}
+
+/* force button to stop inheriting ST / browser button styles */
+.ib-board .ib-pin-btn,
+#ib_floating_host .ib-pin-btn {
+    appearance: none !important;
+    -webkit-appearance: none !important;
+
+    width: 23px !important;
+    height: 23px !important;
+    min-width: 23px !important;
+    min-height: 23px !important;
+
+    border-radius: 999px !important;
+    border: 1px solid var(--ib-pin-border-off) !important;
+
+    background:
+        radial-gradient(circle at 32% 22%, rgba(255,255,255,0.08), transparent 34%),
+        linear-gradient(
+            135deg,
+            color-mix(in srgb, var(--ib-pin-bg-off) 84%, transparent),
+            color-mix(in srgb, var(--ib-bg-3) 72%, transparent)
+        ) !important;
+
+    color: var(--ib-pin-color-off) !important;
+
+    box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.055),
+        0 2px 8px rgba(0,0,0,0.14) !important;
+
+    opacity: 0.82 !important;
+}
+
+.ib-board .ib-pin-btn:hover,
+#ib_floating_host .ib-pin-btn:hover {
+    border-color: var(--ib-pin-border-hover) !important;
+
+    background:
+        radial-gradient(circle at 32% 22%, rgba(255,255,255,0.12), transparent 36%),
+        linear-gradient(
+            135deg,
+            color-mix(in srgb, var(--ib-pin-bg-hover) 84%, transparent),
+            color-mix(in srgb, var(--ib-bg-2) 70%, transparent)
+        ) !important;
+
+    color: var(--ib-pin-color-hover) !important;
+
+    box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.08),
+        0 0 10px color-mix(in srgb, var(--ib-accent) 12%, transparent),
+        0 2px 8px rgba(0,0,0,0.16) !important;
+
+    opacity: 1 !important;
+}
+
+.ib-board .ib-pin-btn.ib-pinned,
+#ib_floating_host .ib-pin-btn.ib-pinned {
+    border-color: var(--ib-pin-border-on) !important;
+
+    background:
+        radial-gradient(circle at 30% 20%, rgba(255,255,255,0.16), transparent 38%),
+        linear-gradient(
+            135deg,
+            color-mix(in srgb, var(--ib-pin-bg-on) 92%, transparent),
+            color-mix(in srgb, var(--ib-bg-2) 68%, transparent)
+        ) !important;
+
+    color: var(--ib-pin-color-on) !important;
+
+    box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.12),
+        0 0 12px var(--ib-pin-glow-on),
+        0 2px 9px rgba(0,0,0,0.18) !important;
+
+    opacity: 1 !important;
+}
+
+/* ---------- PER-THEME PIN COLORS ---------- */
+
+.ib-theme-nocturne {
+    --ib-pin-bg-off: rgba(65, 82, 124, 0.34);
+    --ib-pin-bg-hover: rgba(100, 126, 190, 0.24);
+    --ib-pin-bg-on: rgba(128, 104, 190, 0.24);
+
+    --ib-pin-border-off: rgba(120, 150, 220, 0.18);
+    --ib-pin-border-hover: rgba(143, 180, 255, 0.32);
+    --ib-pin-border-on: rgba(192, 156, 255, 0.40);
+
+    --ib-pin-color-off: #8fa0cc;
+    --ib-pin-color-hover: #dbe3ff;
+    --ib-pin-color-on: #c09cff;
+    --ib-pin-glow-on: rgba(192, 156, 255, 0.22);
+}
+
+.ib-theme-burgundy {
+    --ib-pin-bg-off: rgba(100, 42, 58, 0.34);
+    --ib-pin-bg-hover: rgba(150, 70, 94, 0.25);
+    --ib-pin-bg-on: rgba(150, 76, 132, 0.25);
+
+    --ib-pin-border-off: rgba(190, 120, 140, 0.20);
+    --ib-pin-border-hover: rgba(255, 155, 179, 0.34);
+    --ib-pin-border-on: rgba(224, 167, 255, 0.38);
+
+    --ib-pin-color-off: #c08a99;
+    --ib-pin-color-hover: #ffe2ea;
+    --ib-pin-color-on: #e0a7ff;
+    --ib-pin-glow-on: rgba(255, 155, 179, 0.22);
+}
+
+.ib-theme-ashrose {
+    --ib-pin-bg-off: rgba(94, 66, 82, 0.34);
+    --ib-pin-bg-hover: rgba(138, 96, 118, 0.25);
+    --ib-pin-bg-on: rgba(150, 92, 124, 0.25);
+
+    --ib-pin-border-off: rgba(180, 145, 165, 0.20);
+    --ib-pin-border-hover: rgba(240, 168, 196, 0.36);
+    --ib-pin-border-on: rgba(240, 168, 196, 0.42);
+
+    --ib-pin-color-off: #b892a4;
+    --ib-pin-color-hover: #f3dfe8;
+    --ib-pin-color-on: #f0a8c4;
+    --ib-pin-glow-on: rgba(240, 168, 196, 0.22);
+}
+
+.ib-theme-coldsteel {
+    --ib-pin-bg-off: rgba(58, 70, 78, 0.36);
+    --ib-pin-bg-hover: rgba(88, 108, 120, 0.26);
+    --ib-pin-bg-on: rgba(85, 122, 138, 0.24);
+
+    --ib-pin-border-off: rgba(130, 150, 160, 0.22);
+    --ib-pin-border-hover: rgba(158, 199, 217, 0.34);
+    --ib-pin-border-on: rgba(158, 199, 217, 0.40);
+
+    --ib-pin-color-off: #8da0aa;
+    --ib-pin-color-hover: #dde6eb;
+    --ib-pin-color-on: #9ec7d9;
+    --ib-pin-glow-on: rgba(158, 199, 217, 0.20);
+}
+
+.ib-theme-frostwhite {
+    --ib-pin-bg-off: rgba(64, 92, 124, 0.36);
+    --ib-pin-bg-hover: rgba(92, 130, 174, 0.26);
+    --ib-pin-bg-on: rgba(98, 128, 190, 0.25);
+
+    --ib-pin-border-off: rgba(150, 190, 230, 0.20);
+    --ib-pin-border-hover: rgba(127, 184, 255, 0.34);
+    --ib-pin-border-on: rgba(168, 191, 255, 0.40);
+
+    --ib-pin-color-off: #9eb4cf;
+    --ib-pin-color-hover: #e3eefc;
+    --ib-pin-color-on: #a8bfff;
+    --ib-pin-glow-on: rgba(127, 184, 255, 0.20);
+}
+
+.ib-theme-pixel {
+    --ib-pin-bg-off: rgba(38, 52, 34, 0.45);
+    --ib-pin-bg-hover: rgba(72, 110, 48, 0.32);
+    --ib-pin-bg-on: rgba(110, 190, 72, 0.22);
+
+    --ib-pin-border-off: rgba(166, 255, 120, 0.24);
+    --ib-pin-border-hover: rgba(166, 255, 120, 0.42);
+    --ib-pin-border-on: rgba(166, 255, 120, 0.56);
+
+    --ib-pin-color-off: #82b86d;
+    --ib-pin-color-hover: #d8ffd0;
+    --ib-pin-color-on: #a6ff78;
+    --ib-pin-glow-on: rgba(166, 255, 120, 0.26);
+}
+
+.ib-theme-pinkbite {
+    --ib-pin-bg-off: rgba(104, 45, 84, 0.36);
+    --ib-pin-bg-hover: rgba(160, 70, 124, 0.26);
+    --ib-pin-bg-on: rgba(210, 90, 160, 0.24);
+
+    --ib-pin-border-off: rgba(255, 166, 214, 0.22);
+    --ib-pin-border-hover: rgba(255, 143, 199, 0.38);
+    --ib-pin-border-on: rgba(255, 194, 230, 0.46);
+
+    --ib-pin-color-off: #d7a8c3;
+    --ib-pin-color-hover: #ffe6f4;
+    --ib-pin-color-on: #ffc2e6;
+    --ib-pin-glow-on: rgba(255, 143, 199, 0.25);
+}
+
+.ib-theme-violetglass {
+    --ib-pin-bg-off: rgba(66, 54, 112, 0.38);
+    --ib-pin-bg-hover: rgba(100, 82, 160, 0.28);
+    --ib-pin-bg-on: rgba(122, 90, 200, 0.26);
+
+    --ib-pin-border-off: rgba(165, 150, 255, 0.20);
+    --ib-pin-border-hover: rgba(182, 156, 255, 0.36);
+    --ib-pin-border-on: rgba(182, 156, 255, 0.46);
+
+    --ib-pin-color-off: #a698c8;
+    --ib-pin-color-hover: #efeaff;
+    --ib-pin-color-on: #b69cff;
+    --ib-pin-glow-on: rgba(182, 156, 255, 0.24);
+}
+
+.ib-theme-verdantgrove {
+    --ib-pin-bg-off: rgba(48, 70, 44, 0.38);
+    --ib-pin-bg-hover: rgba(78, 105, 62, 0.28);
+    --ib-pin-bg-on: rgba(118, 112, 58, 0.26);
+
+    --ib-pin-border-off: rgba(124, 164, 118, 0.22);
+    --ib-pin-border-hover: rgba(159, 203, 143, 0.34);
+    --ib-pin-border-on: rgba(214, 198, 139, 0.42);
+
+    --ib-pin-color-off: #9caf91;
+    --ib-pin-color-hover: #e7f1e4;
+    --ib-pin-color-on: #d6c68b;
+    --ib-pin-glow-on: rgba(214, 198, 139, 0.20);
+}
+
+.ib-theme-sandalwood {
+    --ib-pin-bg-off: rgba(88, 67, 44, 0.40);
+    --ib-pin-bg-hover: rgba(126, 94, 58, 0.30);
+    --ib-pin-bg-on: rgba(150, 104, 58, 0.26);
+
+    --ib-pin-border-off: rgba(188, 156, 120, 0.24);
+    --ib-pin-border-hover: rgba(221, 178, 122, 0.38);
+    --ib-pin-border-on: rgba(221, 178, 122, 0.46);
+
+    --ib-pin-color-off: #b89d82;
+    --ib-pin-color-hover: #f5eadc;
+    --ib-pin-color-on: #ddb27a;
+    --ib-pin-glow-on: rgba(221, 178, 122, 0.20);
+}
+
+.ib-theme-gryffindor {
+    --ib-pin-bg-off: rgba(92, 40, 30, 0.42);
+    --ib-pin-bg-hover: rgba(132, 62, 36, 0.30);
+    --ib-pin-bg-on: rgba(154, 105, 38, 0.28);
+
+    --ib-pin-border-off: rgba(186, 121, 58, 0.24);
+    --ib-pin-border-hover: rgba(212, 169, 78, 0.38);
+    --ib-pin-border-on: rgba(240, 210, 138, 0.48);
+
+    --ib-pin-color-off: #c69c74;
+    --ib-pin-color-hover: #f9e8db;
+    --ib-pin-color-on: #f0d28a;
+    --ib-pin-glow-on: rgba(212, 169, 78, 0.24);
+}
+
+.ib-theme-slytherin {
+    --ib-pin-bg-off: rgba(28, 64, 48, 0.42);
+    --ib-pin-bg-hover: rgba(52, 94, 72, 0.30);
+    --ib-pin-bg-on: rgba(82, 120, 98, 0.25);
+
+    --ib-pin-border-off: rgba(118, 171, 146, 0.24);
+    --ib-pin-border-hover: rgba(125, 200, 162, 0.36);
+    --ib-pin-border-on: rgba(199, 210, 207, 0.44);
+
+    --ib-pin-color-off: #9ab8aa;
+    --ib-pin-color-hover: #e6f2ed;
+    --ib-pin-color-on: #c7d2cf;
+    --ib-pin-glow-on: rgba(125, 200, 162, 0.22);
+}
+
+.ib-theme-ravenclaw {
+    --ib-pin-bg-off: rgba(38, 58, 94, 0.42);
+    --ib-pin-bg-hover: rgba(58, 82, 128, 0.30);
+    --ib-pin-bg-on: rgba(104, 72, 42, 0.28);
+
+    --ib-pin-border-off: rgba(123, 147, 193, 0.24);
+    --ib-pin-border-hover: rgba(141, 168, 216, 0.36);
+    --ib-pin-border-on: rgba(184, 137, 79, 0.42);
+
+    --ib-pin-color-off: #9eacc8;
+    --ib-pin-color-hover: #edf2fb;
+    --ib-pin-color-on: #b8894f;
+    --ib-pin-glow-on: rgba(184, 137, 79, 0.22);
+}
+
+.ib-theme-hufflepuff {
+    --ib-pin-bg-off: rgba(80, 62, 28, 0.44);
+    --ib-pin-bg-hover: rgba(124, 94, 36, 0.32);
+    --ib-pin-bg-on: rgba(160, 120, 34, 0.28);
+
+    --ib-pin-border-off: rgba(213, 176, 82, 0.24);
+    --ib-pin-border-hover: rgba(224, 185, 74, 0.38);
+    --ib-pin-border-on: rgba(243, 216, 137, 0.48);
+
+    --ib-pin-color-off: #c9b27c;
+    --ib-pin-color-hover: #f8eed5;
+    --ib-pin-color-on: #f3d889;
+    --ib-pin-glow-on: rgba(224, 185, 74, 0.22);
+}
+
+.ib-theme-gengar {
+    --ib-pin-bg-off: rgba(48, 24, 76, 0.48);
+    --ib-pin-bg-hover: rgba(86, 40, 126, 0.34);
+    --ib-pin-bg-on: rgba(128, 45, 150, 0.32);
+
+    --ib-pin-border-off: rgba(184, 108, 255, 0.26);
+    --ib-pin-border-hover: rgba(255, 95, 215, 0.42);
+    --ib-pin-border-on: rgba(255, 95, 215, 0.56);
+
+    --ib-pin-color-off: #a47ccf;
+    --ib-pin-color-hover: #f3e7ff;
+    --ib-pin-color-on: #ff5fd7;
+    --ib-pin-glow-on: rgba(255, 95, 215, 0.30);
+}
