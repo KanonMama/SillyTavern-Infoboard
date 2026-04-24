@@ -3362,3 +3362,52 @@
         min-height: 180px;
     }
 }
+
+/* FLOATING FLAT MODE — remove window-inside-window look */
+
+#ib_floating_host .ib-floating-body {
+    padding: 0;
+}
+
+#ib_floating_host .ib-board {
+    margin: 0 !important;
+    padding: 10px !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    background: transparent !important;
+    overflow: visible !important;
+}
+
+#ib_floating_host .ib-board::before,
+#ib_floating_host .ib-board::after {
+    display: none !important;
+    content: none !important;
+    box-shadow: none !important;
+    background: none !important;
+}
+
+#ib_floating_host .ib-title-wrap {
+    display: none !important;
+}
+
+#ib_floating_host .ib-header {
+    margin-top: 0;
+}
+
+#ib_floating_host .ib-full-wrap,
+#ib_floating_host .ib-compact-wrap,
+#ib_floating_host .ib-collapsed-wrap {
+    position: relative;
+    z-index: 1;
+}
+
+#ib_floating_host .ib-floating-shell {
+    background:
+        radial-gradient(circle at top right, rgba(160, 210, 255, 0.08), transparent 42%),
+        rgba(10, 18, 22, 0.78);
+}
+
+#ib_floating_host .ib-floating-body .ib-section:last-child {
+    margin-bottom: 0;
+}
