@@ -2,31 +2,35 @@
 
 A state-aware XML infoboard extension for **SillyTavern**.
 
-It injects its own prompt, parses structured scene data from assistant replies, stores per-chat state, and renders a styled info panel directly under messages.
+It injects a prompt, parses structured scene data from assistant replies, stores per-chat state, and renders a styled scene/relationship panel.
 
-Clean, persistent, and built for roleplay.
+Built for roleplay, long scenes, and NPC-heavy chats.
 
 ---
 
 ## Features
 
 - built-in prompt injection
-- per-chat memory
+- per-chat state memory
 - XML infoboard parsing
 - NPC scene tracking
+- NPC mood and presence tags
 - relationship meters with **-100 to 100** range
-- support for **positive and negative** affection / trust / love
-- hidden NPC thoughts
+- positive and negative affection / trust / love
+- private NPC thoughts stored in `<thk>`
 - optional NSFW context
+- raw XML hiding from visible messages
+- safer leaked-thought cleanup
 - RU / EN language switch
 - multiple themes
 - multiple bar styles
-- full / compact / collapsed display modes
-- hover effects for stat bars
-- scene pulse summary
+- full / compact / collapsed panel modes
+- compact filters: Top 1 / Top 3 / Changed only / All
+- inline / floating / both display modes
+- draggable and resizable floating infoboard
+- debug XML viewer
 - export / import state
 - custom CSS overrides
-- raw XML hiding from visible messages
 
 ---
 
@@ -34,11 +38,13 @@ Clean, persistent, and built for roleplay.
 
 Install it like a regular **SillyTavern third-party extension**.
 
-Folder name: `SillyTavern-Infoboard`
+Folder name:
 
-After installation, reload extensions/resources and enable **Infoboard** in the Extensions menu.
+```
+SillyTavern-Infoboard
+```
 
----
+*After installation, reload extensions/resources and enable Infoboard in the Extensions menu.*
 
 ## What it tracks
 
@@ -47,6 +53,7 @@ After installation, reload extensions/resources and enable **Infoboard** in the 
 - weather
 - location
 - NPCs in scene
+- NPC mood / presence
 - NPC → user relationships
 - NPC private thoughts
 - optional NSFW context
@@ -55,59 +62,63 @@ After installation, reload extensions/resources and enable **Infoboard** in the 
 
 ## Relationship scale
 
-Values use range: `-100 ... 0 ... 100`
+Values use range:
 
-- **Affection**
-  - positive → affection
-  - negative → aversion
+```
+-100 ... 0 ... 100
+Affection
 
-- **Trust**
-  - positive → trust
-  - negative → distrust
+positive → affection
+negative → aversion
+Trust
 
-- **Love**
-  - positive → love
-  - negative → hatred
+positive → trust
+negative → distrust
+Love
 
----
+positive → love
+negative → hatred / destructive attachment
+```
 
 ## Display modes
 
-Each infoboard message can be viewed in three modes:
+*Infoboard supports:*
 
-- **Full** — full panel with sections and meters
-- **Compact** — mini panel with short stat chips
-- **Collapsed** — minimal `INFOBOARD` placeholder
+- Inline — render panels under messages
+- Floating — show the latest state in a floating window
+- Both — use both modes
 
----
+*Panel view modes:*
+
+- Full — full sections and meters
+- Compact — short stat chips
+- Collapsed — minimal placeholder
 
 ## Settings
 
-Infoboard includes:
+*Infoboard includes:*
 
 - enable / disable toggle
 - language switch
 - theme selector
 - bar style selector
+- compact mode selector
+- display mode selector
 - stat hover effects toggle
-- scene pulse toggle
 - hide raw XML
-- show thoughts
-- show NSFW
+- leaked-thought cleanup toggle
+- show NSFW toggle
 - reset state
 - reprocess chat
 - export / import state
 - custom CSS overrides
+- Custom CSS
 
----
+## You can override the design without editing extension files.
 
-## Custom CSS
+*Example:*
 
-You can override the design without editing extension files.
-
-### Example
-
-```css
+```
 .ib-board {
   border-radius: 20px;
 }
@@ -121,3 +132,4 @@ You can override the design without editing extension files.
 .ib-bars-deep .ib-bar-love-pos {
   background: linear-gradient(90deg, #d08bff, #7c38ff);
 }
+```
