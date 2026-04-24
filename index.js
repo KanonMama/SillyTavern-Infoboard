@@ -1314,14 +1314,13 @@ ${SortCharsByPriority(chars).map(c => {
                     <div class="ib-char-main">
                         <span class="ib-char-icon-wrap"><span class="ib-char-icon">${EscapeHtml(c.icon)}</span></span>
                         <span class="ib-char-name">${RenderMaybeUnknown(c.name)}</span>
- <button
+<button
     type="button"
     class="ib-pin-btn ${IsPinnedNpc(c.name) ? "ib-pinned" : ""}"
     data-ib-pin="${EscapeHtml(c.name)}"
     title="${EscapeHtml(IsPinnedNpc(c.name) ? T("unpinNpc") : T("pinNpc"))}"
->
-    ${IsPinnedNpc(c.name) ? "★" : "☆"}
-</button>
+    aria-label="${EscapeHtml(IsPinnedNpc(c.name) ? T("unpinNpc") : T("pinNpc"))}"
+></button>
                         ${c.presence ? `<span class="ib-presence-chip ${c.presence.cls}">${EscapeHtml(T(c.presence.key))}</span>` : ""}
                     </div>
                     <div class="ib-char-tags">
