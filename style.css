@@ -5436,3 +5436,161 @@ button.ib-pin-btn.ib-pinned::before,
     --ib-pin-color-on: #ff5fd7;
     --ib-pin-glow-on: rgba(255, 95, 215, 0.36);
 }
+
+/* =========================================================
+   PIN BUTTON SQUARE BACKGROUND KILL
+   Must be the LAST block in style.css
+   ========================================================= */
+
+button.ib-pin-btn,
+.ib-pin-btn,
+.ib-board button.ib-pin-btn,
+.ib-board .ib-pin-btn,
+#ib_floating_host button.ib-pin-btn,
+#ib_floating_host .ib-pin-btn {
+    position: relative !important;
+
+    width: 23px !important;
+    height: 23px !important;
+    min-width: 23px !important;
+    min-height: 23px !important;
+    max-width: 23px !important;
+    max-height: 23px !important;
+
+    padding: 0 !important;
+    margin: 0 !important;
+
+    border: 0 !important;
+    outline: 0 !important;
+    border-radius: 999px !important;
+
+    background: transparent !important;
+    background-color: transparent !important;
+    background-image: none !important;
+
+    box-shadow: none !important;
+    text-shadow: none !important;
+    filter: none !important;
+
+    overflow: hidden !important;
+
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+
+    font-size: 0 !important;
+    line-height: 0 !important;
+
+    appearance: none !important;
+    -webkit-appearance: none !important;
+
+    cursor: pointer !important;
+}
+
+/* kill possible ST pseudo-skin */
+button.ib-pin-btn::after,
+.ib-pin-btn::after,
+.ib-board button.ib-pin-btn::after,
+.ib-board .ib-pin-btn::after,
+#ib_floating_host button.ib-pin-btn::after,
+#ib_floating_host .ib-pin-btn::after {
+    content: none !important;
+    display: none !important;
+    background: none !important;
+    border: 0 !important;
+    box-shadow: none !important;
+}
+
+/* actual visible pin */
+button.ib-pin-btn::before,
+.ib-pin-btn::before,
+.ib-board button.ib-pin-btn::before,
+.ib-board .ib-pin-btn::before,
+#ib_floating_host button.ib-pin-btn::before,
+#ib_floating_host .ib-pin-btn::before {
+    content: var(--ib-pin-icon-off, "☆") !important;
+
+    position: absolute !important;
+    inset: 0 !important;
+    z-index: 2 !important;
+
+    width: 23px !important;
+    height: 23px !important;
+    box-sizing: border-box !important;
+
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+
+    border-radius: 999px !important;
+    border: 1px solid var(--ib-pin-border-off, rgba(255,255,255,0.18)) !important;
+
+    background:
+        radial-gradient(circle at 32% 22%, rgba(255,255,255,0.13), transparent 35%),
+        var(--ib-pin-bg-off, rgba(255,255,255,0.045)) !important;
+
+    color: var(--ib-pin-color-off, var(--ib-dim)) !important;
+
+    font-size: 13px !important;
+    line-height: 1 !important;
+    text-indent: 0 !important;
+
+    box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.10),
+        0 2px 8px rgba(0,0,0,0.20) !important;
+
+    opacity: 0.9 !important;
+
+    transform: none !important;
+
+    transition:
+        background 0.15s ease,
+        color 0.15s ease,
+        border-color 0.15s ease,
+        box-shadow 0.15s ease,
+        opacity 0.15s ease !important;
+}
+
+button.ib-pin-btn:hover::before,
+.ib-pin-btn:hover::before {
+    background:
+        radial-gradient(circle at 32% 22%, rgba(255,255,255,0.17), transparent 36%),
+        var(--ib-pin-bg-hover, rgba(255,255,255,0.08)) !important;
+
+    border-color: var(--ib-pin-border-hover, var(--ib-border)) !important;
+    color: var(--ib-pin-color-hover, var(--ib-text)) !important;
+
+    box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.13),
+        0 0 10px var(--ib-pin-glow-hover, rgba(255,255,255,0.10)),
+        0 2px 8px rgba(0,0,0,0.22) !important;
+
+    opacity: 1 !important;
+}
+
+button.ib-pin-btn.ib-pinned::before,
+.ib-pin-btn.ib-pinned::before {
+    content: var(--ib-pin-icon-on, "★") !important;
+
+    background:
+        radial-gradient(circle at 30% 20%, rgba(255,255,255,0.20), transparent 38%),
+        var(--ib-pin-bg-on, var(--ib-chip-bg)) !important;
+
+    border-color: var(--ib-pin-border-on, var(--ib-chip-border)) !important;
+    color: var(--ib-pin-color-on, var(--ib-accent-2)) !important;
+
+    box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.14),
+        0 0 12px var(--ib-pin-glow-on, rgba(255,255,255,0.14)),
+        0 2px 9px rgba(0,0,0,0.24) !important;
+
+    opacity: 1 !important;
+}
+
+/* keep pixel square intentionally, but only for pixel theme */
+.ib-theme-pixel button.ib-pin-btn,
+.ib-theme-pixel .ib-pin-btn,
+.ib-theme-pixel button.ib-pin-btn::before,
+.ib-theme-pixel .ib-pin-btn::before {
+    border-radius: 0 !important;
+}
