@@ -3411,3 +3411,69 @@
 #ib_floating_host .ib-floating-body .ib-section:last-child {
     margin-bottom: 0;
 }
+
+/* FLOATING THEME-AWARE GLASS */
+
+#ib_floating_host {
+    color: var(--ib-text);
+}
+
+#ib_floating_host .ib-floating-shell {
+    background:
+        var(--ib-header-glow),
+        linear-gradient(
+            135deg,
+            color-mix(in srgb, var(--ib-bg-1) 82%, transparent),
+            color-mix(in srgb, var(--ib-bg-2) 76%, transparent),
+            color-mix(in srgb, var(--ib-bg-3) 84%, transparent)
+        ) !important;
+    border-color: var(--ib-border) !important;
+    box-shadow:
+        0 18px 42px rgba(0,0,0,0.42),
+        0 0 0 1px var(--ib-soft-border),
+        var(--ib-neon);
+}
+
+#ib_floating_host .ib-floating-header {
+    background:
+        linear-gradient(
+            135deg,
+            color-mix(in srgb, var(--ib-bg-2) 52%, transparent),
+            color-mix(in srgb, var(--ib-bg-3) 62%, transparent)
+        ) !important;
+    border-bottom-color: var(--ib-soft-border) !important;
+}
+
+#ib_floating_host .ib-floating-title {
+    color: var(--ib-muted);
+    text-shadow: 0 0 10px color-mix(in srgb, var(--ib-accent) 24%, transparent);
+}
+
+#ib_floating_host .ib-floating-btn {
+    color: var(--ib-muted);
+    background: color-mix(in srgb, var(--ib-bg-2) 48%, transparent);
+    border-color: var(--ib-soft-border);
+}
+
+#ib_floating_host .ib-floating-btn:hover {
+    color: var(--ib-text);
+    background: color-mix(in srgb, var(--ib-accent) 16%, transparent);
+    border-color: var(--ib-border);
+}
+
+#ib_floating_tab {
+    color: var(--ib-muted);
+    background:
+        var(--ib-header-glow),
+        linear-gradient(
+            135deg,
+            color-mix(in srgb, var(--ib-bg-1) 82%, transparent),
+            color-mix(in srgb, var(--ib-bg-2) 72%, transparent)
+        ) !important;
+    border-color: var(--ib-border) !important;
+}
+
+#ib_floating_tab:hover {
+    color: var(--ib-text);
+    border-color: var(--ib-chip-border) !important;
+}
