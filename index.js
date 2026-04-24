@@ -204,7 +204,7 @@ const kLang = {
         openNpc: "Открыть NPC",
         closeNpc: "Скрыть NPC",
         palettePreview: "Палитра темы",
-        paletteMissing: "Превью палитры недоступно"
+        paletteMissing: "Превью палитры недоступно",
         hideThoughtLeaks: "Скрывать утёкшие мысли NPC из текста",
 compactMode: "Компактный режим",
 compactTop3: "Топ 3",
@@ -263,7 +263,7 @@ mood: "Настроение"
         openNpc: "Open NPC",
         closeNpc: "Hide NPC",
         palettePreview: "Theme palette",
-        paletteMissing: "Palette preview unavailable"
+        paletteMissing: "Palette preview unavailable",
         hideThoughtLeaks: "Hide leaked NPC thoughts from visible text",
 compactMode: "Compact Mode",
 compactTop3: "Top 3",
@@ -330,7 +330,7 @@ Append exactly one XML block at the end of every assistant response. Fill all va
 Format:
 <infoboard time="" date="" weather="" loc="">
 <chars>
-<c icon="" name="" tags="" />
+<c icon="" name="" tags="" mood="" />
 </chars>
 <rels>
 <rel source="" target="{{user}}" a="" ac="" tr="" tc="" l="" lc="" status="" />
@@ -894,28 +894,29 @@ function ParseInfoboard(text) {
         rawXml: xmlBlock
     };
 
-    doc.querySelectorAll("chars > c").forEach(c => {
-        const name = c.getAttribute("name") || "???";
-        if (IsUserLikeName(name)) return;
+  doc.querySelectorAll("chars > c").forEach(c => {
+    const name = c.getAttribute("name") || "???";
+    if (IsUserLikeName(name)) return;
 
-        const tagsRaw = c.getAttribute("tags") || "";
-        const tags = tagsRaw
-            .split("|")
-            .map(t => t.trim())
-            .filter(Boolean)
-            .slice(0, 4);
+    const tagsRaw = c.getAttribute("tags") || "";
+    const tags = tagsRaw
+        .split("|")
+        .map(t => t.trim())
+        .filter(Boolean)
+        .slice(0, 4);
 
-        const mood = c.getAttribute("mood") || "";
+    const mood = c.getAttribute("mood") || "";
 
-result.chars.push({
-    icon: c.getAttribute("icon") || "•",
-    name,
-    tags,
-    mood,
-    presence: ParseFocusState(tags)
+    result.chars.push({
+        icon: c.getAttribute("icon") || "•",
+        name,
+        tags,
+        mood,
+        presence: ParseFocusState(tags)
+    });
 });
 
-    const pushRel = (rel) => {
+const pushRel = (rel) => {
         const source = rel.getAttribute("source") || "???";
         if (IsUserLikeName(source)) return;
 
@@ -1678,9 +1679,8 @@ function RemoveThoughtLeaksInContainer(messageTextEl, parsed) {
 const raw = node.textContent || "";
 const text = NormalizeLooseText(raw);
 const soft = NormalizeThoughtText(raw);
-
 if (soft.length < 18) {
-    continue;
+    return NodeFilter.FILTER_SKIP;
 }
 
                 if (!text) return NodeFilter.FILTER_SKIP;
