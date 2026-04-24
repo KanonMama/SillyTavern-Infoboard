@@ -4322,3 +4322,12 @@
         opacity: 0.35;
     }
 }
+
+.ib-pin-btn {
+    overflow: hidden !important;
+    text-indent: 0 !important;
+}
+
+.ib-pin-btn::before {
+    text-indent: 0 !important;
+}
