@@ -4654,3 +4654,434 @@
     --ib-pin-color-on: #ff5fd7;
     --ib-pin-glow-on: rgba(255, 95, 215, 0.30);
 }
+
+/* =========================================================
+   PIN BUTTON NUCLEAR FIX
+   Must be the LAST block in style.css
+   No color-mix. No clever shit. Just works.
+   ========================================================= */
+
+.ib-board .ib-pin-btn,
+#ib_floating_host .ib-pin-btn {
+    appearance: none !important;
+    -webkit-appearance: none !important;
+
+    width: 23px !important;
+    height: 23px !important;
+    min-width: 23px !important;
+    min-height: 23px !important;
+
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+
+    padding: 0 !important;
+    margin: 0 !important;
+
+    border-radius: 999px !important;
+    border-width: 1px !important;
+    border-style: solid !important;
+
+    font-size: 0 !important;
+    line-height: 1 !important;
+
+    cursor: pointer !important;
+    opacity: 0.86 !important;
+
+    box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.08),
+        0 2px 8px rgba(0,0,0,0.18) !important;
+
+    transition:
+        background 0.15s ease,
+        color 0.15s ease,
+        border-color 0.15s ease,
+        box-shadow 0.15s ease,
+        transform 0.15s ease,
+        opacity 0.15s ease !important;
+}
+
+.ib-board .ib-pin-btn::before,
+#ib_floating_host .ib-pin-btn::before {
+    content: var(--ib-pin-icon-off, "☆") !important;
+    font-size: 13px !important;
+    line-height: 1 !important;
+    text-indent: 0 !important;
+    transform: translateY(-0.5px);
+}
+
+.ib-board .ib-pin-btn.ib-pinned::before,
+#ib_floating_host .ib-pin-btn.ib-pinned::before {
+    content: var(--ib-pin-icon-on, "★") !important;
+}
+
+.ib-board .ib-pin-btn:hover,
+#ib_floating_host .ib-pin-btn:hover {
+    transform: translateY(-1px) !important;
+    opacity: 1 !important;
+}
+
+/* ---------- NOCTURNE ---------- */
+
+.ib-theme-nocturne .ib-pin-btn {
+    --ib-pin-icon-off: "☆";
+    --ib-pin-icon-on: "★";
+    background: #182136 !important;
+    border-color: rgba(143, 180, 255, 0.24) !important;
+    color: #8fa0cc !important;
+}
+
+.ib-theme-nocturne .ib-pin-btn:hover {
+    background: #223052 !important;
+    border-color: rgba(143, 180, 255, 0.42) !important;
+    color: #dbe3ff !important;
+}
+
+.ib-theme-nocturne .ib-pin-btn.ib-pinned {
+    background: #30224c !important;
+    border-color: rgba(192, 156, 255, 0.55) !important;
+    color: #c09cff !important;
+    box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.11),
+        0 0 12px rgba(192, 156, 255, 0.28) !important;
+}
+
+/* ---------- BURGUNDY ---------- */
+
+.ib-theme-burgundy .ib-pin-btn {
+    background: #321b24 !important;
+    border-color: rgba(255, 155, 179, 0.24) !important;
+    color: #c08a99 !important;
+}
+
+.ib-theme-burgundy .ib-pin-btn:hover {
+    background: #4a2634 !important;
+    border-color: rgba(255, 155, 179, 0.44) !important;
+    color: #ffe2ea !important;
+}
+
+.ib-theme-burgundy .ib-pin-btn.ib-pinned {
+    background: #42234f !important;
+    border-color: rgba(224, 167, 255, 0.52) !important;
+    color: #e0a7ff !important;
+    box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.11),
+        0 0 12px rgba(255, 155, 179, 0.24) !important;
+}
+
+/* ---------- ASH ROSE ---------- */
+
+.ib-theme-ashrose .ib-pin-btn {
+    background: #332530 !important;
+    border-color: rgba(240, 168, 196, 0.24) !important;
+    color: #b892a4 !important;
+}
+
+.ib-theme-ashrose .ib-pin-btn:hover {
+    background: #483343 !important;
+    border-color: rgba(240, 168, 196, 0.44) !important;
+    color: #f3dfe8 !important;
+}
+
+.ib-theme-ashrose .ib-pin-btn.ib-pinned {
+    background: #4c2b3e !important;
+    border-color: rgba(240, 168, 196, 0.56) !important;
+    color: #f0a8c4 !important;
+    box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.11),
+        0 0 12px rgba(240, 168, 196, 0.26) !important;
+}
+
+/* ---------- COLD STEEL ---------- */
+
+.ib-theme-coldsteel .ib-pin-btn {
+    background: #20282e !important;
+    border-color: rgba(158, 199, 217, 0.24) !important;
+    color: #8da0aa !important;
+}
+
+.ib-theme-coldsteel .ib-pin-btn:hover {
+    background: #2d3941 !important;
+    border-color: rgba(158, 199, 217, 0.44) !important;
+    color: #dde6eb !important;
+}
+
+.ib-theme-coldsteel .ib-pin-btn.ib-pinned {
+    background: #263947 !important;
+    border-color: rgba(158, 199, 217, 0.54) !important;
+    color: #9ec7d9 !important;
+    box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.11),
+        0 0 12px rgba(158, 199, 217, 0.22) !important;
+}
+
+/* ---------- FROSTWHITE ---------- */
+
+.ib-theme-frostwhite .ib-pin-btn {
+    background: #2d4058 !important;
+    border-color: rgba(127, 184, 255, 0.25) !important;
+    color: #9eb4cf !important;
+}
+
+.ib-theme-frostwhite .ib-pin-btn:hover {
+    background: #385475 !important;
+    border-color: rgba(127, 184, 255, 0.46) !important;
+    color: #e3eefc !important;
+}
+
+.ib-theme-frostwhite .ib-pin-btn.ib-pinned {
+    background: #38406d !important;
+    border-color: rgba(168, 191, 255, 0.56) !important;
+    color: #a8bfff !important;
+    box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.12),
+        0 0 12px rgba(127, 184, 255, 0.25) !important;
+}
+
+/* ---------- PIXEL ---------- */
+
+.ib-theme-pixel .ib-pin-btn {
+    --ib-pin-icon-off: "◇";
+    --ib-pin-icon-on: "◆";
+    background: #1f2d1c !important;
+    border-color: rgba(166, 255, 120, 0.34) !important;
+    color: #82b86d !important;
+    border-radius: 0 !important;
+}
+
+.ib-theme-pixel .ib-pin-btn:hover {
+    background: #304926 !important;
+    border-color: rgba(166, 255, 120, 0.58) !important;
+    color: #d8ffd0 !important;
+}
+
+.ib-theme-pixel .ib-pin-btn.ib-pinned {
+    background: #3d6129 !important;
+    border-color: rgba(166, 255, 120, 0.72) !important;
+    color: #a6ff78 !important;
+    box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.10),
+        0 0 12px rgba(166, 255, 120, 0.32) !important;
+}
+
+/* ---------- PINK BITE ---------- */
+
+.ib-theme-pinkbite .ib-pin-btn {
+    --ib-pin-icon-off: "♡";
+    --ib-pin-icon-on: "♥";
+    background: #3b1e35 !important;
+    border-color: rgba(255, 143, 199, 0.28) !important;
+    color: #d7a8c3 !important;
+}
+
+.ib-theme-pinkbite .ib-pin-btn:hover {
+    background: #582849 !important;
+    border-color: rgba(255, 143, 199, 0.52) !important;
+    color: #ffe6f4 !important;
+}
+
+.ib-theme-pinkbite .ib-pin-btn.ib-pinned {
+    background: #682a56 !important;
+    border-color: rgba(255, 194, 230, 0.62) !important;
+    color: #ffc2e6 !important;
+    box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.12),
+        0 0 12px rgba(255, 143, 199, 0.32) !important;
+}
+
+/* ---------- VIOLET GLASS ---------- */
+
+.ib-theme-violetglass .ib-pin-btn {
+    background: #282143 !important;
+    border-color: rgba(182, 156, 255, 0.28) !important;
+    color: #a698c8 !important;
+}
+
+.ib-theme-violetglass .ib-pin-btn:hover {
+    background: #372d5c !important;
+    border-color: rgba(182, 156, 255, 0.50) !important;
+    color: #efeaff !important;
+}
+
+.ib-theme-violetglass .ib-pin-btn.ib-pinned {
+    background: #3f2d70 !important;
+    border-color: rgba(182, 156, 255, 0.62) !important;
+    color: #b69cff !important;
+    box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.12),
+        0 0 12px rgba(182, 156, 255, 0.30) !important;
+}
+
+/* ---------- VERDANT GROVE ---------- */
+
+.ib-theme-verdantgrove .ib-pin-btn {
+    --ib-pin-icon-off: "✧";
+    --ib-pin-icon-on: "✦";
+    background: #1f2d20 !important;
+    border-color: rgba(159, 203, 143, 0.26) !important;
+    color: #9caf91 !important;
+}
+
+.ib-theme-verdantgrove .ib-pin-btn:hover {
+    background: #2d412b !important;
+    border-color: rgba(159, 203, 143, 0.46) !important;
+    color: #e7f1e4 !important;
+}
+
+.ib-theme-verdantgrove .ib-pin-btn.ib-pinned {
+    background: #3f3a22 !important;
+    border-color: rgba(214, 198, 139, 0.56) !important;
+    color: #d6c68b !important;
+    box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.11),
+        0 0 12px rgba(214, 198, 139, 0.25) !important;
+}
+
+/* ---------- SANDALWOOD ---------- */
+
+.ib-theme-sandalwood .ib-pin-btn {
+    background: #382b20 !important;
+    border-color: rgba(221, 178, 122, 0.28) !important;
+    color: #b89d82 !important;
+}
+
+.ib-theme-sandalwood .ib-pin-btn:hover {
+    background: #4b3928 !important;
+    border-color: rgba(221, 178, 122, 0.50) !important;
+    color: #f5eadc !important;
+}
+
+.ib-theme-sandalwood .ib-pin-btn.ib-pinned {
+    background: #563b26 !important;
+    border-color: rgba(221, 178, 122, 0.60) !important;
+    color: #ddb27a !important;
+    box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.11),
+        0 0 12px rgba(221, 178, 122, 0.24) !important;
+}
+
+/* ---------- GRYFFINDOR ---------- */
+
+.ib-theme-gryffindor .ib-pin-btn {
+    --ib-pin-icon-off: "♙";
+    --ib-pin-icon-on: "🦁";
+    background: #3b1718 !important;
+    border-color: rgba(212, 169, 78, 0.30) !important;
+    color: #c69c74 !important;
+}
+
+.ib-theme-gryffindor .ib-pin-btn:hover {
+    background: #56201f !important;
+    border-color: rgba(212, 169, 78, 0.54) !important;
+    color: #f9e8db !important;
+}
+
+.ib-theme-gryffindor .ib-pin-btn.ib-pinned {
+    background: #5c3c1e !important;
+    border-color: rgba(240, 210, 138, 0.62) !important;
+    color: #f0d28a !important;
+    box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.12),
+        0 0 12px rgba(212, 169, 78, 0.30) !important;
+}
+
+/* ---------- SLYTHERIN ---------- */
+
+.ib-theme-slytherin .ib-pin-btn {
+    --ib-pin-icon-off: "♢";
+    --ib-pin-icon-on: "🐍";
+    background: #10281f !important;
+    border-color: rgba(125, 200, 162, 0.30) !important;
+    color: #9ab8aa !important;
+}
+
+.ib-theme-slytherin .ib-pin-btn:hover {
+    background: #1a3b2e !important;
+    border-color: rgba(125, 200, 162, 0.52) !important;
+    color: #e6f2ed !important;
+}
+
+.ib-theme-slytherin .ib-pin-btn.ib-pinned {
+    background: #2c3c36 !important;
+    border-color: rgba(199, 210, 207, 0.58) !important;
+    color: #c7d2cf !important;
+    box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.11),
+        0 0 12px rgba(125, 200, 162, 0.26) !important;
+}
+
+/* ---------- RAVENCLAW ---------- */
+
+.ib-theme-ravenclaw .ib-pin-btn {
+    --ib-pin-icon-off: "✧";
+    --ib-pin-icon-on: "𓅓";
+    background: #17243b !important;
+    border-color: rgba(141, 168, 216, 0.30) !important;
+    color: #9eacc8 !important;
+}
+
+.ib-theme-ravenclaw .ib-pin-btn:hover {
+    background: #22375a !important;
+    border-color: rgba(141, 168, 216, 0.52) !important;
+    color: #edf2fb !important;
+}
+
+.ib-theme-ravenclaw .ib-pin-btn.ib-pinned {
+    background: #3e2c1c !important;
+    border-color: rgba(184, 137, 79, 0.58) !important;
+    color: #b8894f !important;
+    box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.11),
+        0 0 12px rgba(184, 137, 79, 0.26) !important;
+}
+
+/* ---------- HUFFLEPUFF ---------- */
+
+.ib-theme-hufflepuff .ib-pin-btn {
+    --ib-pin-icon-off: "✧";
+    --ib-pin-icon-on: "🦡";
+    background: #33260f !important;
+    border-color: rgba(224, 185, 74, 0.30) !important;
+    color: #c9b27c !important;
+}
+
+.ib-theme-hufflepuff .ib-pin-btn:hover {
+    background: #4f3a13 !important;
+    border-color: rgba(224, 185, 74, 0.54) !important;
+    color: #f8eed5 !important;
+}
+
+.ib-theme-hufflepuff .ib-pin-btn.ib-pinned {
+    background: #5c4618 !important;
+    border-color: rgba(243, 216, 137, 0.62) !important;
+    color: #f3d889 !important;
+    box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.12),
+        0 0 12px rgba(224, 185, 74, 0.28) !important;
+}
+
+/* ---------- GENGAR ---------- */
+
+.ib-theme-gengar .ib-pin-btn {
+    --ib-pin-icon-off: "☽";
+    --ib-pin-icon-on: "☠";
+    background: #25113c !important;
+    border-color: rgba(184, 108, 255, 0.36) !important;
+    color: #a47ccf !important;
+}
+
+.ib-theme-gengar .ib-pin-btn:hover {
+    background: #3a1a5d !important;
+    border-color: rgba(255, 95, 215, 0.56) !important;
+    color: #f3e7ff !important;
+}
+
+.ib-theme-gengar .ib-pin-btn.ib-pinned {
+    background: #4b1a62 !important;
+    border-color: rgba(255, 95, 215, 0.72) !important;
+    color: #ff5fd7 !important;
+    box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.13),
+        0 0 14px rgba(255, 95, 215, 0.36),
+        0 0 22px rgba(184, 108, 255, 0.14) !important;
+}
