@@ -15,6 +15,7 @@ Built for roleplay, long scenes, and NPC-heavy chats.
 - XML infoboard parsing
 - NPC scene tracking
 - NPC mood and presence tags
+- manual NPC pinning for crowded scenes
 - relationship meters with **-100 to 100** range
 - positive and negative affection / trust / love
 - private NPC thoughts stored in `<thk>`
@@ -25,7 +26,8 @@ Built for roleplay, long scenes, and NPC-heavy chats.
 - multiple themes
 - multiple bar styles
 - full / compact / collapsed panel modes
-- compact filters: Top 1 / Top 3 / Changed only / All
+- pinned NPCs stay on top in character and relationship lists.
+- relationship  filters: Top 1 / Top 3 / Changed only / All
 - inline / floating / both display modes
 - draggable and resizable floating infoboard
 - debug XML viewer
