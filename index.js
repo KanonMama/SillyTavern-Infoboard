@@ -226,7 +226,9 @@ displayFloating: "Плавающее окно",
 displayBoth: "Оба",
 floatingTitle: "Infoboard",
         copyXml: "Копировать XML",
-copiedXml: "Скопировано"
+copiedXml: "Скопировано",
+        pinNpc: "Закрепить NPC",
+unpinNpc: "Открепить NPC",
     },
     en: {
         enable: "Enable Infoboard",
@@ -292,7 +294,9 @@ displayFloating: "Floating",
 displayBoth: "Both",
 floatingTitle: "Infoboard",
         copyXml: "Copy XML",
-copiedXml: "Copied"
+copiedXml: "Copied",
+        pinNpc: "Pin NPC",
+unpinNpc: "Unpin NPC",
     }
 };
 
@@ -1293,7 +1297,14 @@ ${SortCharsByPriority(chars).map(c => {
                     <div class="ib-char-main">
                         <span class="ib-char-icon-wrap"><span class="ib-char-icon">${EscapeHtml(c.icon)}</span></span>
                         <span class="ib-char-name">${RenderMaybeUnknown(c.name)}</span>
-                        <button type="button" class="ib-pin-btn ${IsPinnedNpc(c.name) ? "ib-pinned" : ""}" data-ib-pin="${EscapeHtml(c.name)}" title="Pin NPC">★</button>
+ <button
+    type="button"
+    class="ib-pin-btn ${IsPinnedNpc(c.name) ? "ib-pinned" : ""}"
+    data-ib-pin="${EscapeHtml(c.name)}"
+    title="${EscapeHtml(IsPinnedNpc(c.name) ? T("unpinNpc") : T("pinNpc"))}"
+>
+    ${IsPinnedNpc(c.name) ? "★" : "☆"}
+</button>
                         ${c.presence ? `<span class="ib-presence-chip ${c.presence.cls}">${EscapeHtml(T(c.presence.key))}</span>` : ""}
                     </div>
                     <div class="ib-char-tags">
@@ -1361,7 +1372,6 @@ function RenderRelCard(r, thoughts = [], prevState = null, rels = []) {
         <div class="ib-rel-toggle" role="button" tabindex="0" aria-expanded="true" title="${EscapeHtml(T("closeNpc"))}">
             <div class="ib-rel-toggle-main">
 <span class="ib-rel-toggle-name">💕 ${EscapeHtml(r.source)} → ${EscapeHtml(r.target)}</span>
-<button type="button" class="ib-pin-btn ${IsPinnedNpc(r.source) ? "ib-pinned" : ""}" data-ib-pin="${EscapeHtml(r.source)}" title="Pin NPC">★</button>
                 <span class="ib-status-chip ${statusClass}">
     <span class="ib-status-icon">${EscapeHtml(statusIcon)}</span>
     <span>${EscapeHtml(r.status)}</span>
@@ -1709,7 +1719,6 @@ boardEl.querySelectorAll(".ib-pin-btn").forEach(btn => {
 
         TogglePinnedNpc(name);
         ReprocessChat();
-        RenderFloatingBoard();
     });
 });
     
