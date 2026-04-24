@@ -68,6 +68,16 @@
                 </select>
             </div>
 
+<div class="ib-setting-row">
+    <label for="ib_compact_mode"><b>Compact Mode</b></label>
+    <select id="ib_compact_mode">
+        <option value="top3">Top 3</option>
+        <option value="top1">Top 1</option>
+        <option value="changed">Changed only</option>
+        <option value="all">All</option>
+    </select>
+</div>
+            
             <div class="ib-setting-row">
                 <input type="checkbox" id="ib_hover_fx" />
                 <label for="ib_hover_fx">Enable stat hover effects</label>
@@ -77,6 +87,11 @@
                 <input type="checkbox" id="ib_hide_raw" />
                 <label for="ib_hide_raw">Hide raw XML from messages</label>
             </div>
+
+            <div class="ib-setting-row">
+    <input type="checkbox" id="ib_hide_thought_leaks" />
+    <label for="ib_hide_thought_leaks">Hide leaked NPC thoughts from visible text</label>
+</div>
 
             <div class="ib-setting-row">
                 <input type="checkbox" id="ib_show_nsfw" />
