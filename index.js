@@ -14,6 +14,7 @@ const kHoverFxKey = "IB_HoverFx";
 const kHideThoughtLeaksKey = "IB_HideThoughtLeaks";
 const kCompactModeKey = "IB_CompactMode";
 const kDisplayModeKey = "IB_DisplayMode";
+const kFloatingLayoutKey = "IB_FloatingLayout";
 
 let gEnabled = false;
 let gTheme = "nocturne";
@@ -1585,23 +1586,28 @@ function RenderFloatingBoard(forceOpen = false) {
     }
 
     let host = document.getElementById("ib_floating_host");
+    const tab = document.getElementById("ib_floating_tab");
+
+    // Если пользователь свернул окно в маленькую вкладку,
+    // не открываем его заново при каждом новом сообщении.
+    if (!host && tab && !forceOpen) {
+        return;
+    }
 
     if (!host) {
         host = document.createElement("div");
         host.id = "ib_floating_host";
         document.body.appendChild(host);
+        RestoreFloatingLayout(host);
     }
 
     host.dataset.rawXml = gLastRawXml || "";
-
-    const isCollapsed = host.classList.contains("ib-floating-collapsed") && !forceOpen;
 
     host.innerHTML = `
         <div class="ib-floating-shell">
             <div class="ib-floating-header">
                 <div class="ib-floating-title">✦ ${EscapeHtml(T("floatingTitle"))}</div>
                 <div class="ib-floating-actions">
-                    <button type="button" class="ib-floating-btn ib-floating-min">—</button>
                     <button type="button" class="ib-floating-btn ib-floating-close">×</button>
                 </div>
             </div>
@@ -1611,38 +1617,180 @@ function RenderFloatingBoard(forceOpen = false) {
         </div>
     `;
 
-    if (isCollapsed) {
-        host.classList.add("ib-floating-collapsed");
-    } else {
-        host.classList.remove("ib-floating-collapsed");
-    }
-
     const boardEl = host.querySelector(".ib-board");
     if (boardEl) {
         WireBoardControls(boardEl);
     }
 
-    const minBtn = host.querySelector(".ib-floating-min");
     const closeBtn = host.querySelector(".ib-floating-close");
-
-    if (minBtn) {
-        minBtn.addEventListener("click", () => {
-            host.classList.add("ib-floating-collapsed");
-            EnsureFloatingTab();
-        });
-    }
 
     if (closeBtn) {
         closeBtn.addEventListener("click", () => {
+            SaveFloatingLayout(host);
             host.remove();
             EnsureFloatingTab();
         });
     }
 
-    const tab = document.getElementById("ib_floating_tab");
-    if (tab && !host.classList.contains("ib-floating-collapsed")) {
-        tab.remove();
+    MakeFloatingDraggable(host);
+    WatchFloatingResize(host);
+
+    const existingTab = document.getElementById("ib_floating_tab");
+    if (existingTab) {
+        existingTab.remove();
     }
+}
+
+function GetFloatingLayout() {
+    try {
+        const raw = localStorage.getItem(kFloatingLayoutKey);
+        return raw ? JSON.parse(raw) : null;
+    } catch {
+        return null;
+    }
+}
+
+function SaveFloatingLayout(host) {
+    if (!host) return;
+
+    const rect = host.getBoundingClientRect();
+
+    const data = {
+        left: Math.round(rect.left),
+        top: Math.round(rect.top),
+        width: Math.round(rect.width),
+        height: Math.round(rect.height)
+    };
+
+    try {
+        localStorage.setItem(kFloatingLayoutKey, JSON.stringify(data));
+    } catch (e) {
+        console.warn("[IB] Save floating layout failed:", e);
+    }
+}
+
+function RestoreFloatingLayout(host) {
+    if (!host) return;
+
+    const data = GetFloatingLayout();
+    if (!data) return;
+
+    const safeLeft = Clamp(data.left ?? 18, 0, Math.max(0, window.innerWidth - 160));
+    const safeTop = Clamp(data.top ?? 18, 0, Math.max(0, window.innerHeight - 120));
+    const safeWidth = Clamp(data.width ?? 460, 280, Math.max(300, window.innerWidth - 20));
+    const safeHeight = Clamp(data.height ?? 520, 220, Math.max(260, window.innerHeight - 20));
+
+    host.style.left = `${safeLeft}px`;
+    host.style.top = `${safeTop}px`;
+    host.style.right = "auto";
+    host.style.bottom = "auto";
+    host.style.width = `${safeWidth}px`;
+    host.style.height = `${safeHeight}px`;
+}
+
+function MakeFloatingDraggable(host) {
+    if (!host || host.dataset.dragReady === "true") return;
+    host.dataset.dragReady = "true";
+
+    const header = host.querySelector(".ib-floating-header");
+    if (!header) return;
+
+    let dragging = false;
+    let startX = 0;
+    let startY = 0;
+    let startLeft = 0;
+    let startTop = 0;
+
+    const getPoint = (e) => {
+        const touch = e.touches?.[0] || e.changedTouches?.[0];
+        return {
+            x: touch ? touch.clientX : e.clientX,
+            y: touch ? touch.clientY : e.clientY
+        };
+    };
+
+    const onStart = (e) => {
+        if (e.target.closest(".ib-floating-btn")) return;
+
+        const point = getPoint(e);
+        const rect = host.getBoundingClientRect();
+
+        dragging = true;
+        startX = point.x;
+        startY = point.y;
+        startLeft = rect.left;
+        startTop = rect.top;
+
+        host.style.left = `${rect.left}px`;
+        host.style.top = `${rect.top}px`;
+        host.style.right = "auto";
+        host.style.bottom = "auto";
+
+        document.body.classList.add("ib-floating-dragging");
+
+        e.preventDefault();
+    };
+
+    const onMove = (e) => {
+        if (!dragging) return;
+
+        const point = getPoint(e);
+
+        const dx = point.x - startX;
+        const dy = point.y - startY;
+
+        const rect = host.getBoundingClientRect();
+
+        const nextLeft = Clamp(
+            startLeft + dx,
+            0,
+            Math.max(0, window.innerWidth - rect.width)
+        );
+
+        const nextTop = Clamp(
+            startTop + dy,
+            0,
+            Math.max(0, window.innerHeight - 60)
+        );
+
+        host.style.left = `${nextLeft}px`;
+        host.style.top = `${nextTop}px`;
+    };
+
+    const onEnd = () => {
+        if (!dragging) return;
+
+        dragging = false;
+        document.body.classList.remove("ib-floating-dragging");
+        SaveFloatingLayout(host);
+    };
+
+    header.addEventListener("mousedown", onStart);
+    header.addEventListener("touchstart", onStart, { passive: false });
+
+    window.addEventListener("mousemove", onMove);
+    window.addEventListener("touchmove", onMove, { passive: false });
+
+    window.addEventListener("mouseup", onEnd);
+    window.addEventListener("touchend", onEnd);
+}
+
+function WatchFloatingResize(host) {
+    if (!host || host.dataset.resizeReady === "true") return;
+    host.dataset.resizeReady = "true";
+
+    if (!window.ResizeObserver) return;
+
+    let timer = null;
+
+    const observer = new ResizeObserver(() => {
+        clearTimeout(timer);
+        timer = setTimeout(() => {
+            SaveFloatingLayout(host);
+        }, 250);
+    });
+
+    observer.observe(host);
 }
 
 function GetOrCreateBoardHost(mesTextEl) {
