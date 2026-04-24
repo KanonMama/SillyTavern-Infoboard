@@ -1547,6 +1547,18 @@ function WireBoardControls(boardEl) {
     WireAccordionControls(boardEl);
 }
 
+function ApplyFloatingThemeClasses(el) {
+    if (!el) return;
+
+    [...el.classList].forEach(cls => {
+        if (cls.startsWith("ib-theme-") || cls.startsWith("ib-bars-")) {
+            el.classList.remove(cls);
+        }
+    });
+
+    el.classList.add(`ib-theme-${gTheme}`, `ib-bars-${gBarStyle}`);
+}
+
 function ShouldRenderInlineBoard() {
     return gDisplayMode === "inline" || gDisplayMode === "both";
 }
@@ -1570,11 +1582,13 @@ function EnsureFloatingTab() {
         tab = document.createElement("div");
         tab.id = "ib_floating_tab";
         tab.textContent = "✦ INFOBOARD";
-tab.addEventListener("click", () => {
-    RenderFloatingBoard(true);
-});
+        tab.addEventListener("click", () => {
+            RenderFloatingBoard(true);
+        });
         document.body.appendChild(tab);
     }
+
+    ApplyFloatingThemeClasses(tab);
 
     return tab;
 }
@@ -1594,15 +1608,17 @@ function RenderFloatingBoard(forceOpen = false) {
         return;
     }
 
-    if (!host) {
-        host = document.createElement("div");
-        host.id = "ib_floating_host";
-        document.body.appendChild(host);
-        RestoreFloatingLayout(host);
-    }
+if (!host) {
+    host = document.createElement("div");
+    host.id = "ib_floating_host";
+    document.body.appendChild(host);
+    RestoreFloatingLayout(host);
+}
 
-    host.dataset.rawXml = gLastRawXml || "";
+ApplyFloatingThemeClasses(host);
 
+host.dataset.rawXml = gLastRawXml || "";
+    
     host.innerHTML = `
         <div class="ib-floating-shell">
             <div class="ib-floating-header">
