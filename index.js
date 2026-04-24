@@ -15,6 +15,7 @@ const kHideThoughtLeaksKey = "IB_HideThoughtLeaks";
 const kCompactModeKey = "IB_CompactMode";
 const kDisplayModeKey = "IB_DisplayMode";
 const kFloatingLayoutKey = "IB_FloatingLayout";
+const kPinnedNpcsKey = "IB_PinnedNpcs";
 
 let gEnabled = false;
 let gTheme = "nocturne";
@@ -28,6 +29,7 @@ let gHideThoughtLeaks = true;
 let gCompactMode = "top3";
 let gDisplayMode = "inline";
 let gLastRawXml = "";
+let gPinnedNpcs = [];
 
 const kThemePreviewMap = {
     nocturne: {
@@ -222,7 +224,9 @@ mood: "Настроение",
 displayInline: "В сообщениях",
 displayFloating: "Плавающее окно",
 displayBoth: "Оба",
-floatingTitle: "Infoboard"
+floatingTitle: "Infoboard",
+        copyXml: "Копировать XML",
+copiedXml: "Скопировано"
     },
     en: {
         enable: "Enable Infoboard",
@@ -286,7 +290,9 @@ mood: "Mood",
 displayInline: "Inline",
 displayFloating: "Floating",
 displayBoth: "Both",
-floatingTitle: "Infoboard"
+floatingTitle: "Infoboard",
+        copyXml: "Copy XML",
+copiedXml: "Copied"
     }
 };
 
@@ -882,13 +888,27 @@ const charMatches = result.chars.filter(c => ThoughtOwnerMatchesNpc(thoughtName,
     }
 }
 
+function RepairInfoboardXml(xml) {
+    let fixed = String(xml || "");
+
+    // XML не любит голый &, а модель иногда его суёт в status/thoughts/etc.
+    fixed = fixed.replace(
+        /&(?!amp;|lt;|gt;|quot;|apos;|#\d+;|#x[0-9a-fA-F]+;)/g,
+        "&amp;"
+    );
+
+    return fixed;
+}
+
 function ParseInfoboard(text) {
     const boardMatch = String(text || "").match(/<infoboard[\s\S]*?<\/infoboard>/i);
     if (!boardMatch) return null;
 
-    const xmlBlock = boardMatch[0];
-    const parser = new DOMParser();
-    const doc = parser.parseFromString(xmlBlock, "text/xml");
+const xmlBlock = boardMatch[0];
+const xmlForParsing = RepairInfoboardXml(xmlBlock);
+
+const parser = new DOMParser();
+const doc = parser.parseFromString(xmlForParsing, "text/xml");
 
     if (doc.querySelector("parsererror")) {
         console.warn("[IB] XML parser error");
@@ -907,7 +927,8 @@ function ParseInfoboard(text) {
         rels: [],
         thoughts: [],
         nsfw: null,
-        rawXml: xmlBlock
+rawXml: xmlBlock,
+repairedXml: xmlForParsing !== xmlBlock ? xmlForParsing : ""
     };
 
   doc.querySelectorAll("chars > c").forEach(c => {
@@ -1114,6 +1135,10 @@ function GetMetricMeta(type, value) {
 
 function SortRelationsByPriority(rels) {
     return [...rels].sort((a, b) => {
+        const ap = IsPinnedNpc(a.source) ? 0 : 1;
+        const bp = IsPinnedNpc(b.source) ? 0 : 1;
+        if (ap !== bp) return ap - bp;
+
         const aa = Math.abs(a.a || 0) + Math.abs(a.tr || 0) + Math.abs(a.l || 0);
         const bb = Math.abs(b.a || 0) + Math.abs(b.tr || 0) + Math.abs(b.l || 0);
         return bb - aa;
@@ -1185,6 +1210,73 @@ function RenderMiniStat(meta, changed = false) {
     </div>`;
 }
 
+function LoadPinnedNpcs() {
+    try {
+        const raw = localStorage.getItem(kPinnedNpcsKey);
+        gPinnedNpcs = raw ? JSON.parse(raw) : [];
+        if (!Array.isArray(gPinnedNpcs)) gPinnedNpcs = [];
+    } catch {
+        gPinnedNpcs = [];
+    }
+}
+
+function SavePinnedNpcs() {
+    try {
+        localStorage.setItem(kPinnedNpcsKey, JSON.stringify(gPinnedNpcs));
+    } catch (e) {
+        console.warn("[IB] Save pinned NPCs failed:", e);
+    }
+}
+
+function IsPinnedNpc(name) {
+    return gPinnedNpcs.some(pinned => NamesLikelyMatch(pinned, name));
+}
+
+function TogglePinnedNpc(name) {
+    if (!name) return;
+
+    const existingIndex = gPinnedNpcs.findIndex(pinned => NamesLikelyMatch(pinned, name));
+
+    if (existingIndex >= 0) {
+        gPinnedNpcs.splice(existingIndex, 1);
+    } else {
+        gPinnedNpcs.push(name);
+    }
+
+    SavePinnedNpcs();
+}
+
+function GetPresencePriority(c) {
+    const key = c?.presence?.key || "";
+
+    const map = {
+        focus: 0,
+        activeHere: 1,
+        nearby: 2,
+        watching: 3,
+        background: 4,
+        leftScene: 5
+    };
+
+    return map[key] ?? 10;
+}
+
+function SortCharsByPriority(chars = []) {
+    return [...chars].sort((a, b) => {
+        const ap = IsPinnedNpc(a.name) ? 0 : 1;
+        const bp = IsPinnedNpc(b.name) ? 0 : 1;
+        if (ap !== bp) return ap - bp;
+
+        const apres = GetPresencePriority(a);
+        const bpres = GetPresencePriority(b);
+        if (apres !== bpres) return apres - bpres;
+
+        return String(a.name || "").localeCompare(String(b.name || ""), undefined, {
+            sensitivity: "base"
+        });
+    });
+}
+
 function RenderChars(chars) {
     if (!chars.length) return "";
 
@@ -1192,7 +1284,7 @@ function RenderChars(chars) {
     <div class="ib-section ib-section-chars">
         <div class="ib-section-title">${GetThemeCharsIcon()} ${T("chars")}</div>
         <div class="ib-chars">
-            ${chars.map(c => {
+${SortCharsByPriority(chars).map(c => {
                 const visibleTags = (c.tags || []).filter(tag => !IsPresenceTag(tag));
                 const mood = String(c.mood || "").trim();
 
@@ -1201,6 +1293,7 @@ function RenderChars(chars) {
                     <div class="ib-char-main">
                         <span class="ib-char-icon-wrap"><span class="ib-char-icon">${EscapeHtml(c.icon)}</span></span>
                         <span class="ib-char-name">${RenderMaybeUnknown(c.name)}</span>
+                        <button type="button" class="ib-pin-btn ${IsPinnedNpc(c.name) ? "ib-pinned" : ""}" data-ib-pin="${EscapeHtml(c.name)}" title="Pin NPC">★</button>
                         ${c.presence ? `<span class="ib-presence-chip ${c.presence.cls}">${EscapeHtml(T(c.presence.key))}</span>` : ""}
                     </div>
                     <div class="ib-char-tags">
@@ -1267,7 +1360,8 @@ function RenderRelCard(r, thoughts = [], prevState = null, rels = []) {
     <div class="ib-rel-card ib-rel-accordion ${changed.a || changed.tr || changed.l ? "ib-rel-updated" : ""}">
         <div class="ib-rel-toggle" role="button" tabindex="0" aria-expanded="true" title="${EscapeHtml(T("closeNpc"))}">
             <div class="ib-rel-toggle-main">
-                <span class="ib-rel-toggle-name">💕 ${EscapeHtml(r.source)} → ${EscapeHtml(r.target)}</span>
+<span class="ib-rel-toggle-name">💕 ${EscapeHtml(r.source)} → ${EscapeHtml(r.target)}</span>
+<button type="button" class="ib-pin-btn ${IsPinnedNpc(r.source) ? "ib-pinned" : ""}" data-ib-pin="${EscapeHtml(r.source)}" title="Pin NPC">★</button>
                 <span class="ib-status-chip ${statusClass}">
     <span class="ib-status-icon">${EscapeHtml(statusIcon)}</span>
     <span>${EscapeHtml(r.status)}</span>
@@ -1293,15 +1387,44 @@ function RenderRelCard(r, thoughts = [], prevState = null, rels = []) {
     </div>`;
 }
 
+function GetFilteredRelationsForDisplay(rels = []) {
+    let sorted = SortRelationsByPriority(rels);
+
+    if (gCompactMode === "changed") {
+        const changed = sorted.filter(RelationHasDelta);
+
+        // Если изменений нет, не делаем пустую яму. Показываем top3.
+        return changed.length ? changed : sorted.slice(0, 3);
+    }
+
+    if (gCompactMode === "top1") {
+        return sorted.slice(0, 1);
+    }
+
+    if (gCompactMode === "top3") {
+        return sorted.slice(0, 3);
+    }
+
+    return sorted;
+}
+
 function RenderRelations(rels, thoughts = [], prevState = null) {
     if (!rels.length) return "";
 
     const sorted = SortRelationsByPriority(rels);
+    const filtered = GetFilteredRelationsForDisplay(rels);
+
+    const noChangedNote =
+        gCompactMode === "changed" &&
+        !sorted.some(RelationHasDelta)
+            ? `<div class="ib-filter-note">${EscapeHtml(T("noCompactChanges"))}</div>`
+            : "";
 
     return `
     <div class="ib-section">
         <div class="ib-section-title">${GetThemeRelationsIcon()} ${T("rels")}</div>
-        ${sorted.map(r => RenderRelCard(r, thoughts, prevState, rels)).join("")}
+        ${noChangedNote}
+        ${filtered.map(r => RenderRelCard(r, thoughts, prevState, rels)).join("")}
     </div>`;
 }
 
@@ -1339,11 +1462,21 @@ function RenderCompactDeltaLine(r) {
 }
 
 function RenderCompactRelations(state, prevState = null) {
-    let rels = SortRelationsByPriority(state?.rels || []);
-    if (!rels.length) return "";
+    const allRels = SortRelationsByPriority(state?.rels || []);
+    if (!allRels.length) return "";
+
+    let rels = allRels;
+    let noChangedNote = "";
 
     if (gCompactMode === "changed") {
-        rels = rels.filter(RelationHasDelta);
+        const changed = allRels.filter(RelationHasDelta);
+
+        if (changed.length) {
+            rels = changed;
+        } else {
+            noChangedNote = `<div class="ib-compact-empty">${EscapeHtml(T("noCompactChanges"))}</div>`;
+            rels = allRels.slice(0, 3);
+        }
     }
 
     if (gCompactMode === "top1") {
@@ -1352,18 +1485,13 @@ function RenderCompactRelations(state, prevState = null) {
         rels = rels.slice(0, 3);
     }
 
-    if (!rels.length) {
-        return `<div class="ib-compact-empty">${EscapeHtml(T("noCompactChanges"))}</div>`;
-    }
-
-    const originalCount = SortRelationsByPriority(state?.rels || []).length;
-    const more = gCompactMode === "top3" ? Math.max(0, originalCount - rels.length) : 0;
+    const more = gCompactMode === "top3" ? Math.max(0, allRels.length - rels.length) : 0;
 
     return `
     <div class="ib-compact-rel-list ib-compact-mode-${EscapeHtml(gCompactMode)}">
+        ${noChangedNote}
         ${rels.map(r => {
             const changed = GetChangedMetrics(prevState, r);
-            const deltaLine = RenderCompactDeltaLine(r);
 
             return `
             <div class="ib-compact-rel-item">
@@ -1373,10 +1501,10 @@ function RenderCompactRelations(state, prevState = null) {
                 </div>
 
                 <div class="ib-compact-minirow">
-    ${RenderMiniStat(GetCompactMetricMeta("a", r.a, r.ac), changed.a)}
-    ${RenderMiniStat(GetCompactMetricMeta("tr", r.tr, r.tc), changed.tr)}
-    ${RenderMiniStat(GetCompactMetricMeta("l", r.l, r.lc), changed.l)}
-</div>
+                    ${RenderMiniStat(GetCompactMetricMeta("a", r.a, r.ac), changed.a)}
+                    ${RenderMiniStat(GetCompactMetricMeta("tr", r.tr, r.tc), changed.tr)}
+                    ${RenderMiniStat(GetCompactMetricMeta("l", r.l, r.lc), changed.l)}
+                </div>
             </div>`;
         }).join("")}
         ${more > 0 ? `<div class="ib-compact-more">+${more} ${EscapeHtml(T("compactMore"))}</div>` : ""}
@@ -1522,25 +1650,66 @@ function WireBoardControls(boardEl) {
         });
     }
 
-    boardEl.querySelectorAll(".ib-btn-debug").forEach(btn => {
+boardEl.querySelectorAll(".ib-btn-debug").forEach(btn => {
     btn.addEventListener("click", () => {
-        const host = boardEl.closest(".ib-board-host");
+        const host = boardEl.closest(".ib-board-host, #ib_floating_host");
         const raw = host?.dataset?.rawXml || "";
         if (!raw) return;
 
-        let debug = host.querySelector(".ib-debug-xml");
+        let debugWrap = host.querySelector(".ib-debug-wrap");
 
-        if (debug) {
-            debug.remove();
+        if (debugWrap) {
+            debugWrap.remove();
             btn.classList.remove("ib-active");
             return;
         }
 
-        debug = document.createElement("pre");
-        debug.className = "ib-debug-xml";
-        debug.textContent = raw;
-        host.appendChild(debug);
+        debugWrap = document.createElement("div");
+        debugWrap.className = "ib-debug-wrap";
+
+        const copyBtn = document.createElement("button");
+        copyBtn.type = "button";
+        copyBtn.className = "ib-debug-copy";
+        copyBtn.textContent = T("copyXml");
+
+        copyBtn.addEventListener("click", async (e) => {
+            e.stopPropagation();
+
+            try {
+                await navigator.clipboard.writeText(raw);
+                copyBtn.textContent = T("copiedXml");
+
+                setTimeout(() => {
+                    copyBtn.textContent = T("copyXml");
+                }, 1200);
+            } catch (err) {
+                console.warn("[IB] Copy XML failed:", err);
+            }
+        });
+
+        const pre = document.createElement("pre");
+        pre.className = "ib-debug-xml";
+        pre.textContent = raw;
+
+        debugWrap.appendChild(copyBtn);
+        debugWrap.appendChild(pre);
+        host.appendChild(debugWrap);
+
         btn.classList.add("ib-active");
+    });
+});
+
+boardEl.querySelectorAll(".ib-pin-btn").forEach(btn => {
+    btn.addEventListener("click", (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+
+        const name = btn.dataset.ibPin || "";
+        if (!name) return;
+
+        TogglePinnedNpc(name);
+        ReprocessChat();
+        RenderFloatingBoard();
     });
 });
     
@@ -2329,6 +2498,7 @@ gCompactMode = localStorage.getItem(kCompactModeKey) || "top3";
 
     LoadState();
     ApplyCustomCss();
+    LoadPinnedNpcs();
 
     $("#ib_enabled").prop("checked", gEnabled);
     $("#ib_lang").val(gLang);
