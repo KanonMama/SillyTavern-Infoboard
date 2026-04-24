@@ -5085,3 +5085,7 @@
         0 0 14px rgba(255, 95, 215, 0.36),
         0 0 22px rgba(184, 108, 255, 0.14) !important;
 }
+
+.ib-pin-btn {
+    background: red !important;
+}
