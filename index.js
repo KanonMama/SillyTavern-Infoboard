@@ -11,6 +11,8 @@ const kLangKey = "IB_Lang";
 const kBarStyleKey = "IB_BarStyle";
 const kCustomCssKey = "IB_CustomCss";
 const kHoverFxKey = "IB_HoverFx";
+const kHideThoughtLeaksKey = "IB_HideThoughtLeaks";
+const kCompactModeKey = "IB_CompactMode";
 
 let gEnabled = false;
 let gTheme = "nocturne";
@@ -20,6 +22,8 @@ let gLang = "ru";
 let gBarStyle = "deep";
 let gCustomCss = "";
 let gHoverFx = true;
+let gHideThoughtLeaks = true;
+let gCompactMode = "top3";
 
 const kThemePreviewMap = {
     nocturne: {
@@ -201,6 +205,15 @@ const kLang = {
         closeNpc: "Скрыть NPC",
         palettePreview: "Палитра темы",
         paletteMissing: "Превью палитры недоступно"
+        hideThoughtLeaks: "Скрывать утёкшие мысли NPC из текста",
+compactMode: "Компактный режим",
+compactTop3: "Топ 3",
+compactTop1: "Топ 1",
+compactChanged: "Только изменившиеся",
+compactAll: "Все",
+debugXml: "Показать сырой XML",
+noCompactChanges: "Изменений нет",
+mood: "Настроение"
     },
     en: {
         enable: "Enable Infoboard",
@@ -251,6 +264,15 @@ const kLang = {
         closeNpc: "Hide NPC",
         palettePreview: "Theme palette",
         paletteMissing: "Palette preview unavailable"
+        hideThoughtLeaks: "Hide leaked NPC thoughts from visible text",
+compactMode: "Compact Mode",
+compactTop3: "Top 3",
+compactTop1: "Top 1",
+compactChanged: "Changed only",
+compactAll: "All",
+debugXml: "Show raw XML",
+noCompactChanges: "No changes",
+mood: "Mood"
     }
 };
 
@@ -260,7 +282,7 @@ Append exactly one XML block at the end of every assistant response. Fill all va
 Format:
 <infoboard time="" date="" weather="" loc="">
 <chars>
-<c icon="" name="" tags="" />
+<c icon="" name="" tags="" mood="" />
 </chars>
 <rels>
 <rel source="" target="{{user}}" a="" ac="" tr="" tc="" l="" lc="" status="" />
@@ -292,6 +314,8 @@ Rules:
 - Omit <nsfw /> if the scene is not intimate
 - No extra XML tags or commentary
 - Never output private NPC thoughts in the visible narrative text; private thoughts must appear only inside <thk>
+- mood: 1-3 words, visible current emotional state only; leave empty if unclear
+- Do not duplicate mood inside tags
 
 <thk> strict format:
 - Use the exact full NPC name exactly as in <chars>
@@ -338,6 +362,8 @@ Rules:
 - Omit <nsfw /> if the scene is not intimate
 - No extra XML tags or commentary
 - Never output private NPC thoughts in the visible narrative text; private thoughts must appear only inside <thk>
+- mood: 1-3 words, visible current emotional state only; leave empty if unclear
+- Do not duplicate mood inside tags
 
 <thk> strict format:
 - Use the exact full NPC name exactly as in <chars>
@@ -746,6 +772,42 @@ function ParseFocusState(tags = []) {
     return null;
 }
 
+function IsPresenceTag(tag) {
+    const t = NormalizeName(tag);
+
+    return [
+        "focus",
+        "в фокусе",
+        "главный",
+        "active focus",
+
+        "active",
+        "активен",
+        "говорит",
+        "ведёт сцену",
+
+        "near",
+        "рядом",
+        "nearby",
+        "close",
+
+        "watching",
+        "наблюдает",
+        "смотрит",
+        "следит",
+
+        "background",
+        "на периферии",
+        "в фоне",
+        "пассивен",
+
+        "left",
+        "вышел",
+        "ушёл",
+        "out"
+    ].includes(t);
+}
+
 function NormalizeThoughtOwners(result) {
     if (!result?.thoughts?.length) return;
 
@@ -843,13 +905,15 @@ function ParseInfoboard(text) {
             .filter(Boolean)
             .slice(0, 4);
 
-        result.chars.push({
-            icon: c.getAttribute("icon") || "•",
-            name,
-            tags,
-            presence: ParseFocusState(tags)
-        });
-    });
+        const mood = c.getAttribute("mood") || "";
+
+result.chars.push({
+    icon: c.getAttribute("icon") || "•",
+    name,
+    tags,
+    mood,
+    presence: ParseFocusState(tags)
+});
 
     const pushRel = (rel) => {
         const source = rel.getAttribute("source") || "???";
@@ -1105,10 +1169,14 @@ function RenderChars(chars) {
     if (!chars.length) return "";
 
     return `
-    <div class="ib-section">
+    <div class="ib-section ib-section-chars">
         <div class="ib-section-title">${GetThemeCharsIcon()} ${T("chars")}</div>
         <div class="ib-chars">
-            ${chars.map(c => `
+            ${chars.map(c => {
+                const visibleTags = (c.tags || []).filter(tag => !IsPresenceTag(tag));
+                const mood = String(c.mood || "").trim();
+
+                return `
                 <div class="ib-char">
                     <div class="ib-char-main">
                         <span class="ib-char-icon-wrap"><span class="ib-char-icon">${EscapeHtml(c.icon)}</span></span>
@@ -1116,10 +1184,11 @@ function RenderChars(chars) {
                         ${c.presence ? `<span class="ib-presence-chip ${c.presence.cls}">${EscapeHtml(T(c.presence.key))}</span>` : ""}
                     </div>
                     <div class="ib-char-tags">
-                        ${(c.tags || []).map(tag => `<span class="ib-tag">${EscapeHtml(tag)}</span>`).join("")}
+                        ${visibleTags.map(tag => `<span class="ib-tag">${EscapeHtml(tag)}</span>`).join("")}
+                        ${mood ? `<span class="ib-tag ib-mood-tag" title="${EscapeHtml(T("mood"))}">${EscapeHtml(mood)}</span>` : ""}
                     </div>
-                </div>
-            `).join("")}
+                </div>`;
+            }).join("")}
         </div>
     </div>`;
 }
@@ -1153,6 +1222,22 @@ function RenderThoughtForNpc(thoughts, npcName, rels = []) {
     </div>`;
 }
 
+function RenderRelationChangeSummary(r) {
+    const parts = [];
+
+    const ac = parseInt(r.ac) || 0;
+    const tc = parseInt(r.tc) || 0;
+    const lc = parseInt(r.lc) || 0;
+
+    if (ac !== 0) parts.push(`A ${SignedText(ac)}`);
+    if (tc !== 0) parts.push(`T ${SignedText(tc)}`);
+    if (lc !== 0) parts.push(`L ${SignedText(lc)}`);
+
+    if (!parts.length) return "";
+
+    return `<div class="ib-rel-change-summary">${parts.map(EscapeHtml).join(" · ")}</div>`;
+}
+    
 function RenderRelCard(r, thoughts = [], prevState = null, rels = []) {
     const statusClass = GetStatusClass(r.status);
     const statusIcon = GetStatusIcon(r.status);
@@ -1164,9 +1249,10 @@ function RenderRelCard(r, thoughts = [], prevState = null, rels = []) {
             <div class="ib-rel-toggle-main">
                 <span class="ib-rel-toggle-name">💕 ${EscapeHtml(r.source)} → ${EscapeHtml(r.target)}</span>
                 <span class="ib-status-chip ${statusClass}">
-                    <span class="ib-status-icon">${EscapeHtml(statusIcon)}</span>
-                    <span>${EscapeHtml(r.status)}</span>
-                </span>
+    <span class="ib-status-icon">${EscapeHtml(statusIcon)}</span>
+    <span>${EscapeHtml(r.status)}</span>
+</span>
+${RenderRelationChangeSummary(r)}
             </div>
 
             <div class="ib-rel-toggle-preview">
@@ -1211,28 +1297,70 @@ function RenderNsfw(nsfw) {
     </div>`;
 }
 
+function RelationHasDelta(r) {
+    return (
+        (parseInt(r.ac) || 0) !== 0 ||
+        (parseInt(r.tc) || 0) !== 0 ||
+        (parseInt(r.lc) || 0) !== 0
+    );
+}
+
+function RenderCompactDeltaLine(r) {
+    const parts = [];
+
+    const ac = parseInt(r.ac) || 0;
+    const tc = parseInt(r.tc) || 0;
+    const lc = parseInt(r.lc) || 0;
+
+    if (ac !== 0) parts.push(`<span class="${ac > 0 ? "ib-delta-pos" : "ib-delta-neg"}">A ${EscapeHtml(SignedText(ac))}</span>`);
+    if (tc !== 0) parts.push(`<span class="${tc > 0 ? "ib-delta-pos" : "ib-delta-neg"}">T ${EscapeHtml(SignedText(tc))}</span>`);
+    if (lc !== 0) parts.push(`<span class="${lc > 0 ? "ib-delta-pos" : "ib-delta-neg"}">L ${EscapeHtml(SignedText(lc))}</span>`);
+
+    return parts.join(`<span class="ib-compact-dot">·</span>`);
+}
+
 function RenderCompactRelations(state, prevState = null) {
-    const rels = SortRelationsByPriority(state?.rels || []);
+    let rels = SortRelationsByPriority(state?.rels || []);
     if (!rels.length) return "";
 
-    const top = rels.slice(0, 3);
-    const more = Math.max(0, rels.length - top.length);
+    if (gCompactMode === "changed") {
+        rels = rels.filter(RelationHasDelta);
+    }
+
+    if (gCompactMode === "top1") {
+        rels = rels.slice(0, 1);
+    } else if (gCompactMode === "top3") {
+        rels = rels.slice(0, 3);
+    }
+
+    if (!rels.length) {
+        return `<div class="ib-compact-empty">${EscapeHtml(T("noCompactChanges"))}</div>`;
+    }
+
+    const originalCount = SortRelationsByPriority(state?.rels || []).length;
+    const more = gCompactMode === "top3" ? Math.max(0, originalCount - rels.length) : 0;
 
     return `
-    <div class="ib-compact-rel-list">
-        ${top.map(r => {
+    <div class="ib-compact-rel-list ib-compact-mode-${EscapeHtml(gCompactMode)}">
+        ${rels.map(r => {
             const changed = GetChangedMetrics(prevState, r);
+            const deltaLine = RenderCompactDeltaLine(r);
+
             return `
             <div class="ib-compact-rel-item">
                 <div class="ib-compact-rel-name-row">
                     <span class="ib-compact-rel-name">${EscapeHtml(r.source)}</span>
                     <span class="ib-compact-rel-status ${GetStatusClass(r.status)}">${EscapeHtml(GetStatusIcon(r.status))}</span>
                 </div>
-                <div class="ib-compact-minirow">
-                    ${RenderMiniStat(GetCompactMetricMeta("a", r.a, r.ac), changed.a)}
-                    ${RenderMiniStat(GetCompactMetricMeta("tr", r.tr, r.tc), changed.tr)}
-                    ${RenderMiniStat(GetCompactMetricMeta("l", r.l, r.lc), changed.l)}
-                </div>
+
+                ${gCompactMode === "changed"
+                    ? `<div class="ib-compact-delta-line">${deltaLine || EscapeHtml(T("noCompactChanges"))}</div>`
+                    : `<div class="ib-compact-minirow">
+                        ${RenderMiniStat(GetCompactMetricMeta("a", r.a, r.ac), changed.a)}
+                        ${RenderMiniStat(GetCompactMetricMeta("tr", r.tr, r.tc), changed.tr)}
+                        ${RenderMiniStat(GetCompactMetricMeta("l", r.l, r.lc), changed.l)}
+                    </div>`
+                }
             </div>`;
         }).join("")}
         ${more > 0 ? `<div class="ib-compact-more">+${more} ${EscapeHtml(T("compactMore"))}</div>` : ""}
@@ -1264,9 +1392,10 @@ function RenderBoard(state, isFresh = false, prevState = null) {
                 </div>
 
                 <div class="ib-compact-controls">
-                    <div class="ib-control-btn ib-btn-full" title="Full">▣</div>
-                    <div class="ib-control-btn ib-btn-collapse" title="Collapse">✕</div>
-                </div>
+    <div class="ib-control-btn ib-btn-debug" title="${EscapeHtml(T("debugXml"))}">&lt;/&gt;</div>
+    <div class="ib-control-btn ib-btn-full" title="Full">▣</div>
+    <div class="ib-control-btn ib-btn-collapse" title="Collapse">✕</div>
+</div>
             </div>
             <div class="ib-compact-loc">${GetThemeLocationIcon()} ${RenderMaybeUnknown(state.loc)}</div>
         </div>
@@ -1279,10 +1408,11 @@ function RenderBoard(state, isFresh = false, prevState = null) {
                         <span class="ib-header-location-text">${RenderMaybeUnknown(state.loc)}</span>
                     </div>
 
-                    <div class="ib-panel-controls">
-                        <div class="ib-control-btn ib-btn-compact" title="Compact">▤</div>
-                        <div class="ib-control-btn ib-btn-collapse" title="Collapse">—</div>
-                    </div>
+                   <div class="ib-panel-controls">
+    <div class="ib-control-btn ib-btn-debug" title="${EscapeHtml(T("debugXml"))}">&lt;/&gt;</div>
+    <div class="ib-control-btn ib-btn-compact" title="Compact">▤</div>
+    <div class="ib-control-btn ib-btn-collapse" title="Collapse">—</div>
+</div>
                 </div>
 
                 <div class="ib-header-meta">
@@ -1376,6 +1506,28 @@ function WireBoardControls(boardEl) {
         });
     }
 
+    boardEl.querySelectorAll(".ib-btn-debug").forEach(btn => {
+    btn.addEventListener("click", () => {
+        const host = boardEl.closest(".ib-board-host");
+        const raw = host?.dataset?.rawXml || "";
+        if (!raw) return;
+
+        let debug = host.querySelector(".ib-debug-xml");
+
+        if (debug) {
+            debug.remove();
+            btn.classList.remove("ib-active");
+            return;
+        }
+
+        debug = document.createElement("pre");
+        debug.className = "ib-debug-xml";
+        debug.textContent = raw;
+        host.appendChild(debug);
+        btn.classList.add("ib-active");
+    });
+});
+    
     WireAccordionControls(boardEl);
 }
 
@@ -1621,7 +1773,9 @@ function UpdateSettingsText() {
     $('label[for="ib_lang"]').html(`<b>${T("language")}</b>`);
     $('label[for="ib_theme"]').html(`<b>${T("theme")}</b>`);
     $('label[for="ib_bar_style"]').html(`<b>${T("barStyle")}</b>`);
+    $('label[for="ib_compact_mode"]').html(`<b>${T("compactMode")}</b>`);
     $('label[for="ib_hide_raw"]').text(T("hideRaw"));
+    $('label[for="ib_hide_thought_leaks"]').text(T("hideThoughtLeaks"));
     $('label[for="ib_show_nsfw"]').text(T("showNsfw"));
     $('label[for="ib_hover_fx"]').text(T("hoverFx"));
     $("#ib_state_label").text(T("currentState"));
@@ -1633,6 +1787,10 @@ function UpdateSettingsText() {
     $("#ib_custom_css_help").text(T("customCssHelp"));
     $("#ib_save_custom_css").text(T("saveCustomCss"));
     $("#ib_clear_custom_css").text(T("clearCustomCss"));
+    $("#ib_compact_mode option[value='top3']").text(T("compactTop3"));
+$("#ib_compact_mode option[value='top1']").text(T("compactTop1"));
+$("#ib_compact_mode option[value='changed']").text(T("compactChanged"));
+$("#ib_compact_mode option[value='all']").text(T("compactAll"));
     UpdateThemePreview();
 }
 
@@ -1662,11 +1820,16 @@ function RenderBoardIntoMessage(mesTextEl, parsed, isFresh, prevState) {
     if (!mesTextEl || !parsed) return;
 
     RemoveRawXmlFromText(mesTextEl);
+
+if (gHideThoughtLeaks) {
     RemoveThoughtLeaksInContainer(mesTextEl, parsed);
-    CleanupEmptyMessageNodes(mesTextEl);
+}
+
+CleanupEmptyMessageNodes(mesTextEl);
 
     const host = GetOrCreateBoardHost(mesTextEl);
-    host.innerHTML = RenderBoard(parsed, isFresh, prevState);
+host.dataset.rawXml = parsed.rawXml || "";
+host.innerHTML = RenderBoard(parsed, isFresh, prevState);
 
     const boardEl = host.firstElementChild;
     if (boardEl) {
@@ -1857,6 +2020,8 @@ jQuery(async () => {
     gBarStyle = localStorage.getItem(kBarStyleKey) || "deep";
     gCustomCss = localStorage.getItem(kCustomCssKey) || "";
     gHoverFx = localStorage.getItem(kHoverFxKey) !== "false";
+    gHideThoughtLeaks = localStorage.getItem(kHideThoughtLeaksKey) !== "false";
+gCompactMode = localStorage.getItem(kCompactModeKey) || "top3";
 
     LoadState();
     ApplyCustomCss();
@@ -1865,9 +2030,21 @@ jQuery(async () => {
     $("#ib_lang").val(gLang);
     $("#ib_theme").val(gTheme);
     $("#ib_bar_style").val(gBarStyle);
+    $("#ib_compact_mode").on("change", function () {
+    gCompactMode = $(this).val();
+    localStorage.setItem(kCompactModeKey, gCompactMode);
+    ReprocessChat();
+});
     $("#ib_hide_raw").prop("checked", gHideRaw);
+    $("#ib_hide_thought_leaks").on("change", function () {
+    gHideThoughtLeaks = $(this).is(":checked");
+    localStorage.setItem(kHideThoughtLeaksKey, String(gHideThoughtLeaks));
+    ReprocessChat();
+});
     $("#ib_show_nsfw").prop("checked", gShowNsfw);
     $("#ib_hover_fx").prop("checked", gHoverFx);
+    $("#ib_hide_thought_leaks").prop("checked", gHideThoughtLeaks);
+$("#ib_compact_mode").val(gCompactMode);
     $("#ib_custom_css").val(gCustomCss);
 
     UpdateSettingsText();
