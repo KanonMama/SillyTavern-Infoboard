@@ -13,6 +13,7 @@ const kCustomCssKey = "IB_CustomCss";
 const kHoverFxKey = "IB_HoverFx";
 const kHideThoughtLeaksKey = "IB_HideThoughtLeaks";
 const kCompactModeKey = "IB_CompactMode";
+const kDisplayModeKey = "IB_DisplayMode";
 
 let gEnabled = false;
 let gTheme = "nocturne";
@@ -24,6 +25,8 @@ let gCustomCss = "";
 let gHoverFx = true;
 let gHideThoughtLeaks = true;
 let gCompactMode = "top3";
+let gDisplayMode = "inline";
+let gLastRawXml = "";
 
 const kThemePreviewMap = {
     nocturne: {
@@ -213,7 +216,12 @@ compactChanged: "Только изменившиеся",
 compactAll: "Все",
 debugXml: "Показать сырой XML",
 noCompactChanges: "Изменений нет",
-mood: "Настроение"
+mood: "Настроение",
+        displayMode: "Режим отображения",
+displayInline: "В сообщениях",
+displayFloating: "Плавающее окно",
+displayBoth: "Оба",
+floatingTitle: "Infoboard"
     },
     en: {
         enable: "Enable Infoboard",
@@ -272,7 +280,12 @@ compactChanged: "Changed only",
 compactAll: "All",
 debugXml: "Show raw XML",
 noCompactChanges: "No changes",
-mood: "Mood"
+mood: "Mood",
+        displayMode: "Display Mode",
+displayInline: "Inline",
+displayFloating: "Floating",
+displayBoth: "Both",
+floatingTitle: "Infoboard"
     }
 };
 
@@ -1533,6 +1546,105 @@ function WireBoardControls(boardEl) {
     WireAccordionControls(boardEl);
 }
 
+function ShouldRenderInlineBoard() {
+    return gDisplayMode === "inline" || gDisplayMode === "both";
+}
+
+function ShouldRenderFloatingBoard() {
+    return gDisplayMode === "floating" || gDisplayMode === "both";
+}
+
+function RemoveFloatingBoard() {
+    const host = document.getElementById("ib_floating_host");
+    if (host) host.remove();
+
+    const tab = document.getElementById("ib_floating_tab");
+    if (tab) tab.remove();
+}
+
+function EnsureFloatingTab() {
+    let tab = document.getElementById("ib_floating_tab");
+
+    if (!tab) {
+        tab = document.createElement("div");
+        tab.id = "ib_floating_tab";
+        tab.textContent = "✦ INFOBOARD";
+        tab.addEventListener("click", () => {
+            RenderFloatingBoard(true);
+        });
+        document.body.appendChild(tab);
+    }
+
+    return tab;
+}
+
+function RenderFloatingBoard(forceOpen = false) {
+    if (!gEnabled || !ShouldRenderFloatingBoard()) {
+        RemoveFloatingBoard();
+        return;
+    }
+
+    let host = document.getElementById("ib_floating_host");
+
+    if (!host) {
+        host = document.createElement("div");
+        host.id = "ib_floating_host";
+        document.body.appendChild(host);
+    }
+
+    host.dataset.rawXml = gLastRawXml || "";
+
+    const isCollapsed = host.classList.contains("ib-floating-collapsed") && !forceOpen;
+
+    host.innerHTML = `
+        <div class="ib-floating-shell">
+            <div class="ib-floating-header">
+                <div class="ib-floating-title">✦ ${EscapeHtml(T("floatingTitle"))}</div>
+                <div class="ib-floating-actions">
+                    <button type="button" class="ib-floating-btn ib-floating-min">—</button>
+                    <button type="button" class="ib-floating-btn ib-floating-close">×</button>
+                </div>
+            </div>
+            <div class="ib-floating-body">
+                ${RenderBoard(gState, false, null)}
+            </div>
+        </div>
+    `;
+
+    if (isCollapsed) {
+        host.classList.add("ib-floating-collapsed");
+    } else {
+        host.classList.remove("ib-floating-collapsed");
+    }
+
+    const boardEl = host.querySelector(".ib-board");
+    if (boardEl) {
+        WireBoardControls(boardEl);
+    }
+
+    const minBtn = host.querySelector(".ib-floating-min");
+    const closeBtn = host.querySelector(".ib-floating-close");
+
+    if (minBtn) {
+        minBtn.addEventListener("click", () => {
+            host.classList.add("ib-floating-collapsed");
+            EnsureFloatingTab();
+        });
+    }
+
+    if (closeBtn) {
+        closeBtn.addEventListener("click", () => {
+            host.remove();
+            EnsureFloatingTab();
+        });
+    }
+
+    const tab = document.getElementById("ib_floating_tab");
+    if (tab && !host.classList.contains("ib-floating-collapsed")) {
+        tab.remove();
+    }
+}
+
 function GetOrCreateBoardHost(mesTextEl) {
     let host = mesTextEl.querySelector(".ib-board-host");
     if (!host) {
@@ -1777,10 +1889,15 @@ function UpdateSettingsText() {
 $("#ib_compact_mode option[value='top1']").text(T("compactTop1"));
 $("#ib_compact_mode option[value='changed']").text(T("compactChanged"));
 $("#ib_compact_mode option[value='all']").text(T("compactAll"));
+    $('label[for="ib_display_mode"]').html(`<b>${T("displayMode")}</b>`);
+$("#ib_display_mode option[value='inline']").text(T("displayInline"));
+$("#ib_display_mode option[value='floating']").text(T("displayFloating"));
+$("#ib_display_mode option[value='both']").text(T("displayBoth"));
     UpdateThemePreview();
 }
 
 function ApplyParsedToState(parsed) {
+    gLastRawXml = parsed.rawXml || gLastRawXml;
     gState.time = parsed.time || gState.time;
     gState.date = parsed.date || gState.date;
     gState.weather = parsed.weather || gState.weather;
@@ -1807,15 +1924,24 @@ function RenderBoardIntoMessage(mesTextEl, parsed, isFresh, prevState) {
 
     RemoveRawXmlFromText(mesTextEl);
 
-if (gHideThoughtLeaks) {
-    RemoveThoughtLeaksInContainer(mesTextEl, parsed);
-}
+    if (gHideThoughtLeaks) {
+        RemoveThoughtLeaksInContainer(mesTextEl, parsed);
+    }
 
-CleanupEmptyMessageNodes(mesTextEl);
+    CleanupEmptyMessageNodes(mesTextEl);
+
+    if (!ShouldRenderInlineBoard()) {
+        const existingHost = mesTextEl.querySelector(".ib-board-host");
+        if (existingHost) existingHost.remove();
+
+        CleanupBoardHosts(mesTextEl);
+        CleanupEmptyMessageNodes(mesTextEl);
+        return;
+    }
 
     const host = GetOrCreateBoardHost(mesTextEl);
-host.dataset.rawXml = parsed.rawXml || "";
-host.innerHTML = RenderBoard(parsed, isFresh, prevState);
+    host.dataset.rawXml = parsed.rawXml || "";
+    host.innerHTML = RenderBoard(parsed, isFresh, prevState);
 
     const boardEl = host.firstElementChild;
     if (boardEl) {
@@ -1847,6 +1973,7 @@ function ProcessMessage(messageDiv, msgIndex, isFresh = true, prevState = null) 
 
     UpdateStatusDisplay();
     UpdateLastUpdateDisplay();
+    RenderFloatingBoard();
 }
 
 function ReprocessChat() {
@@ -1959,6 +2086,7 @@ async function ImportStateFromFile(file) {
         SaveState();
         UpdateStatusDisplay();
         UpdateLastUpdateDisplay();
+        RenderFloatingBoard();
         ReprocessChat();
     } catch (e) {
         console.error("[IB] Import failed:", e);
@@ -2008,6 +2136,7 @@ jQuery(async () => {
     gHoverFx = localStorage.getItem(kHoverFxKey) !== "false";
     gHideThoughtLeaks = localStorage.getItem(kHideThoughtLeaksKey) !== "false";
 gCompactMode = localStorage.getItem(kCompactModeKey) || "top3";
+    gDisplayMode = localStorage.getItem(kDisplayModeKey) || "inline";
 
     LoadState();
     ApplyCustomCss();
@@ -2031,6 +2160,7 @@ gCompactMode = localStorage.getItem(kCompactModeKey) || "top3";
     $("#ib_hover_fx").prop("checked", gHoverFx);
     $("#ib_hide_thought_leaks").prop("checked", gHideThoughtLeaks);
 $("#ib_compact_mode").val(gCompactMode);
+    $("#ib_display_mode").val(gDisplayMode);
     $("#ib_custom_css").val(gCustomCss);
 
     UpdateSettingsText();
@@ -2039,17 +2169,18 @@ $("#ib_compact_mode").val(gCompactMode);
     UpdateThemePreview();
 
     $("#ib_enabled").on("change", function () {
-        gEnabled = $(this).is(":checked");
-        localStorage.setItem(kEnabledKey, String(gEnabled));
-        UpdateStatusDisplay();
-        InjectPrompt();
+    gEnabled = $(this).is(":checked");
+    localStorage.setItem(kEnabledKey, String(gEnabled));
+    UpdateStatusDisplay();
+    InjectPrompt();
 
-        if (gEnabled) {
-            ReprocessChat();
-        } else {
-            document.querySelectorAll(".ib-board-host").forEach(el => el.remove());
-        }
-    });
+    if (gEnabled) {
+        ReprocessChat();
+    } else {
+        document.querySelectorAll(".ib-board-host").forEach(el => el.remove());
+        RemoveFloatingBoard();
+    }
+});
 
     $("#ib_lang").on("change", function () {
         gLang = $(this).val();
@@ -2119,6 +2250,19 @@ $("#ib_compact_mode").val(gCompactMode);
         }
     });
 
+$("#ib_display_mode").on("change", function () {
+    gDisplayMode = $(this).val();
+    localStorage.setItem(kDisplayModeKey, gDisplayMode);
+
+    if (gDisplayMode === "inline") {
+        RemoveFloatingBoard();
+    } else {
+        RenderFloatingBoard();
+    }
+
+    ReprocessChat();
+});
+    
     $("#ib_reprocess_chat").on("click", function () {
         ReprocessChat();
     });
