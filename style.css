@@ -3318,3 +3318,47 @@
         bottom: 10px;
     }
 }
+
+/* FLOATING DRAG / RESIZE */
+
+#ib_floating_host {
+    resize: both;
+    min-width: 300px;
+    min-height: 220px;
+    max-width: calc(100vw - 20px);
+    max-height: calc(100vh - 20px);
+}
+
+#ib_floating_host .ib-floating-shell {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+#ib_floating_host .ib-floating-body {
+    flex: 1;
+    min-height: 0;
+}
+
+.ib-floating-header {
+    cursor: move;
+    user-select: none;
+}
+
+.ib-floating-actions,
+.ib-floating-btn {
+    cursor: default;
+}
+
+.ib-floating-dragging,
+.ib-floating-dragging * {
+    user-select: none !important;
+}
+
+@media (max-width: 760px) {
+    #ib_floating_host {
+        resize: vertical;
+        min-width: 0;
+        min-height: 180px;
+    }
+}
