@@ -445,7 +445,7 @@ function GetThemeTitleData(theme = gTheme) {
         },
         gengar: {
     main: "☠ 𝔊𝔢𝔫𝔤𝔞𝔯 ☠",
-    sub: "✦ ghost poison neon grin ✦"
+    sub: "𖦹 ⋆ ˚｡🩻｡˚ ⋆ 𖦹"
 }
     };
 
