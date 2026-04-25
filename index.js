@@ -461,7 +461,7 @@ function GetThemeTitleData(theme = gTheme) {
     sub: "𖦹 ⋆ ˚｡🩻｡˚ ⋆ 𖦹"
 },
         systemlog: {
-    main: "▾ SYSTEM LOG // ACCESS GRANTED",
+    main: "▾ SYSTEM LOG // ACCESS GRANTED 🖳",
     sub: "↳ task issued · signal stable · archive open ✔"
 }
     };
@@ -474,16 +474,16 @@ function GetThemeTitleData(theme = gTheme) {
 
 function GetThemeLocationIcon(theme = gTheme) {
     const facultyThemes = ["gryffindor", "slytherin", "ravenclaw", "hufflepuff"];
-    return facultyThemes.includes(theme) ? "📜" : "📍";
     if (theme === "gengar") return "🕯️";
-    if (theme === "systemlog") return "◆";
+    if (theme === "systemlog") return "💾";
+     return facultyThemes.includes(theme) ? "📜" : "📍";
 }
 
 function GetThemeCharsIcon(theme = gTheme) {
     const facultyThemes = ["gryffindor", "slytherin", "ravenclaw", "hufflepuff"];
-    return facultyThemes.includes(theme) ? "🪶" : "💖";
     if (theme === "gengar") return "👻";
-    if (theme === "systemlog") return "◆";
+    if (theme === "systemlog") return "📊";
+        return facultyThemes.includes(theme) ? "🪶" : "💖";
 }
 
 function GetThemeRelationsIcon(theme = gTheme) {
@@ -493,7 +493,7 @@ function GetThemeRelationsIcon(theme = gTheme) {
         ravenclaw: "💙",
         hufflepuff: "💛",
         gengar: "💜",
-        systemlog: "➤"
+        systemlog: "🔗"
     };
 
     return map[theme] || "🤍";
