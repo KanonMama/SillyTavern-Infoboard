@@ -133,6 +133,19 @@ const kThemePreviewMap = {
     danger: "#ff5d8f"
 },
 
+systemlog: {
+    label: {
+        ru: "System Log: зернистый терминал, холодный неон и минимализм",
+        en: "System Log: grainy terminal, cold neon and minimalism"
+    },
+    bg: "#07090c",
+    bg2: "#101820",
+    accent: "#6bd6ff",
+    accent2: "#ff6f9f",
+    text: "#d8e7ee",
+    danger: "#ff5e6c"
+},
+    
     gryffindor: {
         label: { ru: "Гриффиндор: бордо, золото и гербовый жар", en: "Gryffindor: crimson, gold, heraldic warmth" },
         bg: "#2a1114",
@@ -446,6 +459,10 @@ function GetThemeTitleData(theme = gTheme) {
         gengar: {
     main: "☠ 𝔊𝔢𝔫𝔤𝔞𝔯 ☠",
     sub: "𖦹 ⋆ ˚｡🩻｡˚ ⋆ 𖦹"
+},
+        systemlog: {
+    main: "▾ SYSTEM LOG // ACCESS GRANTED",
+    sub: "↳ task issued · signal stable · archive open ✔"
 }
     };
 
@@ -459,12 +476,14 @@ function GetThemeLocationIcon(theme = gTheme) {
     const facultyThemes = ["gryffindor", "slytherin", "ravenclaw", "hufflepuff"];
     return facultyThemes.includes(theme) ? "📜" : "📍";
     if (theme === "gengar") return "🕯️";
+    if (theme === "systemlog") return "◆";
 }
 
 function GetThemeCharsIcon(theme = gTheme) {
     const facultyThemes = ["gryffindor", "slytherin", "ravenclaw", "hufflepuff"];
     return facultyThemes.includes(theme) ? "🪶" : "💖";
     if (theme === "gengar") return "👻";
+    if (theme === "systemlog") return "◆";
 }
 
 function GetThemeRelationsIcon(theme = gTheme) {
@@ -473,7 +492,8 @@ function GetThemeRelationsIcon(theme = gTheme) {
         slytherin: "💚",
         ravenclaw: "💙",
         hufflepuff: "💛",
-        gengar: "💜"
+        gengar: "💜",
+        systemlog: "➤"
     };
 
     return map[theme] || "🤍";
