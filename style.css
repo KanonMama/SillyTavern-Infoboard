@@ -6048,3 +6048,105 @@ button.ib-pin-btn.ib-pinned::before,
 .ib-theme-systemlog.ib-bars-neon .ib-meter-value {
     color: #93aebd;
 }
+
+/* =========================================================
+   SYSTEM LOG STRONG GRAIN / CRT NOISE
+   Must be after System Log theme block
+   ========================================================= */
+
+.ib-theme-systemlog {
+    --ib-systemlog-noise-opacity: 0.23;
+    --ib-systemlog-scanline-opacity: 0.18;
+}
+
+.ib-theme-systemlog .ib-board {
+    isolation: isolate;
+}
+
+/* visible noise layer */
+.ib-theme-systemlog .ib-board::before {
+    content: "" !important;
+    position: absolute !important;
+    inset: 0 !important;
+    z-index: 40 !important;
+    pointer-events: none !important;
+
+    opacity: var(--ib-systemlog-noise-opacity) !important;
+    mix-blend-mode: screen;
+
+    background-image:
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160' viewBox='0 0 160 160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.92' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='0.72'/%3E%3C/svg%3E"),
+        radial-gradient(circle at 18% 24%, rgba(107,214,255,0.20) 0 1px, transparent 1.4px),
+        radial-gradient(circle at 78% 66%, rgba(255,111,159,0.13) 0 1px, transparent 1.5px),
+        radial-gradient(circle at 45% 82%, rgba(255,255,255,0.16) 0 1px, transparent 1.3px);
+
+    background-size:
+        180px 180px,
+        19px 19px,
+        27px 27px,
+        33px 33px;
+
+    background-position:
+        0 0,
+        3px 5px,
+        11px 7px,
+        17px 13px;
+}
+
+/* scanlines + terminal glass */
+.ib-theme-systemlog .ib-board::after {
+    content: "" !important;
+    position: absolute !important;
+    inset: 0 !important;
+    z-index: 41 !important;
+    pointer-events: none !important;
+    border-radius: inherit !important;
+
+    opacity: 1 !important;
+
+    background:
+        repeating-linear-gradient(
+            180deg,
+            rgba(255,255,255,var(--ib-systemlog-scanline-opacity)) 0px,
+            rgba(255,255,255,var(--ib-systemlog-scanline-opacity)) 1px,
+            transparent 1px,
+            transparent 4px
+        ),
+        linear-gradient(
+            90deg,
+            rgba(107,214,255,0.035),
+            transparent 18%,
+            transparent 82%,
+            rgba(255,111,159,0.025)
+        );
+
+    box-shadow:
+        inset 0 0 0 1px rgba(107, 214, 255, 0.22),
+        inset 0 0 24px rgba(107, 214, 255, 0.045),
+        0 0 18px rgba(107, 214, 255, 0.12) !important;
+}
+
+/* keep controls above the noise if needed */
+.ib-theme-systemlog .ib-panel-controls,
+.ib-theme-systemlog .ib-compact-controls,
+.ib-theme-systemlog .ib-control-btn,
+.ib-theme-systemlog .ib-pin-btn,
+.ib-theme-systemlog .ib-floating-btn {
+    position: relative;
+    z-index: 50;
+}
+
+/* optional: add subtle grain inside panels too */
+.ib-theme-systemlog .ib-header,
+.ib-theme-systemlog .ib-section,
+.ib-theme-systemlog .ib-rel-card,
+.ib-theme-systemlog .ib-compact-wrap,
+.ib-theme-systemlog .ib-collapsed-tag {
+    background-image:
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120' viewBox='0 0 120 120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23n)' opacity='0.38'/%3E%3C/svg%3E"),
+        linear-gradient(180deg, rgba(255,255,255,0.025), rgba(255,255,255,0.01)) !important;
+    background-size:
+        140px 140px,
+        auto !important;
+    background-blend-mode: screen, normal;
+}
