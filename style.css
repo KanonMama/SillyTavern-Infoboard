@@ -6150,3 +6150,199 @@ button.ib-pin-btn.ib-pinned::before,
         auto !important;
     background-blend-mode: screen, normal;
 }
+
+/* =========================================================
+   SYSTEM LOG DARK GRAIN FIX
+   darker, finer, less grey
+   must be LAST after previous System Log grain blocks
+   ========================================================= */
+
+.ib-theme-systemlog {
+    --ib-systemlog-noise-opacity: 0.18;
+    --ib-systemlog-scanline-opacity: 0.055;
+}
+
+/* Main board grain: dark terminal texture, not grey fog */
+.ib-theme-systemlog .ib-board::before {
+    content: "" !important;
+    position: absolute !important;
+    inset: 0 !important;
+    z-index: 40 !important;
+    pointer-events: none !important;
+
+    opacity: var(--ib-systemlog-noise-opacity) !important;
+    mix-blend-mode: soft-light !important;
+
+    background-image:
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180' viewBox='0 0 180 180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.15' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='matrix' values='0.55 0 0 0 0.05 0 0.55 0 0 0.05 0 0 0.55 0 0.05 0 0 0 0.75 0'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)' opacity='0.55'/%3E%3C/svg%3E");
+
+    background-size: 150px 150px !important;
+    background-position: 0 0 !important;
+}
+
+/* Scanlines: barely visible */
+.ib-theme-systemlog .ib-board::after {
+    content: "" !important;
+    position: absolute !important;
+    inset: 0 !important;
+    z-index: 41 !important;
+    pointer-events: none !important;
+    border-radius: inherit !important;
+
+    opacity: 1 !important;
+
+    background:
+        repeating-linear-gradient(
+            180deg,
+            rgba(255,255,255,var(--ib-systemlog-scanline-opacity)) 0px,
+            rgba(255,255,255,var(--ib-systemlog-scanline-opacity)) 1px,
+            transparent 1px,
+            transparent 5px
+        ),
+        linear-gradient(
+            90deg,
+            rgba(107,214,255,0.018),
+            transparent 22%,
+            transparent 78%,
+            rgba(255,111,159,0.014)
+        ) !important;
+
+    box-shadow:
+        inset 0 0 0 1px rgba(107, 214, 255, 0.20),
+        inset 0 0 24px rgba(107, 214, 255, 0.035),
+        0 0 18px rgba(107, 214, 255, 0.10) !important;
+}
+
+/* Inner panels: keep grain, but stop making them grey */
+.ib-theme-systemlog .ib-header,
+.ib-theme-systemlog .ib-section,
+.ib-theme-systemlog .ib-rel-card,
+.ib-theme-systemlog .ib-compact-wrap,
+.ib-theme-systemlog .ib-collapsed-tag {
+    background-image:
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160' viewBox='0 0 160 160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.05' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='matrix' values='0.42 0 0 0 0.03 0 0.42 0 0 0.03 0 0 0.42 0 0.03 0 0 0 0.45 0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='0.34'/%3E%3C/svg%3E"),
+        linear-gradient(180deg, rgba(255,255,255,0.018), rgba(255,255,255,0.006)) !important;
+
+    background-color: rgba(3, 6, 9, 0.56) !important;
+
+    background-size:
+        130px 130px,
+        auto !important;
+
+    background-blend-mode:
+        soft-light,
+        normal !important;
+}
+
+/* Relation body / thought panels should stay readable */
+.ib-theme-systemlog .ib-rel-body,
+.ib-theme-systemlog .ib-rel-thought {
+    background-color: rgba(2, 5, 8, 0.42) !important;
+}
+
+/* Slightly darken the full card surface under text */
+.ib-theme-systemlog .ib-rel-card {
+    box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.028),
+        0 0 0 1px rgba(107,214,255,0.045),
+        0 8px 18px rgba(0,0,0,0.18) !important;
+}
+
+/* =========================================================
+   NEON RAILS GRAIN / ELECTRIC TEXTURE
+   Must be after Neon Rails bar style
+   ========================================================= */
+
+.ib-bars-neon {
+    --ib-neon-rail-noise-opacity: 0.18;
+    --ib-neon-rail-track-noise-opacity: 0.20;
+}
+
+/* textured dark track */
+.ib-bars-neon .ib-bar {
+    position: relative;
+    overflow: hidden;
+    background:
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120' viewBox='0 0 120 120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.1' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='matrix' values='0.42 0 0 0 0.02 0 0.42 0 0 0.02 0 0 0.42 0 0.02 0 0 0 0.45 0'/%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23n)' opacity='0.45'/%3E%3C/svg%3E"),
+        repeating-linear-gradient(
+            90deg,
+            rgba(255,255,255,0.035) 0,
+            rgba(255,255,255,0.035) 1px,
+            transparent 1px,
+            transparent 10px
+        ),
+        linear-gradient(180deg, rgba(255,255,255,0.035), rgba(0,0,0,0.26)),
+        rgba(0, 0, 0, 0.48) !important;
+
+    background-size:
+        120px 120px,
+        10px 100%,
+        auto,
+        auto !important;
+
+    background-blend-mode:
+        soft-light,
+        normal,
+        normal,
+        normal !important;
+}
+
+/* glowing fill gets fine grain + glossy rail line */
+.ib-bars-neon .ib-bar-fill::before {
+    content: "" !important;
+    position: absolute !important;
+    inset: 0 !important;
+    pointer-events: none !important;
+    border-radius: inherit !important;
+
+    opacity: var(--ib-neon-rail-noise-opacity) !important;
+    mix-blend-mode: overlay !important;
+
+    background:
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140' viewBox='0 0 140 140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.25' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='0.58'/%3E%3C/svg%3E"),
+        linear-gradient(
+            180deg,
+            rgba(255,255,255,0.55) 0%,
+            rgba(255,255,255,0.20) 34%,
+            transparent 58%
+        ),
+        repeating-linear-gradient(
+            90deg,
+            rgba(255,255,255,0.18) 0,
+            rgba(255,255,255,0.18) 1px,
+            transparent 1px,
+            transparent 14px
+        ) !important;
+
+    background-size:
+        120px 120px,
+        auto,
+        14px 100% !important;
+}
+
+/* keep endpoint bright and above texture */
+.ib-bars-neon .ib-bar-fill::after {
+    z-index: 3;
+}
+
+/* stronger terminal pairing */
+.ib-theme-systemlog.ib-bars-neon {
+    --ib-neon-rail-noise-opacity: 0.22;
+    --ib-neon-rail-track-noise-opacity: 0.22;
+}
+
+.ib-theme-systemlog.ib-bars-neon .ib-bar {
+    border-color: rgba(107, 214, 255, 0.16);
+    box-shadow:
+        inset 0 1px 1px rgba(255,255,255,0.04),
+        inset 0 -1px 2px rgba(0,0,0,0.34),
+        0 0 8px rgba(107,214,255,0.045);
+}
+
+.ib-theme-systemlog.ib-bars-neon .ib-bar-fill {
+    box-shadow:
+        0 0 8px currentColor,
+        0 0 16px currentColor,
+        0 0 28px color-mix(in srgb, currentColor 28%, transparent),
+        inset 0 1px 0 rgba(255,255,255,0.34);
+}
