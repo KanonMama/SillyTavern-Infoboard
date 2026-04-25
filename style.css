@@ -5594,3 +5594,457 @@ button.ib-pin-btn.ib-pinned::before,
 .ib-theme-pixel .ib-pin-btn::before {
     border-radius: 0 !important;
 }
+
+/* =========================================================
+   SYSTEM LOG THEME + NEON RAILS BAR STYLE
+   ========================================================= */
+
+/* ---------- SYSTEM LOG THEME ---------- */
+
+.ib-theme-systemlog {
+    --ib-bg-1: #06080b;
+    --ib-bg-2: #0c1218;
+    --ib-bg-3: #050608;
+
+    --ib-border: rgba(107, 214, 255, 0.28);
+    --ib-border-neon: rgba(107, 214, 255, 0.32);
+    --ib-soft-border: rgba(107, 214, 255, 0.13);
+
+    --ib-text: #d8e7ee;
+    --ib-muted: #93aebd;
+    --ib-dim: #5e7480;
+
+    --ib-accent: #6bd6ff;
+    --ib-accent-2: #ff6f9f;
+
+    --ib-green: #55ff9a;
+    --ib-blue: #4fc3ff;
+    --ib-purple: #c36bff;
+    --ib-warm: #ffb84d;
+    --ib-danger: #ff5e6c;
+
+    --ib-chip-bg: rgba(107, 214, 255, 0.10);
+    --ib-chip-border: rgba(107, 214, 255, 0.24);
+
+    --ib-shadow: 0 14px 32px rgba(0, 0, 0, 0.62);
+    --ib-neon:
+        0 0 16px rgba(107, 214, 255, 0.10),
+        0 0 28px rgba(255, 111, 159, 0.045);
+
+    --ib-header-glow:
+        radial-gradient(circle at top left, rgba(107, 214, 255, 0.10), transparent 38%),
+        radial-gradient(circle at bottom right, rgba(255, 111, 159, 0.055), transparent 42%);
+
+    --ib-pin-icon-off: "◇";
+    --ib-pin-icon-on: "◆";
+    --ib-pin-bg-off: #081018;
+    --ib-pin-bg-hover: #10202b;
+    --ib-pin-bg-on: #132936;
+    --ib-pin-border-off: rgba(107, 214, 255, 0.30);
+    --ib-pin-border-hover: rgba(107, 214, 255, 0.52);
+    --ib-pin-border-on: rgba(107, 214, 255, 0.70);
+    --ib-pin-color-off: #7ea7bb;
+    --ib-pin-color-hover: #d8e7ee;
+    --ib-pin-color-on: #6bd6ff;
+    --ib-pin-glow-on: rgba(107, 214, 255, 0.34);
+}
+
+.ib-theme-systemlog .ib-board {
+    background:
+        radial-gradient(circle at 10% 0%, rgba(107, 214, 255, 0.08), transparent 28%),
+        radial-gradient(circle at 90% 100%, rgba(255, 111, 159, 0.045), transparent 30%),
+        linear-gradient(135deg, #06080b, #0c1218 48%, #050608);
+    border-color: rgba(107, 214, 255, 0.28);
+    border-radius: 4px;
+    box-shadow:
+        0 14px 32px rgba(0, 0, 0, 0.62),
+        0 0 0 1px rgba(255,255,255,0.025),
+        0 0 20px rgba(107, 214, 255, 0.10),
+        inset 0 0 0 1px rgba(107, 214, 255, 0.035);
+    font-family:
+        "Cascadia Mono",
+        "Consolas",
+        "JetBrains Mono",
+        "SFMono-Regular",
+        ui-monospace,
+        monospace;
+}
+
+/* grain + terminal noise */
+.ib-theme-systemlog .ib-board::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.32;
+    background:
+        radial-gradient(circle at 18% 24%, rgba(255,255,255,0.13) 0 1px, transparent 1.5px),
+        radial-gradient(circle at 72% 64%, rgba(255,255,255,0.10) 0 1px, transparent 1.6px),
+        radial-gradient(circle at 42% 82%, rgba(107,214,255,0.10) 0 1px, transparent 1.4px),
+        radial-gradient(circle at 86% 18%, rgba(255,111,159,0.08) 0 1px, transparent 1.5px),
+        linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px);
+    background-size:
+        17px 17px,
+        23px 23px,
+        29px 29px,
+        31px 31px,
+        100% 3px;
+    mix-blend-mode: screen;
+}
+
+/* scanline/border glow */
+.ib-theme-systemlog .ib-board::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    pointer-events: none;
+    z-index: 1;
+    opacity: 0.48;
+    box-shadow:
+        inset 0 0 0 1px rgba(107, 214, 255, 0.20),
+        inset 0 0 22px rgba(107, 214, 255, 0.035),
+        0 0 18px rgba(107, 214, 255, 0.12);
+    background:
+        repeating-linear-gradient(
+            180deg,
+            rgba(255,255,255,0.018) 0px,
+            rgba(255,255,255,0.018) 1px,
+            transparent 1px,
+            transparent 4px
+        );
+}
+
+.ib-theme-systemlog .ib-title-wrap,
+.ib-theme-systemlog .ib-full-wrap,
+.ib-theme-systemlog .ib-compact-wrap,
+.ib-theme-systemlog .ib-collapsed-wrap {
+    position: relative;
+    z-index: 2;
+}
+
+.ib-theme-systemlog .ib-title {
+    color: #c7d6de;
+    font-size: 10px;
+    letter-spacing: 3.5px;
+    font-weight: 800;
+    text-shadow:
+        0 0 8px rgba(107, 214, 255, 0.28),
+        0 0 18px rgba(107, 214, 255, 0.12);
+}
+
+.ib-theme-systemlog .ib-title::before,
+.ib-theme-systemlog .ib-title::after {
+    content: "";
+    margin: 0;
+}
+
+.ib-theme-systemlog .ib-title-sub {
+    color: #7395a5;
+    font-size: 10px;
+    letter-spacing: 1.4px;
+    text-transform: lowercase;
+}
+
+.ib-theme-systemlog .ib-header,
+.ib-theme-systemlog .ib-section,
+.ib-theme-systemlog .ib-rel-card,
+.ib-theme-systemlog .ib-compact-wrap,
+.ib-theme-systemlog .ib-collapsed-tag {
+    background:
+        linear-gradient(180deg, rgba(255,255,255,0.025), rgba(255,255,255,0.01)),
+        rgba(4, 7, 10, 0.44);
+    border-color: rgba(107, 214, 255, 0.13);
+    border-radius: 2px;
+    box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.035),
+        0 1px 0 rgba(255,255,255,0.018);
+}
+
+.ib-theme-systemlog .ib-header::before {
+    background:
+        linear-gradient(90deg, transparent, #6bd6ff, #ff6f9f, transparent);
+    opacity: 0.95;
+    height: 1px;
+    box-shadow:
+        0 0 10px rgba(107, 214, 255, 0.24),
+        0 0 16px rgba(255, 111, 159, 0.10);
+}
+
+.ib-theme-systemlog .ib-section-title {
+    color: #c7d6de;
+    font-size: 10px;
+    letter-spacing: 2.4px;
+    text-shadow: 0 0 8px rgba(107, 214, 255, 0.20);
+}
+
+.ib-theme-systemlog .ib-section-title::before {
+    color: #6bd6ff;
+}
+
+.ib-theme-systemlog .ib-header-location-text,
+.ib-theme-systemlog .ib-char-name,
+.ib-theme-systemlog .ib-rel-toggle-name,
+.ib-theme-systemlog .ib-compact-rel-name {
+    color: #e2edf2;
+    font-weight: 800;
+    letter-spacing: 0.4px;
+}
+
+.ib-theme-systemlog .ib-meta-pill,
+.ib-theme-systemlog .ib-tag,
+.ib-theme-systemlog .ib-status-chip,
+.ib-theme-systemlog .ib-presence-chip,
+.ib-theme-systemlog .ib-mini-stat,
+.ib-theme-systemlog .ib-control-btn {
+    border-radius: 2px;
+    background: rgba(107, 214, 255, 0.055);
+    border-color: rgba(107, 214, 255, 0.16);
+    box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.04),
+        0 0 8px rgba(107, 214, 255, 0.035);
+}
+
+.ib-theme-systemlog .ib-tag {
+    color: #9fdfff;
+    text-transform: uppercase;
+    font-size: 9px;
+    letter-spacing: 0.8px;
+}
+
+.ib-theme-systemlog .ib-mood-tag {
+    color: #ff9fbd;
+    border-color: rgba(255, 111, 159, 0.28);
+    background: rgba(255, 111, 159, 0.08);
+    font-style: normal;
+}
+
+.ib-theme-systemlog .ib-mood-tag::before {
+    content: "!";
+    color: #ff6f9f;
+    margin-right: 4px;
+    opacity: 0.9;
+}
+
+.ib-theme-systemlog .ib-char-icon-wrap {
+    border-radius: 2px;
+    border-color: rgba(107, 214, 255, 0.24);
+    background:
+        linear-gradient(135deg, rgba(107, 214, 255, 0.10), rgba(255, 111, 159, 0.035)),
+        rgba(0,0,0,0.28);
+    box-shadow:
+        0 0 10px rgba(107, 214, 255, 0.12),
+        inset 0 1px 0 rgba(255,255,255,0.06);
+}
+
+.ib-theme-systemlog .ib-control-btn {
+    color: #93aebd;
+}
+
+.ib-theme-systemlog .ib-control-btn:hover,
+.ib-theme-systemlog .ib-control-btn.ib-active {
+    color: #e2edf2;
+    border-color: rgba(107, 214, 255, 0.38);
+    background: rgba(107, 214, 255, 0.10);
+    box-shadow:
+        0 0 12px rgba(107, 214, 255, 0.16),
+        inset 0 1px 0 rgba(255,255,255,0.08);
+}
+
+.ib-theme-systemlog .ib-rel-card::before {
+    background: linear-gradient(180deg, #6bd6ff, transparent);
+    opacity: 0.62;
+}
+
+.ib-theme-systemlog .ib-rel-subtitle {
+    color: #ff9fbd;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+}
+
+.ib-theme-systemlog .ib-rel-thought {
+    border-radius: 2px;
+    background:
+        linear-gradient(90deg, rgba(107, 214, 255, 0.035), transparent),
+        rgba(255,255,255,0.018);
+    border-color: rgba(107, 214, 255, 0.12);
+}
+
+.ib-theme-systemlog .ib-rel-thought-text {
+    color: #c7d6de;
+}
+
+.ib-theme-systemlog .ib-collapsed-action::before {
+    content: "SYS ";
+    color: #6bd6ff;
+}
+
+/* Status chips */
+.ib-theme-systemlog .ib-status-neutral {
+    background: rgba(107, 214, 255, 0.08);
+    color: #a9dfff;
+    border-color: rgba(107, 214, 255, 0.22);
+}
+
+.ib-theme-systemlog .ib-status-romantic {
+    background: rgba(195, 107, 255, 0.10);
+    color: #ddb6ff;
+    border-color: rgba(195, 107, 255, 0.24);
+}
+
+.ib-theme-systemlog .ib-status-negative {
+    background: rgba(255, 94, 108, 0.11);
+    color: #ff9ca6;
+    border-color: rgba(255, 94, 108, 0.26);
+}
+
+.ib-theme-systemlog .ib-status-complex {
+    background: rgba(255, 184, 77, 0.10);
+    color: #ffd08a;
+    border-color: rgba(255, 184, 77, 0.24);
+}
+
+/* System Log floating */
+#ib_floating_host.ib-theme-systemlog .ib-floating-shell {
+    background:
+        radial-gradient(circle at top left, rgba(107, 214, 255, 0.10), transparent 38%),
+        radial-gradient(circle at bottom right, rgba(255, 111, 159, 0.055), transparent 42%),
+        linear-gradient(
+            135deg,
+            color-mix(in srgb, #06080b 86%, transparent),
+            color-mix(in srgb, #0c1218 78%, transparent),
+            color-mix(in srgb, #050608 88%, transparent)
+        ) !important;
+    border-color: rgba(107, 214, 255, 0.26) !important;
+}
+
+#ib_floating_host.ib-theme-systemlog .ib-floating-title::before {
+    content: "▾ ";
+    color: #6bd6ff;
+}
+
+#ib_floating_tab.ib-theme-systemlog::before {
+    content: "▾ ";
+    color: #6bd6ff;
+}
+
+
+/* ---------- NEON RAILS BAR STYLE ---------- */
+
+.ib-bars-neon .ib-bar {
+    height: 8px;
+    background:
+        linear-gradient(180deg, rgba(255,255,255,0.035), rgba(0,0,0,0.24)),
+        rgba(0, 0, 0, 0.44);
+    border: 1px solid rgba(255,255,255,0.055);
+    border-radius: 2px;
+    overflow: visible;
+    box-shadow:
+        inset 0 1px 1px rgba(255,255,255,0.035),
+        inset 0 -1px 2px rgba(0,0,0,0.32);
+}
+
+.ib-bars-neon .ib-bar-fill {
+    border-radius: 2px;
+    filter: saturate(1.22) brightness(1.08);
+    box-shadow:
+        0 0 8px currentColor,
+        0 0 16px currentColor,
+        inset 0 1px 0 rgba(255,255,255,0.32);
+}
+
+.ib-bars-neon .ib-bar-fill::before {
+    content: "";
+    position: absolute;
+    inset: 1px 0 auto 0;
+    height: 45%;
+    border-radius: inherit;
+    background: linear-gradient(180deg, rgba(255,255,255,0.44), transparent);
+    opacity: 0.78;
+    pointer-events: none;
+}
+
+.ib-bars-neon .ib-bar-fill::after {
+    opacity: 1;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    box-shadow:
+        0 0 10px currentColor,
+        0 0 18px currentColor,
+        0 0 3px rgba(255,255,255,0.42);
+}
+
+/* Neon color set */
+.ib-bars-neon .ib-bar-affection-pos {
+    background: linear-gradient(90deg, #55ff9a, #18d66f 56%, #0b8e4b);
+    color: #55ff9a;
+}
+
+.ib-bars-neon .ib-bar-affection-neg {
+    background: linear-gradient(90deg, #ff5e6c, #ff304b 56%, #a70e25);
+    color: #ff5e6c;
+}
+
+.ib-bars-neon .ib-bar-trust-pos {
+    background: linear-gradient(90deg, #6bd6ff, #1aaeff 56%, #0967bb);
+    color: #6bd6ff;
+}
+
+.ib-bars-neon .ib-bar-trust-neg {
+    background: linear-gradient(90deg, #ffbd4a, #ff8a00 56%, #a95000);
+    color: #ffbd4a;
+}
+
+.ib-bars-neon .ib-bar-love-pos {
+    background: linear-gradient(90deg, #df7cff, #b936ff 56%, #6d13bc);
+    color: #df7cff;
+}
+
+.ib-bars-neon .ib-bar-love-neg {
+    background: linear-gradient(90deg, #ff4fb3, #ff007f 56%, #9a004e);
+    color: #ff4fb3;
+}
+
+/* Neon mini-stats */
+.ib-bars-neon .ib-mini-stat {
+    border-radius: 2px;
+    background: rgba(0,0,0,0.28);
+    border-color: rgba(255,255,255,0.075);
+    box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.055),
+        0 0 8px rgba(0,0,0,0.22);
+}
+
+.ib-bars-neon .ib-mini-stat-progress {
+    height: 3px;
+    border-radius: 0;
+    box-shadow:
+        0 0 6px currentColor,
+        0 0 12px currentColor;
+}
+
+/* Strong pairing: System Log + Neon */
+.ib-theme-systemlog.ib-bars-neon .ib-bar {
+    border-color: rgba(107, 214, 255, 0.13);
+    background:
+        linear-gradient(180deg, rgba(255,255,255,0.035), rgba(0,0,0,0.28)),
+        repeating-linear-gradient(
+            90deg,
+            rgba(107,214,255,0.045) 0,
+            rgba(107,214,255,0.045) 1px,
+            transparent 1px,
+            transparent 10px
+        ),
+        rgba(0,0,0,0.48);
+}
+
+.ib-theme-systemlog.ib-bars-neon .ib-meter-label {
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.ib-theme-systemlog.ib-bars-neon .ib-meter-value {
+    color: #93aebd;
+}
