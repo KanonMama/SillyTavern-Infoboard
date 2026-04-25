@@ -6137,7 +6137,7 @@ button.ib-pin-btn.ib-pinned::before,
 }
 
 /* optional: add subtle grain inside panels too */
-/*.ib-theme-systemlog .ib-header,
+.ib-theme-systemlog .ib-header,
 .ib-theme-systemlog .ib-section,
 .ib-theme-systemlog .ib-rel-card,
 .ib-theme-systemlog .ib-compact-wrap,
@@ -6149,4 +6149,4 @@ button.ib-pin-btn.ib-pinned::before,
         140px 140px,
         auto !important;
     background-blend-mode: screen, normal;
-}*/
+}
