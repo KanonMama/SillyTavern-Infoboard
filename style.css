@@ -6524,3 +6524,173 @@ button.ib-pin-btn.ib-pinned::before,
 .ib-bars-neon .ib-bar-fill::after {
     z-index: 3 !important;
 }
+
+/* =========================================================
+   SYSTEM LOG THOUGHT GRAIN + DARKER NEON RAILS
+   Must be LAST
+   ========================================================= */
+
+/* ---------- capture thoughts / inner text panels ---------- */
+
+.ib-theme-systemlog .ib-rel-body,
+.ib-theme-systemlog .ib-rel-thought,
+.ib-theme-systemlog .ib-rel-thought-text,
+.ib-theme-systemlog .ib-beat,
+.ib-theme-systemlog .ib-nsfw,
+.ib-theme-systemlog .ib-debug-xml,
+.ib-theme-systemlog .ib-filter-note,
+.ib-theme-systemlog .ib-compact-rel-item {
+    position: relative;
+}
+
+.ib-theme-systemlog .ib-rel-thought,
+.ib-theme-systemlog .ib-beat,
+.ib-theme-systemlog .ib-nsfw,
+.ib-theme-systemlog .ib-debug-xml,
+.ib-theme-systemlog .ib-filter-note,
+.ib-theme-systemlog .ib-compact-rel-item {
+    background-color: rgba(2, 5, 8, 0.58) !important;
+
+    background-image:
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160' viewBox='0 0 160 160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.08' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='0.16'/%3E%3C/svg%3E"),
+        linear-gradient(180deg, rgba(255,255,255,0.014), rgba(255,255,255,0.004)) !important;
+
+    background-size:
+        135px 135px,
+        auto !important;
+
+    background-blend-mode:
+        normal,
+        normal !important;
+
+    border-color: rgba(107, 214, 255, 0.13) !important;
+}
+
+/* thought text remains readable above grain */
+.ib-theme-systemlog .ib-rel-thought-text {
+    color: #cfdbe1 !important;
+    text-shadow:
+        0 1px 2px rgba(0,0,0,0.62),
+        0 0 8px rgba(107,214,255,0.035);
+}
+
+/* slightly more terminal-like thought box */
+.ib-theme-systemlog .ib-rel-thought {
+    border-radius: 2px !important;
+    box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.035),
+        inset 0 0 18px rgba(107,214,255,0.018),
+        0 0 0 1px rgba(107,214,255,0.035) !important;
+}
+
+/* relation body background under thought */
+.ib-theme-systemlog .ib-rel-body {
+    background:
+        linear-gradient(180deg, rgba(107,214,255,0.012), transparent 32%),
+        rgba(1, 3, 5, 0.22) !important;
+}
+
+
+/* ---------- darker Neon Rails ---------- */
+
+.ib-bars-neon .ib-bar {
+    background:
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120' viewBox='0 0 120 120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.18' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23n)' opacity='0.18'/%3E%3C/svg%3E"),
+        repeating-linear-gradient(
+            90deg,
+            rgba(255,255,255,0.026) 0,
+            rgba(255,255,255,0.026) 1px,
+            transparent 1px,
+            transparent 10px
+        ),
+        linear-gradient(180deg, rgba(255,255,255,0.025), rgba(0,0,0,0.34)),
+        rgba(0,0,0,0.62) !important;
+
+    border-color: rgba(107,214,255,0.10) !important;
+
+    box-shadow:
+        inset 0 1px 1px rgba(255,255,255,0.03),
+        inset 0 -1px 2px rgba(0,0,0,0.42),
+        0 0 6px rgba(0,0,0,0.28) !important;
+}
+
+.ib-bars-neon .ib-bar-fill {
+    filter: saturate(1.08) brightness(0.82) !important;
+    box-shadow:
+        0 0 6px currentColor,
+        0 0 12px color-mix(in srgb, currentColor 68%, transparent),
+        inset 0 1px 0 rgba(255,255,255,0.22) !important;
+}
+
+/* darker neon colors */
+.ib-bars-neon .ib-bar-affection-pos {
+    background: linear-gradient(90deg, #24b66f, #0f8f53 56%, #075e38) !important;
+    color: #3ee88f;
+}
+
+.ib-bars-neon .ib-bar-affection-neg {
+    background: linear-gradient(90deg, #c83f4e, #9e1f31 56%, #5e0b18) !important;
+    color: #ff5969;
+}
+
+.ib-bars-neon .ib-bar-trust-pos {
+    background: linear-gradient(90deg, #2d95d8, #176fb5 56%, #0a3e78) !important;
+    color: #4fc3ff;
+}
+
+.ib-bars-neon .ib-bar-trust-neg {
+    background: linear-gradient(90deg, #c17d1e, #96570a 56%, #5c3100) !important;
+    color: #ffae36;
+}
+
+.ib-bars-neon .ib-bar-love-pos {
+    background: linear-gradient(90deg, #9c39d6, #761db4 56%, #43106f) !important;
+    color: #c95cff;
+}
+
+.ib-bars-neon .ib-bar-love-neg {
+    background: linear-gradient(90deg, #c82b7f, #99145d 56%, #5a0835) !important;
+    color: #ff4fa8;
+}
+
+/* darker glossy/noise layer on fill */
+.ib-bars-neon .ib-bar-fill::before {
+    opacity: 0.72 !important;
+    mix-blend-mode: overlay !important;
+
+    background:
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140' viewBox='0 0 140 140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.25' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='0.10'/%3E%3C/svg%3E"),
+        linear-gradient(
+            180deg,
+            rgba(255,255,255,0.34) 0%,
+            rgba(255,255,255,0.12) 34%,
+            transparent 62%
+        ),
+        repeating-linear-gradient(
+            90deg,
+            rgba(255,255,255,0.075) 0,
+            rgba(255,255,255,0.075) 1px,
+            transparent 1px,
+            transparent 14px
+        ) !important;
+}
+
+/* endpoint less flashlight, more terminal diode */
+.ib-bars-neon .ib-bar-fill::after {
+    opacity: 0.86 !important;
+    width: 7px !important;
+    height: 7px !important;
+    box-shadow:
+        0 0 7px currentColor,
+        0 0 13px color-mix(in srgb, currentColor 72%, transparent),
+        0 0 2px rgba(255,255,255,0.28) !important;
+}
+
+/* System Log + Neon even moodier */
+.ib-theme-systemlog.ib-bars-neon .ib-bar-fill {
+    filter: saturate(1.02) brightness(0.78) !important;
+}
+
+.ib-theme-systemlog.ib-bars-neon .ib-meter-value {
+    color: #7f99a8 !important;
+}
