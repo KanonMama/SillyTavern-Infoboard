@@ -6055,8 +6055,8 @@ button.ib-pin-btn.ib-pinned::before,
    ========================================================= */
 
 .ib-theme-systemlog {
-    --ib-systemlog-noise-opacity: 0.23;
-    --ib-systemlog-scanline-opacity: 0.18;
+    --ib-systemlog-noise-opacity: 0.12;
+    --ib-systemlog-scanline-opacity: 0.07;
 }
 
 .ib-theme-systemlog .ib-board {
