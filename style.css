@@ -7353,3 +7353,69 @@ button.ib-pin-btn.ib-pinned::before,
         opacity: 0.22;
     }
 }
+
+/* =========================================================
+   GENGAR SKULL FIX — smaller dark sigil, not cartoon icon
+   Must be LAST after previous Gengar skull block
+   ========================================================= */
+
+.ib-theme-gengar .ib-title-wrap {
+    min-height: 48px !important;
+    padding-right: 58px !important;
+    overflow: hidden !important;
+}
+
+/* kill old pink fog */
+.ib-theme-gengar .ib-title-wrap::before {
+    content: none !important;
+    display: none !important;
+    background: none !important;
+    filter: none !important;
+}
+
+/* new small skull sigil */
+.ib-theme-gengar .ib-title-wrap::after {
+    content: "" !important;
+    position: absolute !important;
+
+    right: 18px !important;
+    top: 8px !important;
+
+    width: 42px !important;
+    height: 42px !important;
+
+    pointer-events: none !important;
+    z-index: 1 !important;
+
+    opacity: 0.28 !important;
+
+    background:
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='64' height='64' viewBox='0 0 64 64'%3E%3Cg fill='none' stroke='%23ff5fd7' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M32 7C20 7 12 15 12 27c0 8 4 14 10 17v9h20v-9c6-3 10-9 10-17C52 15 44 7 32 7Z' fill='%2314091f' fill-opacity='.42'/%3E%3Cpath d='M21 27c0-4 3-7 7-7s7 3 7 7-3 7-7 7-7-3-7-7Z' fill='%2325103d' fill-opacity='.72'/%3E%3Cpath d='M36 27c0-4 3-7 7-7s7 3 7 7-3 7-7 7-7-3-7-7Z' fill='%2325103d' fill-opacity='.72'/%3E%3Cpath d='M32 35l-4 8h8l-4-8Z' fill='%23ff5fd7' fill-opacity='.38'/%3E%3Cpath d='M24 48v6M30 48v6M36 48v6M42 48v6' opacity='.75'/%3E%3Cpath d='M16 42c-4-2-7-5-9-9M48 42c4-2 7-5 9-9' opacity='.42'/%3E%3C/g%3E%3Cpath d='M18 15c4-5 9-7 14-7s10 2 14 7' fill='none' stroke='%23c478ff' stroke-width='1.5' stroke-linecap='round' opacity='.38'/%3E%3C/svg%3E")
+        center / contain no-repeat !important;
+
+    filter:
+        drop-shadow(0 0 5px rgba(255, 95, 215, 0.38))
+        drop-shadow(0 0 12px rgba(184, 108, 255, 0.18)) !important;
+}
+
+/* keep title readable above sigil */
+.ib-theme-gengar .ib-title,
+.ib-theme-gengar .ib-title-sub {
+    position: relative !important;
+    z-index: 2 !important;
+}
+
+/* if title is narrow, make skull even less annoying */
+@media (max-width: 760px) {
+    .ib-theme-gengar .ib-title-wrap {
+        padding-right: 42px !important;
+    }
+
+    .ib-theme-gengar .ib-title-wrap::after {
+        width: 32px !important;
+        height: 32px !important;
+        right: 8px !important;
+        top: 8px !important;
+        opacity: 0.20 !important;
+    }
+}
