@@ -184,6 +184,19 @@ bloodmoon: {
     text: "#f4e1dc",
     danger: "#e05a67"
 },
+
+    casefile: {
+    label: {
+        ru: "Case File: детективное дело, графит, бумага и лента улик",
+        en: "Case File: detective dossier, graphite, paper and evidence tape"
+    },
+    bg: "#151412",
+    bg2: "#25221d",
+    accent: "#e0b84f",
+    accent2: "#b7afa1",
+    text: "#eee5d8",
+    danger: "#d65f4f"
+},
     
     neonquest: {
     label: {
@@ -531,6 +544,11 @@ oraclemoon: {
     main: "𝐵𝐿𝒪𝒪𝒟 𝑀𝒪𝒪𝒩",
     sub: ""
 },
+
+casefile: {
+    main: "CASE FILE // SUBJECT RELATIONS",
+    sub: "˖⌕ ۫ . . . .𖥔"
+},
         
         neonquest: {
     main: "𝄃𝄃𝄂𝄂𝄀RP BOARD𝄁𝄃𝄂𝄂𝄃",
@@ -551,6 +569,7 @@ function GetThemeLocationIcon(theme = gTheme) {
         if (theme === "terminal") return "▣";
     if (theme === "oraclemoon") return "🌙";
     if (theme === "bloodmoon") return "🦇";
+        if (theme === "casefile") return "🔍";
     if (theme === "neonquest") return "⚙️";
      return facultyThemes.includes(theme) ? "📜" : "📍";
 }
@@ -562,6 +581,7 @@ function GetThemeCharsIcon(theme = gTheme) {
     if (theme === "terminal") return ">";
     if (theme === "oraclemoon") return "✨";
     if (theme === "bloodmoon") return "✟";
+    if (theme === "casefile") return "ID";
     if (theme === "neonquest") return "👤";
         return facultyThemes.includes(theme) ? "🪶" : "💖";
 }
@@ -577,6 +597,7 @@ function GetThemeRelationsIcon(theme = gTheme) {
         oraclemoon: "💫",
         terminal: "♡",
         bloodmoon: "🥀",
+        casefile: "𖦏",
         neonquest: "🤖"
     };
 
