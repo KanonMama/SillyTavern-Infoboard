@@ -7272,3 +7272,84 @@ button.ib-pin-btn.ib-pinned::before,
         height: 52px !important;
     }
 }
+
+/* =========================================================
+   GENGAR DECORATIVE SKULL
+   Neon skull watermark for Gengar theme
+   ========================================================= */
+
+.ib-theme-gengar .ib-title-wrap {
+    position: relative;
+    min-height: 54px;
+    overflow: visible;
+}
+
+/* decorative skull */
+.ib-theme-gengar .ib-title-wrap::after {
+    content: "";
+    position: absolute;
+    right: 18px;
+    top: -6px;
+
+    width: 72px;
+    height: 72px;
+
+    pointer-events: none;
+    opacity: 0.34;
+    z-index: 1;
+
+    background:
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='96' height='96' viewBox='0 0 96 96'%3E%3Cg fill='none' stroke='%23ff5fd7' stroke-width='4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M48 10c-19 0-32 13-32 32 0 12 6 22 16 27v10h32V69c10-5 16-15 16-27 0-19-13-32-32-32Z' fill='%2314091f'/%3E%3Cpath d='M32 37c0-5 4-9 9-9s9 4 9 9-4 9-9 9-9-4-9-9Z' fill='%2325103d'/%3E%3Cpath d='M55 37c0-5 4-9 9-9s9 4 9 9-4 9-9 9-9-4-9-9Z' fill='%2325103d'/%3E%3Cpath d='M48 47l-5 10h10l-5-10Z' fill='%23ff5fd7' opacity='.72'/%3E%3Cpath d='M36 70v8M44 70v8M52 70v8M60 70v8'/%3E%3Cpath d='M24 55c-4-2-7-5-9-9M72 55c4-2 7-5 9-9' opacity='.8'/%3E%3C/g%3E%3Cpath d='M28 21c5-5 12-8 20-8s15 3 20 8' stroke='%23c478ff' stroke-width='2' stroke-linecap='round' opacity='.65'/%3E%3C/svg%3E")
+        center / contain no-repeat;
+
+    filter:
+        drop-shadow(0 0 7px rgba(255, 95, 215, 0.55))
+        drop-shadow(0 0 18px rgba(184, 108, 255, 0.30));
+}
+
+/* little ghost mist behind skull */
+.ib-theme-gengar .ib-title-wrap::before {
+    content: "";
+    position: absolute;
+    right: 4px;
+    top: 2px;
+
+    width: 108px;
+    height: 58px;
+
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.36;
+
+    background:
+        radial-gradient(circle at 38% 42%, rgba(255, 95, 215, 0.20), transparent 42%),
+        radial-gradient(circle at 70% 52%, rgba(196, 120, 255, 0.16), transparent 48%),
+        radial-gradient(circle at 18% 60%, rgba(184, 108, 255, 0.12), transparent 44%);
+    filter: blur(6px);
+}
+
+/* keep title text above skull mist */
+.ib-theme-gengar .ib-title,
+.ib-theme-gengar .ib-title-sub {
+    position: relative;
+    z-index: 2;
+}
+
+/* mobile: don't crowd the title */
+@media (max-width: 760px) {
+    .ib-theme-gengar .ib-title-wrap::after {
+        width: 48px;
+        height: 48px;
+        right: 8px;
+        top: 0;
+        opacity: 0.24;
+    }
+
+    .ib-theme-gengar .ib-title-wrap::before {
+        width: 72px;
+        height: 42px;
+        right: 0;
+        top: 4px;
+        opacity: 0.22;
+    }
+}
