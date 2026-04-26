@@ -146,6 +146,19 @@ systemlog: {
     danger: "#ff5e6c"
 },
 
+    terminal: {
+    label: {
+        ru: "Terminal: старый зелёный CRT, фосфор, scanlines и сегменты",
+        en: "Terminal: old green CRT, phosphor, scanlines and segments"
+    },
+    bg: "#020b06",
+    bg2: "#06160c",
+    accent: "#38ff7a",
+    accent2: "#b6ff6a",
+    text: "#c8ffd2",
+    danger: "#ff9b4a"
+},
+
     neonquest: {
     label: {
         ru: "Neon Quest: игровой HUD, синий неон и пиксельный город",
@@ -478,6 +491,11 @@ function GetThemeTitleData(theme = gTheme) {
     sub: "↳ task issued · signal stable · archive open ✔"
 },
 
+terminal: {
+    main: "INFOBOARD // USER ACCESS",
+    sub: "> relationship data loaded"
+},
+        
         neonquest: {
     main: "𝄃𝄃𝄂𝄂𝄀RP BOARD𝄁𝄃𝄂𝄂𝄃",
     sub: "█Err⃟⃤r⁴⁰⁴"
@@ -494,6 +512,7 @@ function GetThemeLocationIcon(theme = gTheme) {
     const facultyThemes = ["gryffindor", "slytherin", "ravenclaw", "hufflepuff"];
     if (theme === "gengar") return "🕯️";
     if (theme === "systemlog") return "💾";
+        if (theme === "terminal") return "▣";
     if (theme === "neonquest") return "⚙️";
      return facultyThemes.includes(theme) ? "📜" : "📍";
 }
@@ -502,6 +521,7 @@ function GetThemeCharsIcon(theme = gTheme) {
     const facultyThemes = ["gryffindor", "slytherin", "ravenclaw", "hufflepuff"];
     if (theme === "gengar") return "👻";
     if (theme === "systemlog") return "📊";
+    if (theme === "terminal") return ">";
     if (theme === "neonquest") return "👤";
         return facultyThemes.includes(theme) ? "🪶" : "💖";
 }
@@ -514,6 +534,7 @@ function GetThemeRelationsIcon(theme = gTheme) {
         hufflepuff: "💛",
         gengar: "💜",
         systemlog: "🔗",
+        terminal: "♡",
         neonquest: "🤖"
     };
 
