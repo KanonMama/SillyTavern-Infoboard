@@ -7274,98 +7274,17 @@ button.ib-pin-btn.ib-pinned::before,
 }
 
 /* =========================================================
-   GENGAR DECORATIVE SKULL
-   Neon skull watermark for Gengar theme
-   ========================================================= */
-
-.ib-theme-gengar .ib-title-wrap {
-    position: relative;
-    min-height: 54px;
-    overflow: visible;
-}
-
-/* decorative skull */
-.ib-theme-gengar .ib-title-wrap::after {
-    content: "";
-    position: absolute;
-    right: 18px;
-    top: -6px;
-
-    width: 72px;
-    height: 72px;
-
-    pointer-events: none;
-    opacity: 0.34;
-    z-index: 1;
-
-    background:
-        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='96' height='96' viewBox='0 0 96 96'%3E%3Cg fill='none' stroke='%23ff5fd7' stroke-width='4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M48 10c-19 0-32 13-32 32 0 12 6 22 16 27v10h32V69c10-5 16-15 16-27 0-19-13-32-32-32Z' fill='%2314091f'/%3E%3Cpath d='M32 37c0-5 4-9 9-9s9 4 9 9-4 9-9 9-9-4-9-9Z' fill='%2325103d'/%3E%3Cpath d='M55 37c0-5 4-9 9-9s9 4 9 9-4 9-9 9-9-4-9-9Z' fill='%2325103d'/%3E%3Cpath d='M48 47l-5 10h10l-5-10Z' fill='%23ff5fd7' opacity='.72'/%3E%3Cpath d='M36 70v8M44 70v8M52 70v8M60 70v8'/%3E%3Cpath d='M24 55c-4-2-7-5-9-9M72 55c4-2 7-5 9-9' opacity='.8'/%3E%3C/g%3E%3Cpath d='M28 21c5-5 12-8 20-8s15 3 20 8' stroke='%23c478ff' stroke-width='2' stroke-linecap='round' opacity='.65'/%3E%3C/svg%3E")
-        center / contain no-repeat;
-
-    filter:
-        drop-shadow(0 0 7px rgba(255, 95, 215, 0.55))
-        drop-shadow(0 0 18px rgba(184, 108, 255, 0.30));
-}
-
-/* little ghost mist behind skull */
-.ib-theme-gengar .ib-title-wrap::before {
-    content: "";
-    position: absolute;
-    right: 4px;
-    top: 2px;
-
-    width: 108px;
-    height: 58px;
-
-    pointer-events: none;
-    z-index: 0;
-    opacity: 0.36;
-
-    background:
-        radial-gradient(circle at 38% 42%, rgba(255, 95, 215, 0.20), transparent 42%),
-        radial-gradient(circle at 70% 52%, rgba(196, 120, 255, 0.16), transparent 48%),
-        radial-gradient(circle at 18% 60%, rgba(184, 108, 255, 0.12), transparent 44%);
-    filter: blur(6px);
-}
-
-/* keep title text above skull mist */
-.ib-theme-gengar .ib-title,
-.ib-theme-gengar .ib-title-sub {
-    position: relative;
-    z-index: 2;
-}
-
-/* mobile: don't crowd the title */
-@media (max-width: 760px) {
-    .ib-theme-gengar .ib-title-wrap::after {
-        width: 48px;
-        height: 48px;
-        right: 8px;
-        top: 0;
-        opacity: 0.24;
-    }
-
-    .ib-theme-gengar .ib-title-wrap::before {
-        width: 72px;
-        height: 42px;
-        right: 0;
-        top: 4px;
-        opacity: 0.22;
-    }
-}
-
-/* =========================================================
-   GENGAR SKULL FIX — smaller dark sigil, not cartoon icon
-   Must be LAST after previous Gengar skull block
+   GENGAR FACE DECOR — replace skull with eyes + grin
+   Must be LAST after all previous Gengar skull blocks
    ========================================================= */
 
 .ib-theme-gengar .ib-title-wrap {
     min-height: 48px !important;
-    padding-right: 58px !important;
+    padding-right: 92px !important;
     overflow: hidden !important;
 }
 
-/* kill old pink fog */
+/* kill skull/fog */
 .ib-theme-gengar .ib-title-wrap::before {
     content: none !important;
     display: none !important;
@@ -7373,49 +7292,49 @@ button.ib-pin-btn.ib-pinned::before,
     filter: none !important;
 }
 
-/* new small skull sigil */
+/* Gengar face watermark */
 .ib-theme-gengar .ib-title-wrap::after {
     content: "" !important;
     position: absolute !important;
 
-    right: 18px !important;
-    top: 8px !important;
+    right: 12px !important;
+    top: 0px !important;
 
-    width: 42px !important;
-    height: 42px !important;
+    width: 86px !important;
+    height: 50px !important;
 
     pointer-events: none !important;
     z-index: 1 !important;
 
-    opacity: 0.28 !important;
+    opacity: 0.34 !important;
 
     background:
-        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='64' height='64' viewBox='0 0 64 64'%3E%3Cg fill='none' stroke='%23ff5fd7' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M32 7C20 7 12 15 12 27c0 8 4 14 10 17v9h20v-9c6-3 10-9 10-17C52 15 44 7 32 7Z' fill='%2314091f' fill-opacity='.42'/%3E%3Cpath d='M21 27c0-4 3-7 7-7s7 3 7 7-3 7-7 7-7-3-7-7Z' fill='%2325103d' fill-opacity='.72'/%3E%3Cpath d='M36 27c0-4 3-7 7-7s7 3 7 7-3 7-7 7-7-3-7-7Z' fill='%2325103d' fill-opacity='.72'/%3E%3Cpath d='M32 35l-4 8h8l-4-8Z' fill='%23ff5fd7' fill-opacity='.38'/%3E%3Cpath d='M24 48v6M30 48v6M36 48v6M42 48v6' opacity='.75'/%3E%3Cpath d='M16 42c-4-2-7-5-9-9M48 42c4-2 7-5 9-9' opacity='.42'/%3E%3C/g%3E%3Cpath d='M18 15c4-5 9-7 14-7s10 2 14 7' fill='none' stroke='%23c478ff' stroke-width='1.5' stroke-linecap='round' opacity='.38'/%3E%3C/svg%3E")
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='70' viewBox='0 0 120 70'%3E%3Cdefs%3E%3Cfilter id='g'%3E%3CfeGaussianBlur stdDeviation='1.4' result='b'/%3E%3CfeMerge%3E%3CfeMergeNode in='b'/%3E%3CfeMergeNode in='SourceGraphic'/%3E%3C/feMerge%3E%3C/filter%3E%3C/defs%3E%3Cg filter='url(%23g)'%3E%3Cpath d='M22 28 C34 14 48 18 54 32 C42 30 32 31 22 28Z' fill='%23ff5fd7' opacity='.95'/%3E%3Cpath d='M98 28 C86 14 72 18 66 32 C78 30 88 31 98 28Z' fill='%23ff5fd7' opacity='.95'/%3E%3Cpath d='M34 29 C41 25 47 26 52 31' stroke='%23c478ff' stroke-width='2' opacity='.55' fill='none'/%3E%3Cpath d='M86 29 C79 25 73 26 68 31' stroke='%23c478ff' stroke-width='2' opacity='.55' fill='none'/%3E%3Cpath d='M31 44 C45 58 75 58 89 44' stroke='%23ff5fd7' stroke-width='4' stroke-linecap='round' fill='none' opacity='.88'/%3E%3Cpath d='M40 48 L43 55 M52 51 L53 59 M64 52 L63 60 M76 49 L73 56' stroke='%23f3e7ff' stroke-width='2' stroke-linecap='round' opacity='.55'/%3E%3Cpath d='M16 17 C34 5 84 5 104 17' stroke='%23b86cff' stroke-width='2' stroke-linecap='round' opacity='.24' fill='none'/%3E%3C/g%3E%3C/svg%3E")
         center / contain no-repeat !important;
 
     filter:
-        drop-shadow(0 0 5px rgba(255, 95, 215, 0.38))
-        drop-shadow(0 0 12px rgba(184, 108, 255, 0.18)) !important;
+        drop-shadow(0 0 7px rgba(255, 95, 215, 0.45))
+        drop-shadow(0 0 16px rgba(184, 108, 255, 0.24)) !important;
 }
 
-/* keep title readable above sigil */
+/* title above decoration */
 .ib-theme-gengar .ib-title,
 .ib-theme-gengar .ib-title-sub {
     position: relative !important;
     z-index: 2 !important;
 }
 
-/* if title is narrow, make skull even less annoying */
+/* mobile */
 @media (max-width: 760px) {
     .ib-theme-gengar .ib-title-wrap {
-        padding-right: 42px !important;
+        padding-right: 62px !important;
     }
 
     .ib-theme-gengar .ib-title-wrap::after {
-        width: 32px !important;
-        height: 32px !important;
-        right: 8px !important;
-        top: 8px !important;
-        opacity: 0.20 !important;
+        width: 58px !important;
+        height: 36px !important;
+        right: 6px !important;
+        top: 6px !important;
+        opacity: 0.24 !important;
     }
 }
