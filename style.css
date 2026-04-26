@@ -7338,3 +7338,629 @@ button.ib-pin-btn.ib-pinned::before,
         opacity: 0.24 !important;
     }
 }
+
+/* =========================================================
+   TERMINAL THEME + TERMINAL SEGMENTS + HEART BARS
+   Must be the LAST block in style.css
+   ========================================================= */
+
+
+/* =========================================================
+   TERMINAL THEME
+   Old green CRT / phosphor terminal / scanlines
+   ========================================================= */
+
+.ib-theme-terminal {
+    --ib-bg-1: #020b06;
+    --ib-bg-2: #06160c;
+    --ib-bg-3: #010503;
+
+    --ib-border: rgba(56, 255, 122, 0.30);
+    --ib-border-neon: rgba(56, 255, 122, 0.34);
+    --ib-soft-border: rgba(56, 255, 122, 0.14);
+
+    --ib-text: #c8ffd2;
+    --ib-muted: #7fbc85;
+    --ib-dim: #4f7a55;
+
+    --ib-accent: #38ff7a;
+    --ib-accent-2: #b6ff6a;
+
+    --ib-green: #38ff7a;
+    --ib-blue: #68ffc4;
+    --ib-purple: #b6ff6a;
+    --ib-warm: #ffc766;
+    --ib-danger: #ff9b4a;
+
+    --ib-chip-bg: rgba(56, 255, 122, 0.10);
+    --ib-chip-border: rgba(56, 255, 122, 0.24);
+
+    --ib-shadow: 0 16px 36px rgba(0, 0, 0, 0.66);
+    --ib-neon:
+        0 0 16px rgba(56, 255, 122, 0.14),
+        0 0 30px rgba(56, 255, 122, 0.06);
+
+    --ib-header-glow:
+        radial-gradient(circle at top left, rgba(56, 255, 122, 0.11), transparent 38%),
+        radial-gradient(circle at bottom right, rgba(182, 255, 106, 0.055), transparent 42%);
+
+    --ib-pin-icon-off: "◇";
+    --ib-pin-icon-on: "◆";
+    --ib-pin-bg-off: #031006;
+    --ib-pin-bg-hover: #08210d;
+    --ib-pin-bg-on: #0e3416;
+    --ib-pin-border-off: rgba(56, 255, 122, 0.30);
+    --ib-pin-border-hover: rgba(56, 255, 122, 0.52);
+    --ib-pin-border-on: rgba(182, 255, 106, 0.66);
+    --ib-pin-color-off: #7fbc85;
+    --ib-pin-color-hover: #c8ffd2;
+    --ib-pin-color-on: #b6ff6a;
+    --ib-pin-glow-on: rgba(56, 255, 122, 0.32);
+}
+
+.ib-theme-terminal .ib-board {
+    background:
+        radial-gradient(circle at 10% 2%, rgba(56, 255, 122, 0.10), transparent 28%),
+        radial-gradient(circle at 92% 96%, rgba(182, 255, 106, 0.055), transparent 34%),
+        linear-gradient(135deg, #020b06, #06160c 52%, #010503);
+    border: 2px solid rgba(56, 255, 122, 0.30);
+    border-radius: 6px;
+    box-shadow:
+        0 16px 36px rgba(0, 0, 0, 0.66),
+        0 0 0 1px rgba(255,255,255,0.018),
+        0 0 22px rgba(56, 255, 122, 0.12),
+        inset 0 0 0 1px rgba(56, 255, 122, 0.055),
+        inset 0 0 38px rgba(56, 255, 122, 0.026);
+    font-family:
+        "Cascadia Mono",
+        "Consolas",
+        "JetBrains Mono",
+        "SFMono-Regular",
+        ui-monospace,
+        monospace;
+    isolation: isolate;
+}
+
+/* CRT grain */
+.ib-theme-terminal .ib-board::before {
+    content: "" !important;
+    position: absolute !important;
+    inset: 0 !important;
+    z-index: 0 !important;
+    pointer-events: none !important;
+    opacity: 0.105 !important;
+    mix-blend-mode: screen !important;
+
+    background-image:
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180' viewBox='0 0 180 180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.05' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)' opacity='0.78'/%3E%3C/svg%3E"),
+        radial-gradient(circle at 20% 24%, rgba(56,255,122,0.18) 0 1px, transparent 1.5px),
+        radial-gradient(circle at 72% 64%, rgba(182,255,106,0.10) 0 1px, transparent 1.5px);
+
+    background-size:
+        150px 150px,
+        23px 23px,
+        31px 31px !important;
+}
+
+/* scanlines + glass */
+.ib-theme-terminal .ib-board::after {
+    content: "" !important;
+    position: absolute !important;
+    inset: 0 !important;
+    z-index: 1 !important;
+    pointer-events: none !important;
+    border-radius: inherit !important;
+    opacity: 1 !important;
+
+    background:
+        repeating-linear-gradient(
+            180deg,
+            rgba(180,255,190,0.040) 0px,
+            rgba(180,255,190,0.040) 1px,
+            transparent 1px,
+            transparent 5px
+        ),
+        radial-gradient(circle at center, transparent 54%, rgba(0,0,0,0.20) 100%),
+        linear-gradient(
+            90deg,
+            rgba(56,255,122,0.018),
+            transparent 22%,
+            transparent 78%,
+            rgba(182,255,106,0.012)
+        ) !important;
+
+    box-shadow:
+        inset 0 0 0 1px rgba(56, 255, 122, 0.18),
+        inset 0 0 28px rgba(56, 255, 122, 0.040),
+        0 0 18px rgba(56, 255, 122, 0.10) !important;
+}
+
+.ib-theme-terminal .ib-title-wrap,
+.ib-theme-terminal .ib-full-wrap,
+.ib-theme-terminal .ib-compact-wrap,
+.ib-theme-terminal .ib-collapsed-wrap {
+    position: relative;
+    z-index: 2;
+}
+
+.ib-theme-terminal .ib-title-wrap {
+    align-items: flex-start;
+    padding: 12px 14px;
+    margin-bottom: 12px;
+    border: 1px solid rgba(56, 255, 122, 0.25);
+    border-radius: 3px;
+    background:
+        linear-gradient(180deg, rgba(56,255,122,0.035), rgba(0,0,0,0.04)),
+        rgba(0, 8, 3, 0.46);
+    box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.035),
+        inset 0 0 18px rgba(56,255,122,0.025),
+        0 0 10px rgba(56,255,122,0.055);
+}
+
+.ib-theme-terminal .ib-title {
+    margin: 0;
+    color: #c8ffd2;
+    font-size: 15px;
+    line-height: 1.1;
+    letter-spacing: 1.6px;
+    font-weight: 900;
+    text-transform: uppercase;
+    text-align: left;
+    text-shadow:
+        0 0 8px rgba(56,255,122,0.45),
+        0 0 18px rgba(56,255,122,0.18);
+}
+
+.ib-theme-terminal .ib-title::before,
+.ib-theme-terminal .ib-title::after {
+    content: none !important;
+    display: none !important;
+}
+
+.ib-theme-terminal .ib-title-sub {
+    margin-top: 6px;
+    color: #38ff7a;
+    font-size: 11px;
+    line-height: 1.25;
+    letter-spacing: 0.8px;
+    text-transform: lowercase;
+    text-align: left;
+    text-shadow:
+        0 0 8px rgba(56,255,122,0.38),
+        0 0 14px rgba(56,255,122,0.16);
+}
+
+.ib-theme-terminal .ib-header,
+.ib-theme-terminal .ib-section,
+.ib-theme-terminal .ib-rel-card,
+.ib-theme-terminal .ib-compact-wrap,
+.ib-theme-terminal .ib-collapsed-tag {
+    background-color: rgba(0, 9, 4, 0.62) !important;
+    background-image:
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160' viewBox='0 0 160 160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.05' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='0.12'/%3E%3C/svg%3E"),
+        linear-gradient(180deg, rgba(56,255,122,0.025), rgba(255,255,255,0.004)) !important;
+    background-size:
+        135px 135px,
+        auto !important;
+    background-blend-mode:
+        normal,
+        normal !important;
+
+    border-color: rgba(56, 255, 122, 0.16);
+    border-radius: 3px;
+    box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.035),
+        inset 0 0 16px rgba(56,255,122,0.018),
+        0 0 8px rgba(56,255,122,0.035);
+}
+
+.ib-theme-terminal .ib-header::before {
+    height: 1px;
+    background:
+        linear-gradient(90deg, transparent, #38ff7a, #b6ff6a, transparent);
+    opacity: 0.88;
+    box-shadow: 0 0 10px rgba(56,255,122,0.22);
+}
+
+.ib-theme-terminal .ib-section-title {
+    color: #c8ffd2;
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-shadow:
+        0 0 8px rgba(56,255,122,0.30),
+        0 0 16px rgba(56,255,122,0.12);
+}
+
+.ib-theme-terminal .ib-section-title::before {
+    content: "> ";
+    color: #38ff7a;
+}
+
+.ib-theme-terminal .ib-header-location-text,
+.ib-theme-terminal .ib-char-name,
+.ib-theme-terminal .ib-rel-toggle-name,
+.ib-theme-terminal .ib-compact-rel-name {
+    color: #dcffe1;
+    font-weight: 800;
+    letter-spacing: 0.3px;
+    text-shadow: 0 0 7px rgba(56,255,122,0.18);
+}
+
+.ib-theme-terminal .ib-meta-pill,
+.ib-theme-terminal .ib-tag,
+.ib-theme-terminal .ib-status-chip,
+.ib-theme-terminal .ib-presence-chip,
+.ib-theme-terminal .ib-control-btn,
+.ib-theme-terminal .ib-mini-stat {
+    border-radius: 2px;
+    background:
+        linear-gradient(180deg, rgba(56,255,122,0.070), rgba(0, 12, 4, 0.18));
+    border-color: rgba(56,255,122,0.20);
+    box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.045),
+        0 0 8px rgba(56,255,122,0.035);
+}
+
+.ib-theme-terminal .ib-tag {
+    color: #a8ffb5;
+    text-transform: uppercase;
+    font-size: 9px;
+    letter-spacing: 0.7px;
+}
+
+.ib-theme-terminal .ib-mood-tag {
+    color: #ffc766;
+    background:
+        linear-gradient(180deg, rgba(255,199,102,0.12), rgba(25, 12, 0, 0.18));
+    border-color: rgba(255,199,102,0.30);
+    font-style: normal;
+}
+
+.ib-theme-terminal .ib-mood-tag::before {
+    content: "!";
+    color: #ffc766;
+    margin-right: 4px;
+    opacity: 0.92;
+}
+
+.ib-theme-terminal .ib-char-icon-wrap {
+    border-radius: 3px;
+    border-color: rgba(56,255,122,0.30);
+    background:
+        radial-gradient(circle at 35% 25%, rgba(56,255,122,0.18), transparent 35%),
+        rgba(0, 8, 3, 0.82);
+    box-shadow:
+        0 0 10px rgba(56,255,122,0.18),
+        inset 0 1px 0 rgba(255,255,255,0.06);
+}
+
+.ib-theme-terminal .ib-control-btn {
+    color: #7fbc85;
+}
+
+.ib-theme-terminal .ib-control-btn:hover,
+.ib-theme-terminal .ib-control-btn.ib-active {
+    color: #dcffe1;
+    background: rgba(56,255,122,0.12);
+    border-color: rgba(56,255,122,0.42);
+    box-shadow:
+        0 0 12px rgba(56,255,122,0.16),
+        inset 0 1px 0 rgba(255,255,255,0.08);
+}
+
+.ib-theme-terminal .ib-rel-card::before {
+    background: linear-gradient(180deg, #38ff7a, #b6ff6a, transparent);
+    opacity: 0.62;
+}
+
+.ib-theme-terminal .ib-rel-subtitle {
+    color: #38ff7a;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+}
+
+.ib-theme-terminal .ib-rel-thought {
+    border-radius: 2px;
+    background-color: rgba(0, 7, 3, 0.58) !important;
+    background-image:
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160' viewBox='0 0 160 160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.08' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='0.12'/%3E%3C/svg%3E"),
+        linear-gradient(90deg, rgba(56,255,122,0.035), transparent) !important;
+    background-size:
+        135px 135px,
+        auto !important;
+    border-color: rgba(56,255,122,0.16);
+    box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.035),
+        inset 0 0 16px rgba(56,255,122,0.018);
+}
+
+.ib-theme-terminal .ib-rel-thought-text {
+    color: #c8ffd2;
+    text-shadow:
+        0 1px 2px rgba(0,0,0,0.65),
+        0 0 8px rgba(56,255,122,0.035);
+}
+
+.ib-theme-terminal .ib-collapsed-action::before {
+    content: "> ";
+    color: #38ff7a;
+}
+
+/* Terminal status chips */
+.ib-theme-terminal .ib-status-neutral {
+    background: rgba(56,255,122,0.09);
+    color: #a8ffb5;
+    border-color: rgba(56,255,122,0.24);
+}
+
+.ib-theme-terminal .ib-status-romantic {
+    background: rgba(182,255,106,0.10);
+    color: #d6ff9b;
+    border-color: rgba(182,255,106,0.26);
+}
+
+.ib-theme-terminal .ib-status-negative {
+    background: rgba(255,155,74,0.12);
+    color: #ffc18a;
+    border-color: rgba(255,155,74,0.30);
+}
+
+.ib-theme-terminal .ib-status-complex {
+    background: rgba(255,199,102,0.10);
+    color: #ffe0a6;
+    border-color: rgba(255,199,102,0.26);
+}
+
+/* Terminal floating */
+#ib_floating_host.ib-theme-terminal .ib-floating-shell {
+    background:
+        radial-gradient(circle at top left, rgba(56,255,122,0.11), transparent 38%),
+        radial-gradient(circle at bottom right, rgba(182,255,106,0.055), transparent 42%),
+        linear-gradient(
+            135deg,
+            color-mix(in srgb, #020b06 86%, transparent),
+            color-mix(in srgb, #06160c 78%, transparent),
+            color-mix(in srgb, #010503 88%, transparent)
+        ) !important;
+    border-color: rgba(56,255,122,0.30) !important;
+    box-shadow:
+        0 18px 42px rgba(0,0,0,0.50),
+        0 0 0 1px rgba(56,255,122,0.10),
+        0 0 24px rgba(56,255,122,0.13) !important;
+}
+
+#ib_floating_host.ib-theme-terminal .ib-floating-title::before {
+    content: "> ";
+    color: #38ff7a;
+}
+
+#ib_floating_tab.ib-theme-terminal::before {
+    content: "> ";
+    color: #38ff7a;
+}
+
+
+/* =========================================================
+   BAR STYLE: TERMINAL SEGMENTS
+   ████████░░░░░░ vibe
+   ========================================================= */
+
+.ib-bars-terminal .ib-bar {
+    height: 11px;
+    border-radius: 2px;
+    overflow: hidden;
+    border: 1px solid rgba(56,255,122,0.14);
+    background:
+        repeating-linear-gradient(
+            90deg,
+            rgba(120, 170, 125, 0.18) 0,
+            rgba(120, 170, 125, 0.18) 8px,
+            transparent 8px,
+            transparent 12px
+        ),
+        linear-gradient(180deg, rgba(255,255,255,0.030), rgba(0,0,0,0.34)),
+        rgba(0,0,0,0.55) !important;
+    box-shadow:
+        inset 0 1px 1px rgba(255,255,255,0.035),
+        inset 0 -1px 2px rgba(0,0,0,0.38);
+}
+
+.ib-bars-terminal .ib-bar-fill {
+    border-radius: 0;
+    filter: saturate(1.06) brightness(0.92);
+    box-shadow:
+        0 0 7px currentColor,
+        0 0 14px color-mix(in srgb, currentColor 56%, transparent),
+        inset 0 1px 0 rgba(255,255,255,0.18) !important;
+    background:
+        repeating-linear-gradient(
+            90deg,
+            currentColor 0,
+            currentColor 8px,
+            transparent 8px,
+            transparent 12px
+        ) !important;
+}
+
+.ib-bars-terminal .ib-bar-fill::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background:
+        linear-gradient(180deg, rgba(255,255,255,0.26), rgba(255,255,255,0.06) 42%, transparent 100%);
+    opacity: 0.38;
+}
+
+.ib-bars-terminal .ib-bar-fill::after {
+    opacity: 0 !important;
+}
+
+/* terminal segment colors */
+.ib-bars-terminal .ib-bar-affection-pos {
+    color: #38ff7a;
+}
+
+.ib-bars-terminal .ib-bar-affection-neg {
+    color: #ff8a5c;
+}
+
+.ib-bars-terminal .ib-bar-trust-pos {
+    color: #68ffc4;
+}
+
+.ib-bars-terminal .ib-bar-trust-neg {
+    color: #ffc766;
+}
+
+.ib-bars-terminal .ib-bar-love-pos {
+    color: #b6ff6a;
+}
+
+.ib-bars-terminal .ib-bar-love-neg {
+    color: #ff9b4a;
+}
+
+/* mini stats under terminal segments */
+.ib-bars-terminal .ib-mini-stat {
+    border-radius: 2px;
+    background:
+        linear-gradient(180deg, rgba(56,255,122,0.055), rgba(0,0,0,0.16));
+    border-color: rgba(56,255,122,0.13);
+}
+
+.ib-bars-terminal .ib-mini-stat-progress {
+    height: 4px;
+    border-radius: 0;
+    background-size: 12px 100% !important;
+    background-image:
+        repeating-linear-gradient(
+            90deg,
+            currentColor 0,
+            currentColor 8px,
+            transparent 8px,
+            transparent 12px
+        ) !important;
+    box-shadow:
+        0 0 5px currentColor,
+        0 0 10px color-mix(in srgb, currentColor 50%, transparent);
+}
+
+/* Strong pairing: Terminal + Terminal Segments */
+.ib-theme-terminal.ib-bars-terminal .ib-meter-label {
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.ib-theme-terminal.ib-bars-terminal .ib-meter-value {
+    color: #7fbc85;
+}
+
+.ib-theme-terminal.ib-bars-terminal .ib-bar {
+    border-color: rgba(56,255,122,0.18);
+    background:
+        repeating-linear-gradient(
+            90deg,
+            rgba(56,255,122,0.13) 0,
+            rgba(56,255,122,0.13) 8px,
+            transparent 8px,
+            transparent 12px
+        ),
+        linear-gradient(180deg, rgba(255,255,255,0.025), rgba(0,0,0,0.38)),
+        rgba(0,0,0,0.62) !important;
+}
+
+
+/* =========================================================
+   BAR STYLE: HEART METER
+   Hearts filling instead of normal bars
+   ========================================================= */
+
+.ib-bars-hearts .ib-bar {
+    height: 17px;
+    border: 0;
+    border-radius: 0;
+    overflow: hidden;
+    background-color: transparent !important;
+    background-image:
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='16' viewBox='0 0 18 16'%3E%3Cpath d='M9 14.6S1.6 10.2 1.6 5.2C1.6 2.8 3.2 1.2 5.3 1.2c1.4 0 2.7.8 3.7 2.2 1-1.4 2.3-2.2 3.7-2.2 2.1 0 3.7 1.6 3.7 4 0 5-7.4 9.4-7.4 9.4z' fill='%23384a3d' opacity='.58'/%3E%3C/svg%3E") !important;
+    background-repeat: repeat-x !important;
+    background-size: 18px 16px !important;
+    background-position: left center !important;
+    box-shadow: none !important;
+}
+
+.ib-bars-hearts .ib-bar-fill {
+    height: 100%;
+    border-radius: 0;
+    background: currentColor !important;
+    filter: saturate(1.15) brightness(1.05);
+    box-shadow: none !important;
+
+    -webkit-mask-image:
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='16' viewBox='0 0 18 16'%3E%3Cpath d='M9 14.6S1.6 10.2 1.6 5.2C1.6 2.8 3.2 1.2 5.3 1.2c1.4 0 2.7.8 3.7 2.2 1-1.4 2.3-2.2 3.7-2.2 2.1 0 3.7 1.6 3.7 4 0 5-7.4 9.4-7.4 9.4z' fill='black'/%3E%3C/svg%3E");
+    -webkit-mask-repeat: repeat-x;
+    -webkit-mask-size: 18px 16px;
+    -webkit-mask-position: left center;
+
+    mask-image:
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='16' viewBox='0 0 18 16'%3E%3Cpath d='M9 14.6S1.6 10.2 1.6 5.2C1.6 2.8 3.2 1.2 5.3 1.2c1.4 0 2.7.8 3.7 2.2 1-1.4 2.3-2.2 3.7-2.2 2.1 0 3.7 1.6 3.7 4 0 5-7.4 9.4-7.4 9.4z' fill='black'/%3E%3C/svg%3E");
+    mask-repeat: repeat-x;
+    mask-size: 18px 16px;
+    mask-position: left center;
+}
+
+.ib-bars-hearts .ib-bar-fill::before,
+.ib-bars-hearts .ib-bar-fill::after {
+    opacity: 0 !important;
+    display: none !important;
+}
+
+.ib-bars-hearts .ib-bar-affection-pos {
+    color: #5ef0a0;
+}
+
+.ib-bars-hearts .ib-bar-affection-neg {
+    color: #ff7e8f;
+}
+
+.ib-bars-hearts .ib-bar-trust-pos {
+    color: #6ecbff;
+}
+
+.ib-bars-hearts .ib-bar-trust-neg {
+    color: #ffb76a;
+}
+
+.ib-bars-hearts .ib-bar-love-pos {
+    color: #ff7bd5;
+}
+
+.ib-bars-hearts .ib-bar-love-neg {
+    color: #ff4f8f;
+}
+
+.ib-bars-hearts .ib-meter-top {
+    margin-bottom: 3px;
+}
+
+.ib-bars-hearts .ib-meter-label {
+    letter-spacing: 0.3px;
+}
+
+.ib-bars-hearts .ib-meter-value {
+    opacity: 0.96;
+}
+
+/* Pink Bite + hearts — extra candy */
+.ib-theme-pinkbite.ib-bars-hearts .ib-bar {
+    background-image:
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='16' viewBox='0 0 18 16'%3E%3Cpath d='M9 14.6S1.6 10.2 1.6 5.2C1.6 2.8 3.2 1.2 5.3 1.2c1.4 0 2.7.8 3.7 2.2 1-1.4 2.3-2.2 3.7-2.2 2.1 0 3.7 1.6 3.7 4 0 5-7.4 9.4-7.4 9.4z' fill='%236b3454' opacity='.72'/%3E%3C/svg%3E") !important;
+}
+
+/* Terminal + hearts — cursed but readable */
+.ib-theme-terminal.ib-bars-hearts .ib-bar {
+    background-image:
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='16' viewBox='0 0 18 16'%3E%3Cpath d='M9 14.6S1.6 10.2 1.6 5.2C1.6 2.8 3.2 1.2 5.3 1.2c1.4 0 2.7.8 3.7 2.2 1-1.4 2.3-2.2 3.7-2.2 2.1 0 3.7 1.6 3.7 4 0 5-7.4 9.4-7.4 9.4z' fill='%23284a2f' opacity='.75'/%3E%3C/svg%3E") !important;
+}
