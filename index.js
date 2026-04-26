@@ -2134,6 +2134,17 @@ function CleanupEmptyMessageNodes(messageTextEl) {
     }
 }
 
+function CleanupRawInfoboardDom(messageTextEl) {
+    if (!gHideRaw || !messageTextEl) return;
+
+    messageTextEl
+        .querySelectorAll("infoboard, chars, rels, c, rel, thk, nsfw")
+        .forEach(node => {
+            if (node.closest(".ib-board-host, .ib-board")) return;
+            node.remove();
+        });
+}
+
 function RemoveRawXmlFromText(messageTextEl) {
     if (!gHideRaw || !messageTextEl) return;
 
@@ -2341,12 +2352,15 @@ function ForceRepaint(el) {
 function RenderBoardIntoMessage(mesTextEl, parsed, isFresh, prevState) {
     if (!mesTextEl || !parsed) return;
 
+    CleanupRawInfoboardDom(mesTextEl);
     RemoveRawXmlFromText(mesTextEl);
+    CleanupRawInfoboardDom(mesTextEl);
 
     if (gHideThoughtLeaks) {
         RemoveThoughtLeaksInContainer(mesTextEl, parsed);
     }
 
+    CleanupRawInfoboardDom(mesTextEl);
     CleanupEmptyMessageNodes(mesTextEl);
 
     if (!ShouldRenderInlineBoard()) {
@@ -2408,15 +2422,20 @@ function ReprocessChat() {
         const stMsg = stContext.chat[msgId];
         if (!stMsg || stMsg.is_user) return;
 
-        const parsed = ParseInfoboard(stMsg.mes || "");
-        const mesTextEl = node.querySelector(".mes_text");
-        if (!mesTextEl) return;
+const parsed = ParseInfoboard(stMsg.mes || "");
+const mesTextEl = node.querySelector(".mes_text");
+if (!mesTextEl) return;
 
-        if (!parsed) {
-            const host = mesTextEl.querySelector(".ib-board-host");
-            if (host) host.remove();
-            return;
-        }
+CleanupRawInfoboardDom(mesTextEl);
+RemoveRawXmlFromText(mesTextEl);
+CleanupRawInfoboardDom(mesTextEl);
+
+if (!parsed) {
+    const host = mesTextEl.querySelector(".ib-board-host");
+    if (host) host.remove();
+    CleanupEmptyMessageNodes(mesTextEl);
+    return;
+}
 
         if (parsed.rawXml) {
             gLastRawXml = parsed.rawXml;
