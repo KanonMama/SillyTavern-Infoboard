@@ -7964,3 +7964,136 @@ button.ib-pin-btn.ib-pinned::before,
     background-image:
         url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='16' viewBox='0 0 18 16'%3E%3Cpath d='M9 14.6S1.6 10.2 1.6 5.2C1.6 2.8 3.2 1.2 5.3 1.2c1.4 0 2.7.8 3.7 2.2 1-1.4 2.3-2.2 3.7-2.2 2.1 0 3.7 1.6 3.7 4 0 5-7.4 9.4-7.4 9.4z' fill='%23284a2f' opacity='.75'/%3E%3C/svg%3E") !important;
 }
+
+/* =========================================================
+   TERMINAL POLISH FIX
+   remove double prompt + make segments more phosphor
+   Must be LAST
+   ========================================================= */
+
+/* убираем лишний > перед заголовками секций */
+.ib-theme-terminal .ib-section-title::before {
+    content: none !important;
+    display: none !important;
+}
+
+/* терминальные сегменты — меньше белого, больше фосфора */
+.ib-theme-terminal.ib-bars-terminal .ib-bar-fill {
+    filter: saturate(1.18) brightness(0.82) !important;
+    opacity: 0.96;
+    box-shadow:
+        0 0 6px currentColor,
+        0 0 12px color-mix(in srgb, currentColor 46%, transparent),
+        inset 0 1px 0 rgba(255,255,255,0.12) !important;
+}
+
+/* конкретные цвета сегментов в Terminal */
+.ib-theme-terminal.ib-bars-terminal .ib-bar-affection-pos {
+    color: #39d96f !important;
+}
+
+.ib-theme-terminal.ib-bars-terminal .ib-bar-trust-pos {
+    color: #54dcae !important;
+}
+
+.ib-theme-terminal.ib-bars-terminal .ib-bar-love-pos {
+    color: #9bd85a !important;
+}
+
+.ib-theme-terminal.ib-bars-terminal .ib-bar-affection-neg {
+    color: #d86f4d !important;
+}
+
+.ib-theme-terminal.ib-bars-terminal .ib-bar-trust-neg {
+    color: #d89a45 !important;
+}
+
+.ib-theme-terminal.ib-bars-terminal .ib-bar-love-neg {
+    color: #d8783d !important;
+}
+
+/* пустая дорожка чуть темнее, чтобы заполнение читалось лучше */
+.ib-theme-terminal.ib-bars-terminal .ib-bar {
+    background:
+        repeating-linear-gradient(
+            90deg,
+            rgba(56,255,122,0.08) 0,
+            rgba(56,255,122,0.08) 8px,
+            transparent 8px,
+            transparent 12px
+        ),
+        linear-gradient(180deg, rgba(255,255,255,0.018), rgba(0,0,0,0.42)),
+        rgba(0,0,0,0.70) !important;
+}
+
+/* =========================================================
+   HEART BARS COLOR FIX
+   Must be LAST
+   ========================================================= */
+
+/* базово: заливка сердца берёт цвет из конкретного класса */
+.ib-bars-hearts .ib-bar-fill {
+    background-image: none !important;
+    background-color: currentColor !important;
+    filter:
+        saturate(1.18)
+        brightness(1.08)
+        drop-shadow(0 0 3px currentColor) !important;
+}
+
+/* filled hearts colors */
+.ib-bars-hearts .ib-bar-fill.ib-bar-affection-pos {
+    color: #5ef0a0 !important;
+    background-color: #5ef0a0 !important;
+}
+
+.ib-bars-hearts .ib-bar-fill.ib-bar-affection-neg {
+    color: #ff7e8f !important;
+    background-color: #ff7e8f !important;
+}
+
+.ib-bars-hearts .ib-bar-fill.ib-bar-trust-pos {
+    color: #6ecbff !important;
+    background-color: #6ecbff !important;
+}
+
+.ib-bars-hearts .ib-bar-fill.ib-bar-trust-neg {
+    color: #ffb76a !important;
+    background-color: #ffb76a !important;
+}
+
+.ib-bars-hearts .ib-bar-fill.ib-bar-love-pos {
+    color: #d77cff !important;
+    background-color: #d77cff !important;
+}
+
+.ib-bars-hearts .ib-bar-fill.ib-bar-love-neg {
+    color: #ff4f8f !important;
+    background-color: #ff4f8f !important;
+}
+
+/* unfilled hearts — чуть темнее, чтобы заполнение читалось */
+.ib-bars-hearts .ib-bar {
+    background-image:
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='16' viewBox='0 0 18 16'%3E%3Cpath d='M9 14.6S1.6 10.2 1.6 5.2C1.6 2.8 3.2 1.2 5.3 1.2c1.4 0 2.7.8 3.7 2.2 1-1.4 2.3-2.2 3.7-2.2 2.1 0 3.7 1.6 3.7 4 0 5-7.4 9.4-7.4 9.4z' fill='%2343323e' opacity='.72'/%3E%3C/svg%3E") !important;
+}
+
+/* Pink Bite / розовые темы — пустые сердца теплее */
+.ib-theme-pinkbite.ib-bars-hearts .ib-bar,
+.ib-theme-burgundy.ib-bars-hearts .ib-bar,
+.ib-theme-ashrose.ib-bars-hearts .ib-bar {
+    background-image:
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='16' viewBox='0 0 18 16'%3E%3Cpath d='M9 14.6S1.6 10.2 1.6 5.2C1.6 2.8 3.2 1.2 5.3 1.2c1.4 0 2.7.8 3.7 2.2 1-1.4 2.3-2.2 3.7-2.2 2.1 0 3.7 1.6 3.7 4 0 5-7.4 9.4-7.4 9.4z' fill='%236b3454' opacity='.78'/%3E%3C/svg%3E") !important;
+}
+
+/* Gengar — пустые сердца фиолетово-тёмные */
+.ib-theme-gengar.ib-bars-hearts .ib-bar {
+    background-image:
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='16' viewBox='0 0 18 16'%3E%3Cpath d='M9 14.6S1.6 10.2 1.6 5.2C1.6 2.8 3.2 1.2 5.3 1.2c1.4 0 2.7.8 3.7 2.2 1-1.4 2.3-2.2 3.7-2.2 2.1 0 3.7 1.6 3.7 4 0 5-7.4 9.4-7.4 9.4z' fill='%23402655' opacity='.80'/%3E%3C/svg%3E") !important;
+}
+
+/* Terminal — пустые сердца болотные, потому что cursed romance */
+.ib-theme-terminal.ib-bars-hearts .ib-bar {
+    background-image:
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='16' viewBox='0 0 18 16'%3E%3Cpath d='M9 14.6S1.6 10.2 1.6 5.2C1.6 2.8 3.2 1.2 5.3 1.2c1.4 0 2.7.8 3.7 2.2 1-1.4 2.3-2.2 3.7-2.2 2.1 0 3.7 1.6 3.7 4 0 5-7.4 9.4-7.4 9.4z' fill='%23284a2f' opacity='.78'/%3E%3C/svg%3E") !important;
+}
