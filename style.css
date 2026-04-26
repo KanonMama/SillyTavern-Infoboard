@@ -8677,3 +8677,591 @@ button.ib-pin-btn.ib-pinned::before,
         font-size: 10px;
     }
 }
+
+/* =========================================================
+   BLOOD MOON THEME + VIALS BAR STYLE
+   Must be LAST
+   ========================================================= */
+
+
+/* =========================================================
+   BLOOD MOON THEME
+   ========================================================= */
+
+.ib-theme-bloodmoon {
+    --ib-bg-1: #1a080d;
+    --ib-bg-2: #2a1017;
+    --ib-bg-3: #0c0306;
+
+    --ib-border: rgba(184, 69, 82, 0.28);
+    --ib-border-neon: rgba(214, 163, 95, 0.20);
+    --ib-soft-border: rgba(184, 69, 82, 0.14);
+
+    --ib-text: #f4e1dc;
+    --ib-muted: #c7a09b;
+    --ib-dim: #81545a;
+
+    --ib-accent: #b84552;
+    --ib-accent-2: #d6a35f;
+
+    --ib-green: #c98078;
+    --ib-blue: #8fa7c8;
+    --ib-purple: #b97aa0;
+    --ib-warm: #d6a35f;
+    --ib-danger: #e05a67;
+
+    --ib-chip-bg: rgba(184, 69, 82, 0.13);
+    --ib-chip-border: rgba(214, 163, 95, 0.22);
+
+    --ib-shadow: 0 16px 38px rgba(8, 1, 3, 0.62);
+    --ib-neon:
+        0 0 18px rgba(184, 69, 82, 0.12),
+        0 0 28px rgba(214, 163, 95, 0.04);
+
+    --ib-header-glow:
+        radial-gradient(circle at top right, rgba(184, 69, 82, 0.13), transparent 40%),
+        radial-gradient(circle at bottom left, rgba(214, 163, 95, 0.055), transparent 42%);
+
+    --ib-pin-icon-off: "◇";
+    --ib-pin-icon-on: "◆";
+    --ib-pin-bg-off: #260c12;
+    --ib-pin-bg-hover: #3a121a;
+    --ib-pin-bg-on: #4a1620;
+    --ib-pin-border-off: rgba(184, 69, 82, 0.30);
+    --ib-pin-border-hover: rgba(184, 69, 82, 0.52);
+    --ib-pin-border-on: rgba(214, 163, 95, 0.56);
+    --ib-pin-color-off: #b98b88;
+    --ib-pin-color-hover: #f4e1dc;
+    --ib-pin-color-on: #d6a35f;
+    --ib-pin-glow-on: rgba(184, 69, 82, 0.30);
+}
+
+.ib-theme-bloodmoon .ib-board {
+    background:
+        radial-gradient(circle at 88% 7%, rgba(184, 69, 82, 0.13), transparent 26%),
+        radial-gradient(circle at 12% 92%, rgba(214, 163, 95, 0.055), transparent 34%),
+        linear-gradient(135deg, #1a080d, #2a1017 52%, #0c0306);
+    border-color: rgba(184, 69, 82, 0.28);
+    box-shadow:
+        0 16px 38px rgba(8, 1, 3, 0.62),
+        0 0 0 1px rgba(255,255,255,0.015),
+        0 0 20px rgba(184, 69, 82, 0.11),
+        0 0 28px rgba(214, 163, 95, 0.035),
+        inset 0 0 0 1px rgba(214, 163, 95, 0.030);
+    isolation: isolate;
+}
+
+/* subtle dark grain */
+.ib-theme-bloodmoon .ib-board::before {
+    content: "" !important;
+    position: absolute !important;
+    inset: 0 !important;
+    z-index: 0 !important;
+    pointer-events: none !important;
+    opacity: 0.10 !important;
+    mix-blend-mode: soft-light !important;
+
+    background-image:
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180' viewBox='0 0 180 180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.86' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)' opacity='0.66'/%3E%3C/svg%3E");
+    background-size: 155px 155px !important;
+}
+
+/* dark glass / old ledger glow */
+.ib-theme-bloodmoon .ib-board::after {
+    content: "" !important;
+    position: absolute !important;
+    inset: 0 !important;
+    z-index: 1 !important;
+    pointer-events: none !important;
+    border-radius: inherit !important;
+    opacity: 0.78 !important;
+
+    background:
+        radial-gradient(circle at 50% 0%, rgba(214,163,95,0.028), transparent 34%),
+        linear-gradient(120deg, rgba(255,255,255,0.020), transparent 34%) !important;
+
+    box-shadow:
+        inset 0 0 0 1px rgba(184, 69, 82, 0.16),
+        inset 0 0 24px rgba(184, 69, 82, 0.035),
+        0 0 18px rgba(184, 69, 82, 0.08) !important;
+}
+
+.ib-theme-bloodmoon .ib-title-wrap,
+.ib-theme-bloodmoon .ib-full-wrap,
+.ib-theme-bloodmoon .ib-compact-wrap,
+.ib-theme-bloodmoon .ib-collapsed-wrap {
+    position: relative;
+    z-index: 2;
+}
+
+
+/* ---------- title banner ---------- */
+
+.ib-theme-bloodmoon .ib-title-wrap {
+    min-height: 78px;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 18px 116px 16px 16px;
+    margin-bottom: 12px;
+    border: 1px solid rgba(214, 163, 95, 0.22);
+    border-radius: 10px;
+    background:
+        radial-gradient(circle at 84% 48%, rgba(184,69,82,0.12), transparent 24%),
+        linear-gradient(135deg, rgba(255,255,255,0.026), rgba(255,255,255,0.006)),
+        rgba(14, 3, 7, 0.55);
+    box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.045),
+        inset 0 0 22px rgba(184,69,82,0.040),
+        0 0 14px rgba(184,69,82,0.060);
+    overflow: hidden;
+}
+
+/* blood moon: pure CSS circle, no SVG circus */
+.ib-theme-bloodmoon .ib-title-wrap::before {
+    content: "" !important;
+    position: absolute !important;
+    right: 31px !important;
+    top: 16px !important;
+    z-index: 1 !important;
+
+    width: 48px !important;
+    height: 48px !important;
+    border-radius: 50% !important;
+
+    background:
+        radial-gradient(circle at 34% 30%, rgba(255,210,170,0.20), transparent 20%),
+        radial-gradient(circle at 63% 64%, rgba(70,10,18,0.28), transparent 18%),
+        radial-gradient(circle at 45% 48%, #c64a55 0%, #8e2630 52%, #501018 100%) !important;
+
+    box-shadow:
+        0 0 12px rgba(184,69,82,0.42),
+        0 0 26px rgba(184,69,82,0.22),
+        inset -8px -10px 18px rgba(32,2,6,0.34),
+        inset 4px 3px 9px rgba(255,220,180,0.10) !important;
+
+    opacity: 0.92 !important;
+    pointer-events: none !important;
+}
+
+/* drops / old gold marks */
+.ib-theme-bloodmoon .ib-title-wrap::after {
+    content: "✦      ·\A   ✧     🩸\A·       ✦" !important;
+    position: absolute !important;
+    right: 14px !important;
+    top: 14px !important;
+    z-index: 2 !important;
+
+    white-space: pre !important;
+    color: #d6a35f !important;
+    font-size: 13px !important;
+    line-height: 1.55 !important;
+    letter-spacing: 1px !important;
+
+    opacity: 0.74 !important;
+
+    background: none !important;
+    width: auto !important;
+    height: auto !important;
+    filter: none !important;
+
+    text-shadow:
+        0 0 7px rgba(214,163,95,0.30),
+        0 0 14px rgba(184,69,82,0.18) !important;
+
+    pointer-events: none !important;
+}
+
+.ib-theme-bloodmoon .ib-title {
+    margin: 0;
+    position: relative;
+    z-index: 3;
+
+    color: #f4e1dc;
+    font-size: 18px;
+    line-height: 1.15;
+    letter-spacing: 1.6px;
+    font-weight: 900;
+    text-transform: uppercase;
+    text-align: left;
+    text-shadow:
+        0 0 8px rgba(184,69,82,0.24),
+        0 0 18px rgba(214,163,95,0.10);
+}
+
+.ib-theme-bloodmoon .ib-title::before,
+.ib-theme-bloodmoon .ib-title::after {
+    content: none !important;
+    display: none !important;
+}
+
+.ib-theme-bloodmoon .ib-title-sub {
+    display: none !important;
+}
+
+
+/* ---------- panels ---------- */
+
+.ib-theme-bloodmoon .ib-header,
+.ib-theme-bloodmoon .ib-section,
+.ib-theme-bloodmoon .ib-rel-card,
+.ib-theme-bloodmoon .ib-compact-wrap,
+.ib-theme-bloodmoon .ib-collapsed-tag {
+    background:
+        radial-gradient(circle at top left, rgba(214,163,95,0.030), transparent 44%),
+        rgba(255,255,255,0.022);
+    border-color: rgba(184,69,82,0.15);
+    box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.040),
+        0 0 12px rgba(184,69,82,0.036);
+}
+
+.ib-theme-bloodmoon .ib-header::before {
+    background:
+        linear-gradient(90deg, transparent, #b84552, #d6a35f, transparent);
+    opacity: 0.82;
+    box-shadow:
+        0 0 10px rgba(184,69,82,0.15),
+        0 0 16px rgba(214,163,95,0.08);
+}
+
+.ib-theme-bloodmoon .ib-section-title {
+    color: #d6a35f;
+    text-shadow:
+        0 0 8px rgba(214,163,95,0.18),
+        0 0 14px rgba(184,69,82,0.12);
+}
+
+.ib-theme-bloodmoon .ib-header-location-text,
+.ib-theme-bloodmoon .ib-char-name,
+.ib-theme-bloodmoon .ib-rel-toggle-name,
+.ib-theme-bloodmoon .ib-compact-rel-name {
+    color: #f4e1dc;
+    font-weight: 800;
+}
+
+.ib-theme-bloodmoon .ib-meta-pill,
+.ib-theme-bloodmoon .ib-tag,
+.ib-theme-bloodmoon .ib-status-chip,
+.ib-theme-bloodmoon .ib-presence-chip,
+.ib-theme-bloodmoon .ib-control-btn,
+.ib-theme-bloodmoon .ib-mini-stat {
+    background:
+        radial-gradient(circle at top left, rgba(255,255,255,0.050), transparent 52%),
+        rgba(184, 69, 82, 0.075);
+    border-color: rgba(214,163,95,0.15);
+    box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.050),
+        0 2px 8px rgba(0,0,0,0.14);
+}
+
+.ib-theme-bloodmoon .ib-tag {
+    color: #d6a35f;
+}
+
+.ib-theme-bloodmoon .ib-mood-tag {
+    color: #e8b1aa;
+    border-color: rgba(184, 69, 82, 0.30);
+    background:
+        radial-gradient(circle at top left, rgba(255,255,255,0.075), transparent 52%),
+        rgba(184, 69, 82, 0.12);
+}
+
+.ib-theme-bloodmoon .ib-mood-tag::before {
+    content: "🩸 ";
+    opacity: 0.80;
+}
+
+.ib-theme-bloodmoon .ib-char-icon-wrap {
+    border-color: rgba(214,163,95,0.20);
+    background:
+        radial-gradient(circle at 35% 25%, rgba(214,163,95,0.11), transparent 36%),
+        rgba(184, 69, 82, 0.08);
+    box-shadow:
+        0 0 12px rgba(184,69,82,0.12),
+        0 0 18px rgba(214,163,95,0.04);
+}
+
+.ib-theme-bloodmoon .ib-control-btn {
+    color: #c7a09b;
+}
+
+.ib-theme-bloodmoon .ib-control-btn:hover,
+.ib-theme-bloodmoon .ib-control-btn.ib-active {
+    color: #f4e1dc;
+    background: rgba(184,69,82,0.12);
+    border-color: rgba(214,163,95,0.28);
+}
+
+.ib-theme-bloodmoon .ib-rel-card::before {
+    background: linear-gradient(180deg, #b84552, rgba(214,163,95,0.05));
+    opacity: 0.58;
+}
+
+.ib-theme-bloodmoon .ib-rel-subtitle {
+    color: #d6a35f;
+}
+
+.ib-theme-bloodmoon .ib-rel-thought {
+    background:
+        radial-gradient(circle at top left, rgba(184,69,82,0.040), transparent 42%),
+        rgba(255,255,255,0.020);
+    border-color: rgba(184,69,82,0.13);
+}
+
+.ib-theme-bloodmoon .ib-rel-thought-text {
+    color: #f4e1dc;
+}
+
+.ib-theme-bloodmoon .ib-collapsed-action::before {
+    content: "🩸 ";
+    color: #b84552;
+}
+
+
+/* status chips */
+.ib-theme-bloodmoon .ib-status-neutral {
+    background: rgba(184,69,82,0.11);
+    color: #e4b9b4;
+    border-color: rgba(184,69,82,0.24);
+}
+
+.ib-theme-bloodmoon .ib-status-romantic {
+    background: rgba(185,75,112,0.13);
+    color: #f0b6c8;
+    border-color: rgba(185,75,112,0.28);
+}
+
+.ib-theme-bloodmoon .ib-status-negative {
+    background: rgba(224,90,103,0.14);
+    color: #f1a8ae;
+    border-color: rgba(224,90,103,0.30);
+}
+
+.ib-theme-bloodmoon .ib-status-complex {
+    background: rgba(214,163,95,0.12);
+    color: #e7c38f;
+    border-color: rgba(214,163,95,0.28);
+}
+
+
+/* floating */
+#ib_floating_host.ib-theme-bloodmoon .ib-floating-shell {
+    background:
+        radial-gradient(circle at top right, rgba(184,69,82,0.13), transparent 40%),
+        radial-gradient(circle at bottom left, rgba(214,163,95,0.055), transparent 42%),
+        linear-gradient(
+            135deg,
+            color-mix(in srgb, #1a080d 84%, transparent),
+            color-mix(in srgb, #2a1017 78%, transparent),
+            color-mix(in srgb, #0c0306 86%, transparent)
+        ) !important;
+    border-color: rgba(184,69,82,0.26) !important;
+}
+
+#ib_floating_host.ib-theme-bloodmoon .ib-floating-title::before {
+    content: "🩸 ";
+    color: #b84552;
+}
+
+#ib_floating_tab.ib-theme-bloodmoon::before {
+    content: "🩸 ";
+    color: #b84552;
+}
+
+
+/* =========================================================
+   BAR STYLE: VIALS
+   Glass ampoules / liquid fill
+   ========================================================= */
+
+.ib-bars-vials .ib-bar {
+    height: 14px;
+    border-radius: 999px;
+    overflow: hidden;
+    border: 1px solid rgba(255,255,255,0.10);
+    background:
+        linear-gradient(180deg, rgba(255,255,255,0.060), rgba(0,0,0,0.22)),
+        rgba(0,0,0,0.34) !important;
+    box-shadow:
+        inset 0 1px 1px rgba(255,255,255,0.080),
+        inset 0 -1px 2px rgba(0,0,0,0.36),
+        0 0 8px rgba(0,0,0,0.18);
+}
+
+.ib-bars-vials .ib-bar-fill {
+    --ib-vial-1: #d66a78;
+    --ib-vial-2: #8c2531;
+    --ib-vial-glow: rgba(214,106,120,0.30);
+
+    height: 100%;
+    border-radius: 999px;
+    background:
+        radial-gradient(circle at 16% 35%, rgba(255,255,255,0.24) 0 1px, transparent 1.7px),
+        radial-gradient(circle at 38% 62%, rgba(255,255,255,0.18) 0 1px, transparent 1.8px),
+        radial-gradient(circle at 67% 42%, rgba(255,255,255,0.16) 0 1px, transparent 1.8px),
+        linear-gradient(180deg, rgba(255,255,255,0.30), rgba(255,255,255,0.06) 38%, transparent 56%),
+        linear-gradient(90deg, var(--ib-vial-1), var(--ib-vial-2)) !important;
+
+    background-size:
+        38px 14px,
+        44px 14px,
+        52px 14px,
+        auto,
+        auto !important;
+
+    box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.24),
+        inset 0 -1px 0 rgba(0,0,0,0.18),
+        0 0 8px var(--ib-vial-glow),
+        0 0 15px color-mix(in srgb, var(--ib-vial-glow) 70%, transparent) !important;
+
+    filter: saturate(1.05) brightness(0.94);
+}
+
+/* liquid meniscus/end cap */
+.ib-bars-vials .ib-bar-fill::after {
+    content: "" !important;
+    position: absolute !important;
+    right: 0 !important;
+    top: 50% !important;
+    transform: translate(38%, -50%) !important;
+
+    width: 13px !important;
+    height: 13px !important;
+    border-radius: 50% !important;
+
+    opacity: 0.90 !important;
+    background:
+        radial-gradient(circle at 35% 30%, rgba(255,255,255,0.36), transparent 34%),
+        var(--ib-vial-1) !important;
+
+    box-shadow:
+        0 0 8px var(--ib-vial-glow),
+        0 0 14px var(--ib-vial-glow) !important;
+
+    pointer-events: none !important;
+}
+
+/* glass shine */
+.ib-bars-vials .ib-bar-fill::before {
+    content: "" !important;
+    position: absolute !important;
+    inset: 1px 2px auto 2px !important;
+    height: 42% !important;
+    border-radius: inherit !important;
+    background:
+        linear-gradient(180deg, rgba(255,255,255,0.34), rgba(255,255,255,0.05)) !important;
+    opacity: 0.70 !important;
+    pointer-events: none !important;
+}
+
+
+/* vial colors */
+.ib-bars-vials .ib-bar-fill.ib-bar-affection-pos {
+    --ib-vial-1: #d9827d;
+    --ib-vial-2: #8d2f38;
+    --ib-vial-glow: rgba(217,130,125,0.30);
+}
+
+.ib-bars-vials .ib-bar-fill.ib-bar-affection-neg {
+    --ib-vial-1: #d76458;
+    --ib-vial-2: #742027;
+    --ib-vial-glow: rgba(215,100,88,0.32);
+}
+
+.ib-bars-vials .ib-bar-fill.ib-bar-trust-pos {
+    --ib-vial-1: #8da7c8;
+    --ib-vial-2: #405b86;
+    --ib-vial-glow: rgba(141,167,200,0.28);
+}
+
+.ib-bars-vials .ib-bar-fill.ib-bar-trust-neg {
+    --ib-vial-1: #d6a35f;
+    --ib-vial-2: #8c5b28;
+    --ib-vial-glow: rgba(214,163,95,0.30);
+}
+
+.ib-bars-vials .ib-bar-fill.ib-bar-love-pos {
+    --ib-vial-1: #c46c98;
+    --ib-vial-2: #7e264e;
+    --ib-vial-glow: rgba(196,108,152,0.32);
+}
+
+.ib-bars-vials .ib-bar-fill.ib-bar-love-neg {
+    --ib-vial-1: #b73545;
+    --ib-vial-2: #4d0f18;
+    --ib-vial-glow: rgba(183,53,69,0.34);
+}
+
+
+/* mini stats with vial mood */
+.ib-bars-vials .ib-mini-stat {
+    border-radius: 999px;
+    background:
+        radial-gradient(circle at top left, rgba(255,255,255,0.065), transparent 52%),
+        rgba(184,69,82,0.060);
+    border-color: rgba(214,163,95,0.14);
+}
+
+.ib-bars-vials .ib-mini-stat-progress {
+    height: 4px;
+    border-radius: 999px;
+    box-shadow:
+        0 0 5px currentColor,
+        0 0 10px rgba(184,69,82,0.16);
+}
+
+
+/* Blood Moon + Vials pairing */
+.ib-theme-bloodmoon.ib-bars-vials .ib-bar {
+    border-color: rgba(214,163,95,0.16);
+    background:
+        linear-gradient(180deg, rgba(255,255,255,0.050), rgba(0,0,0,0.30)),
+        rgba(8,1,3,0.50) !important;
+}
+
+.ib-theme-bloodmoon.ib-bars-vials .ib-meter-label {
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #d6a35f;
+}
+
+.ib-theme-bloodmoon.ib-bars-vials .ib-meter-value {
+    color: #c7a09b;
+}
+
+
+/* mobile */
+@media (max-width: 760px) {
+    .ib-theme-bloodmoon .ib-title-wrap {
+        min-height: 70px;
+        padding: 16px 88px 14px 12px;
+    }
+
+    .ib-theme-bloodmoon .ib-title-wrap::before {
+        right: 24px !important;
+        top: 15px !important;
+        width: 38px !important;
+        height: 38px !important;
+    }
+
+    .ib-theme-bloodmoon .ib-title-wrap::after {
+        right: 10px !important;
+        top: 13px !important;
+        font-size: 11px !important;
+    }
+
+    .ib-theme-bloodmoon .ib-title {
+        font-size: 15px;
+        letter-spacing: 1.2px;
+    }
+
+    .ib-bars-vials .ib-bar {
+        height: 12px;
+    }
+
+    .ib-bars-vials .ib-bar-fill::after {
+        width: 11px !important;
+        height: 11px !important;
+    }
+}
