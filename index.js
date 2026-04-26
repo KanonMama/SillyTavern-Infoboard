@@ -159,6 +159,19 @@ systemlog: {
     danger: "#ff9b4a"
 },
 
+oraclemoon: {
+    label: {
+        ru: "Oracle Moon: луна, глаз, звёзды и тёмный мистический бархат",
+        en: "Oracle Moon: moon, eye, stars and dark mystic velvet"
+    },
+    bg: "#171122",
+    bg2: "#261a35",
+    accent: "#d8b86a",
+    accent2: "#b98cff",
+    text: "#f2e8ff",
+    danger: "#ff7fa8"
+},
+    
     neonquest: {
     label: {
         ru: "Neon Quest: игровой HUD, синий неон и пиксельный город",
@@ -495,6 +508,11 @@ terminal: {
     main: "INFOBOARD // USER ACCESS",
     sub: "> relationship data loaded"
 },
+
+oraclemoon: {
+    main: "ORACLE BOARD // SPREAD OPENED",
+    sub: "omens aligned · hidden motive revealed"
+},
         
         neonquest: {
     main: "𝄃𝄃𝄂𝄂𝄀RP BOARD𝄁𝄃𝄂𝄂𝄃",
@@ -513,6 +531,7 @@ function GetThemeLocationIcon(theme = gTheme) {
     if (theme === "gengar") return "🕯️";
     if (theme === "systemlog") return "💾";
         if (theme === "terminal") return "▣";
+    if (theme === "oraclemoon") return "🌙";
     if (theme === "neonquest") return "⚙️";
      return facultyThemes.includes(theme) ? "📜" : "📍";
 }
@@ -522,6 +541,7 @@ function GetThemeCharsIcon(theme = gTheme) {
     if (theme === "gengar") return "👻";
     if (theme === "systemlog") return "📊";
     if (theme === "terminal") return ">";
+    if (theme === "oraclemoon") return "✨";
     if (theme === "neonquest") return "👤";
         return facultyThemes.includes(theme) ? "🪶" : "💖";
 }
@@ -534,6 +554,7 @@ function GetThemeRelationsIcon(theme = gTheme) {
         hufflepuff: "💛",
         gengar: "💜",
         systemlog: "🔗",
+        oraclemoon: "💫",
         terminal: "♡",
         neonquest: "🤖"
     };
