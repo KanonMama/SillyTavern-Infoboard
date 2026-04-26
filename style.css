@@ -6694,3 +6694,515 @@ button.ib-pin-btn.ib-pinned::before,
 .ib-theme-systemlog.ib-bars-neon .ib-meter-value {
     color: #7f99a8 !important;
 }
+
+/* =========================================================
+   NEON QUEST THEME
+   Cyber arcade / RP bot interface / blue neon HUD
+   ========================================================= */
+
+.ib-theme-neonquest {
+    --ib-bg-1: #020817;
+    --ib-bg-2: #061a33;
+    --ib-bg-3: #01040c;
+
+    --ib-border: rgba(0, 217, 255, 0.34);
+    --ib-border-neon: rgba(0, 217, 255, 0.45);
+    --ib-soft-border: rgba(0, 217, 255, 0.17);
+
+    --ib-text: #d8f7ff;
+    --ib-muted: #7fb9d8;
+    --ib-dim: #446f91;
+
+    --ib-accent: #00d9ff;
+    --ib-accent-2: #2f7cff;
+
+    --ib-green: #20ff9a;
+    --ib-blue: #00b7ff;
+    --ib-purple: #9b5cff;
+    --ib-warm: #ffd15a;
+    --ib-danger: #ff4f9a;
+
+    --ib-chip-bg: rgba(0, 217, 255, 0.10);
+    --ib-chip-border: rgba(0, 217, 255, 0.28);
+
+    --ib-shadow: 0 16px 36px rgba(0, 0, 0, 0.58);
+    --ib-neon:
+        0 0 18px rgba(0, 217, 255, 0.16),
+        0 0 34px rgba(47, 124, 255, 0.08);
+
+    --ib-header-glow:
+        radial-gradient(circle at top left, rgba(0, 217, 255, 0.13), transparent 38%),
+        radial-gradient(circle at bottom right, rgba(47, 124, 255, 0.12), transparent 42%);
+
+    --ib-pin-icon-off: "◇";
+    --ib-pin-icon-on: "✦";
+    --ib-pin-bg-off: #031225;
+    --ib-pin-bg-hover: #062347;
+    --ib-pin-bg-on: #072f5f;
+    --ib-pin-border-off: rgba(0, 217, 255, 0.34);
+    --ib-pin-border-hover: rgba(0, 217, 255, 0.58);
+    --ib-pin-border-on: rgba(0, 217, 255, 0.74);
+    --ib-pin-color-off: #75b6d1;
+    --ib-pin-color-hover: #d8f7ff;
+    --ib-pin-color-on: #00d9ff;
+    --ib-pin-glow-on: rgba(0, 217, 255, 0.42);
+}
+
+.ib-theme-neonquest .ib-board {
+    background:
+        radial-gradient(circle at 10% 4%, rgba(0, 217, 255, 0.12), transparent 28%),
+        radial-gradient(circle at 90% 96%, rgba(47, 124, 255, 0.11), transparent 32%),
+        linear-gradient(135deg, #020817, #061a33 50%, #01040c);
+    border: 2px solid rgba(0, 217, 255, 0.42);
+    border-radius: 6px;
+    box-shadow:
+        0 16px 36px rgba(0, 0, 0, 0.58),
+        0 0 0 1px rgba(255,255,255,0.025),
+        0 0 22px rgba(0, 217, 255, 0.17),
+        inset 0 0 0 1px rgba(0, 217, 255, 0.08);
+    font-family:
+        "Cascadia Mono",
+        "Consolas",
+        "JetBrains Mono",
+        "SFMono-Regular",
+        ui-monospace,
+        monospace;
+}
+
+/* subtle pixel grid */
+.ib-theme-neonquest .ib-board::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0.22;
+    background:
+        linear-gradient(rgba(0,217,255,0.055) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0,217,255,0.045) 1px, transparent 1px),
+        radial-gradient(circle at 18% 20%, rgba(0,217,255,0.12), transparent 24%);
+    background-size:
+        18px 18px,
+        18px 18px,
+        auto;
+    mix-blend-mode: screen;
+}
+
+.ib-theme-neonquest .ib-board::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    pointer-events: none;
+    opacity: 0.62;
+    box-shadow:
+        inset 0 0 0 1px rgba(0, 217, 255, 0.22),
+        inset 0 0 26px rgba(0, 217, 255, 0.05),
+        0 0 22px rgba(0, 217, 255, 0.12);
+}
+
+/* ---------- title banner ---------- */
+
+.ib-theme-neonquest .ib-title-wrap {
+    min-height: 94px;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 15px 220px 15px 118px;
+    margin-bottom: 14px;
+    border: 2px solid rgba(0, 217, 255, 0.48);
+    border-radius: 4px;
+    background:
+        radial-gradient(circle at 14% 48%, rgba(0,217,255,0.12), transparent 22%),
+        linear-gradient(135deg, rgba(1, 8, 24, 0.92), rgba(3, 20, 50, 0.82), rgba(1, 4, 12, 0.95));
+    box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.07),
+        inset 0 0 24px rgba(0,217,255,0.045),
+        0 0 18px rgba(0,217,255,0.12);
+    overflow: hidden;
+}
+
+/* pixel bot face */
+.ib-theme-neonquest .ib-title-wrap::before {
+    content: "■  ■";
+    position: absolute;
+    left: 22px;
+    top: 19px;
+    width: 68px;
+    height: 54px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #00d9ff;
+    font-size: 12px;
+    letter-spacing: 10px;
+    text-indent: 9px;
+    border: 2px solid rgba(0,217,255,0.55);
+    border-radius: 10px;
+    background:
+        linear-gradient(180deg, rgba(0,217,255,0.16), rgba(47,124,255,0.08)),
+        rgba(0, 8, 20, 0.92);
+    box-shadow:
+        0 0 12px rgba(0,217,255,0.26),
+        inset 0 0 16px rgba(0,217,255,0.12);
+}
+
+/* robot antenna */
+.ib-theme-neonquest .ib-title-wrap .ib-title::before {
+    content: "";
+    position: absolute;
+    left: -90px;
+    top: -30px;
+    width: 2px;
+    height: 16px;
+    background: #00d9ff;
+    box-shadow:
+        0 -5px 0 2px #00d9ff,
+        0 0 10px rgba(0,217,255,0.6);
+    opacity: 0.86;
+}
+
+/* pixel city skyline */
+.ib-theme-neonquest .ib-title-wrap::after {
+    content: "";
+    position: absolute;
+    right: 16px;
+    bottom: 10px;
+    width: 190px;
+    height: 72px;
+    opacity: 0.82;
+    filter:
+        drop-shadow(0 0 6px rgba(0,217,255,0.35))
+        drop-shadow(0 0 14px rgba(47,124,255,0.18));
+
+    background:
+        radial-gradient(circle at 64% 18%, #00d9ff 0 7px, transparent 8px),
+
+        linear-gradient(to top, rgba(0,217,255,0.72) 0 34px, transparent 34px) 10px 31px / 10px 48px no-repeat,
+        linear-gradient(to top, rgba(47,124,255,0.72) 0 52px, transparent 52px) 27px 13px / 13px 68px no-repeat,
+        linear-gradient(to top, rgba(0,217,255,0.62) 0 42px, transparent 42px) 48px 24px / 12px 58px no-repeat,
+        linear-gradient(to top, rgba(0,217,255,0.72) 0 61px, transparent 61px) 68px 4px / 16px 78px no-repeat,
+        linear-gradient(to top, rgba(47,124,255,0.70) 0 46px, transparent 46px) 93px 20px / 15px 62px no-repeat,
+        linear-gradient(to top, rgba(0,217,255,0.62) 0 36px, transparent 36px) 118px 31px / 13px 50px no-repeat,
+        linear-gradient(to top, rgba(47,124,255,0.72) 0 58px, transparent 58px) 140px 8px / 18px 74px no-repeat,
+        linear-gradient(to top, rgba(0,217,255,0.60) 0 31px, transparent 31px) 168px 38px / 10px 44px no-repeat,
+
+        repeating-linear-gradient(
+            90deg,
+            rgba(0,217,255,0.42) 0,
+            rgba(0,217,255,0.42) 2px,
+            transparent 2px,
+            transparent 8px
+        ) 0 64px / 190px 2px no-repeat;
+}
+
+/* title text */
+.ib-theme-neonquest .ib-title {
+    margin: 0;
+    color: #d8f7ff;
+    font-size: 28px;
+    line-height: 1;
+    letter-spacing: 2px;
+    font-weight: 900;
+    text-transform: uppercase;
+    text-align: left;
+    text-shadow:
+        0 0 8px rgba(0,217,255,0.45),
+        0 0 18px rgba(0,217,255,0.22),
+        0 0 34px rgba(47,124,255,0.16);
+}
+
+.ib-theme-neonquest .ib-title::after {
+    content: "";
+}
+
+.ib-theme-neonquest .ib-title-sub {
+    margin-top: 8px;
+    color: #00d9ff;
+    font-size: 11px;
+    line-height: 1.2;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    text-align: left;
+    text-shadow:
+        0 0 8px rgba(0,217,255,0.45),
+        0 0 16px rgba(47,124,255,0.18);
+}
+
+/* little decorative command dots */
+.ib-theme-neonquest .ib-title-sub::after {
+    content: "   ·  ⟡  · · ·";
+    color: rgba(0,217,255,0.68);
+}
+
+/* ---------- panels ---------- */
+
+.ib-theme-neonquest .ib-header,
+.ib-theme-neonquest .ib-section,
+.ib-theme-neonquest .ib-rel-card,
+.ib-theme-neonquest .ib-compact-wrap,
+.ib-theme-neonquest .ib-collapsed-tag {
+    background:
+        linear-gradient(180deg, rgba(0,217,255,0.035), rgba(0,0,0,0.02)),
+        rgba(0, 8, 22, 0.58);
+    border: 1px solid rgba(0,217,255,0.24);
+    border-radius: 4px;
+    box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.045),
+        inset 0 0 16px rgba(0,217,255,0.025),
+        0 0 12px rgba(0,217,255,0.045);
+}
+
+.ib-theme-neonquest .ib-header::before {
+    height: 2px;
+    background:
+        linear-gradient(90deg, transparent, #00d9ff, #2f7cff, transparent);
+    opacity: 0.95;
+    box-shadow: 0 0 12px rgba(0,217,255,0.26);
+}
+
+.ib-theme-neonquest .ib-section-title {
+    color: #d8f7ff;
+    font-size: 11px;
+    letter-spacing: 2.2px;
+    text-shadow:
+        0 0 8px rgba(0,217,255,0.34),
+        0 0 16px rgba(47,124,255,0.16);
+}
+
+.ib-theme-neonquest .ib-section-title::after {
+    content: "  ❯";
+    color: #00d9ff;
+    opacity: 0.8;
+}
+
+.ib-theme-neonquest .ib-header-location-text,
+.ib-theme-neonquest .ib-char-name,
+.ib-theme-neonquest .ib-rel-toggle-name,
+.ib-theme-neonquest .ib-compact-rel-name {
+    color: #e8fbff;
+    font-weight: 800;
+    text-shadow: 0 0 7px rgba(0,217,255,0.18);
+}
+
+.ib-theme-neonquest .ib-meta-pill,
+.ib-theme-neonquest .ib-tag,
+.ib-theme-neonquest .ib-status-chip,
+.ib-theme-neonquest .ib-presence-chip,
+.ib-theme-neonquest .ib-control-btn,
+.ib-theme-neonquest .ib-mini-stat {
+    border-radius: 3px;
+    background:
+        linear-gradient(180deg, rgba(0,217,255,0.10), rgba(0, 12, 32, 0.22));
+    border-color: rgba(0,217,255,0.25);
+    box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.06),
+        0 0 8px rgba(0,217,255,0.055);
+}
+
+.ib-theme-neonquest .ib-tag {
+    color: #8beeff;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+}
+
+.ib-theme-neonquest .ib-mood-tag {
+    color: #ff8fc2;
+    background:
+        linear-gradient(180deg, rgba(255,79,154,0.14), rgba(40, 5, 24, 0.18));
+    border-color: rgba(255,79,154,0.36);
+    font-style: normal;
+}
+
+.ib-theme-neonquest .ib-mood-tag::before {
+    content: "!";
+    color: #ff4f9a;
+    margin-right: 4px;
+    opacity: 0.9;
+}
+
+.ib-theme-neonquest .ib-char-icon-wrap {
+    border-radius: 4px;
+    border-color: rgba(0,217,255,0.32);
+    background:
+        radial-gradient(circle at 35% 25%, rgba(0,217,255,0.22), transparent 35%),
+        rgba(0, 8, 24, 0.82);
+    box-shadow:
+        0 0 10px rgba(0,217,255,0.24),
+        inset 0 1px 0 rgba(255,255,255,0.08);
+}
+
+/* controls */
+.ib-theme-neonquest .ib-control-btn {
+    color: #7fb9d8;
+}
+
+.ib-theme-neonquest .ib-control-btn:hover,
+.ib-theme-neonquest .ib-control-btn.ib-active {
+    color: #e8fbff;
+    background: rgba(0,217,255,0.14);
+    border-color: rgba(0,217,255,0.46);
+    box-shadow:
+        0 0 12px rgba(0,217,255,0.18),
+        inset 0 1px 0 rgba(255,255,255,0.09);
+}
+
+/* relations */
+.ib-theme-neonquest .ib-rel-card::before {
+    background: linear-gradient(180deg, #00d9ff, #2f7cff, transparent);
+    opacity: 0.72;
+}
+
+.ib-theme-neonquest .ib-rel-subtitle {
+    color: #00d9ff;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+}
+
+.ib-theme-neonquest .ib-rel-thought {
+    border-radius: 3px;
+    background:
+        linear-gradient(90deg, rgba(0,217,255,0.045), transparent),
+        rgba(0, 8, 22, 0.48);
+    border-color: rgba(0,217,255,0.20);
+}
+
+.ib-theme-neonquest .ib-rel-thought-text {
+    color: #c8eaf4;
+}
+
+/* status chips */
+.ib-theme-neonquest .ib-status-neutral {
+    background: rgba(0, 183, 255, 0.12);
+    color: #aeefff;
+    border-color: rgba(0, 183, 255, 0.28);
+}
+
+.ib-theme-neonquest .ib-status-romantic {
+    background: rgba(155, 92, 255, 0.13);
+    color: #d7bcff;
+    border-color: rgba(155, 92, 255, 0.30);
+}
+
+.ib-theme-neonquest .ib-status-negative {
+    background: rgba(255, 79, 154, 0.14);
+    color: #ff9fc9;
+    border-color: rgba(255, 79, 154, 0.34);
+}
+
+.ib-theme-neonquest .ib-status-complex {
+    background: rgba(255, 209, 90, 0.12);
+    color: #ffe09a;
+    border-color: rgba(255, 209, 90, 0.28);
+}
+
+/* collapsed */
+.ib-theme-neonquest .ib-collapsed-action::before {
+    content: "▶ ";
+    color: #00d9ff;
+}
+
+/* ---------- Neon Quest + Neon Rails pairing ---------- */
+
+.ib-theme-neonquest.ib-bars-neon .ib-bar {
+    height: 8px;
+    border-radius: 3px;
+    border-color: rgba(0,217,255,0.16);
+    background:
+        repeating-linear-gradient(
+            90deg,
+            rgba(0,217,255,0.045) 0,
+            rgba(0,217,255,0.045) 1px,
+            transparent 1px,
+            transparent 9px
+        ),
+        linear-gradient(180deg, rgba(255,255,255,0.03), rgba(0,0,0,0.34)),
+        rgba(0,0,0,0.58) !important;
+    box-shadow:
+        inset 0 1px 1px rgba(255,255,255,0.035),
+        inset 0 -1px 2px rgba(0,0,0,0.38),
+        0 0 8px rgba(0,217,255,0.06);
+}
+
+.ib-theme-neonquest.ib-bars-neon .ib-bar-fill {
+    filter: saturate(1.18) brightness(0.92);
+    box-shadow:
+        0 0 7px currentColor,
+        0 0 14px color-mix(in srgb, currentColor 70%, transparent),
+        inset 0 1px 0 rgba(255,255,255,0.28);
+}
+
+.ib-theme-neonquest.ib-bars-neon .ib-bar-trust-pos {
+    background: linear-gradient(90deg, #00d9ff, #008dff 58%, #004b9d) !important;
+    color: #00d9ff;
+}
+
+.ib-theme-neonquest.ib-bars-neon .ib-bar-love-pos {
+    background: linear-gradient(90deg, #b45cff, #7a2cff 58%, #4211a0) !important;
+    color: #b45cff;
+}
+
+.ib-theme-neonquest.ib-bars-neon .ib-meter-label {
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+}
+
+.ib-theme-neonquest.ib-bars-neon .ib-meter-value {
+    color: #7fb9d8;
+}
+
+/* floating */
+#ib_floating_host.ib-theme-neonquest .ib-floating-shell {
+    background:
+        radial-gradient(circle at top left, rgba(0,217,255,0.13), transparent 38%),
+        radial-gradient(circle at bottom right, rgba(47,124,255,0.12), transparent 42%),
+        linear-gradient(
+            135deg,
+            color-mix(in srgb, #020817 86%, transparent),
+            color-mix(in srgb, #061a33 78%, transparent),
+            color-mix(in srgb, #01040c 88%, transparent)
+        ) !important;
+    border-color: rgba(0,217,255,0.34) !important;
+    box-shadow:
+        0 18px 42px rgba(0,0,0,0.48),
+        0 0 0 1px rgba(0,217,255,0.12),
+        0 0 24px rgba(0,217,255,0.16) !important;
+}
+
+#ib_floating_host.ib-theme-neonquest .ib-floating-title::before {
+    content: "▶ ";
+    color: #00d9ff;
+}
+
+#ib_floating_tab.ib-theme-neonquest::before {
+    content: "▶ ";
+    color: #00d9ff;
+}
+
+/* mobile: banner simplified */
+@media (max-width: 760px) {
+    .ib-theme-neonquest .ib-title-wrap {
+        min-height: 70px;
+        padding: 12px 12px 12px 82px;
+    }
+
+    .ib-theme-neonquest .ib-title-wrap::before {
+        left: 14px;
+        top: 15px;
+        width: 50px;
+        height: 40px;
+        font-size: 9px;
+        letter-spacing: 7px;
+        text-indent: 7px;
+    }
+
+    .ib-theme-neonquest .ib-title-wrap::after {
+        display: none;
+    }
+
+    .ib-theme-neonquest .ib-title {
+        font-size: 20px;
+    }
+
+    .ib-theme-neonquest .ib-title-sub {
+        font-size: 9px;
+    }
+}
