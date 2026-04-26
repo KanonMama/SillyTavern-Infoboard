@@ -9058,16 +9058,6 @@ button.ib-pin-btn.ib-pinned::before,
     border-color: rgba(184,69,82,0.26) !important;
 }
 
-#ib_floating_host.ib-theme-bloodmoon .ib-floating-title::before {
-    content: "🩸 ";
-    color: #b84552;
-}
-
-#ib_floating_tab.ib-theme-bloodmoon::before {
-    content: "🩸 ";
-    color: #b84552;
-}
-
 
 /* =========================================================
    BAR STYLE: VIALS
