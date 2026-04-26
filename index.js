@@ -529,7 +529,7 @@ oraclemoon: {
 
         bloodmoon: {
     main: "𝐵𝐿𝒪𝒪𝒟 𝑀𝒪𝒪𝒩",
-    sub: "ִֶָ⛧°. ⋆༺🩸༻⋆. °⛧"
+    sub: ""
 },
         
         neonquest: {
