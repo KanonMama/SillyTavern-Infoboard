@@ -171,6 +171,19 @@ oraclemoon: {
     text: "#f2e8ff",
     danger: "#ff7fa8"
 },
+
+bloodmoon: {
+    label: {
+        ru: "Blood Moon: бордо, тёмная кровь, старое золото и колбы",
+        en: "Blood Moon: burgundy, dark blood, old gold and vials"
+    },
+    bg: "#1a080d",
+    bg2: "#2a1017",
+    accent: "#b84552",
+    accent2: "#d6a35f",
+    text: "#f4e1dc",
+    danger: "#e05a67"
+},
     
     neonquest: {
     label: {
@@ -513,6 +526,11 @@ oraclemoon: {
     main: "ORACLE BOARD // SPREAD OPENED",
     sub: "omens aligned · hidden motive revealed"
 },
+
+        bloodmoon: {
+    main: "𝐵𝐿𝒪𝒪𝒟 𝑀𝒪𝒪𝒩",
+    sub: "ִֶָ⛧°. ⋆༺🩸༻⋆. °⛧"
+},
         
         neonquest: {
     main: "𝄃𝄃𝄂𝄂𝄀RP BOARD𝄁𝄃𝄂𝄂𝄃",
@@ -532,6 +550,7 @@ function GetThemeLocationIcon(theme = gTheme) {
     if (theme === "systemlog") return "💾";
         if (theme === "terminal") return "▣";
     if (theme === "oraclemoon") return "🌙";
+    if (theme === "bloodmoon") return "🦇";
     if (theme === "neonquest") return "⚙️";
      return facultyThemes.includes(theme) ? "📜" : "📍";
 }
@@ -542,6 +561,7 @@ function GetThemeCharsIcon(theme = gTheme) {
     if (theme === "systemlog") return "📊";
     if (theme === "terminal") return ">";
     if (theme === "oraclemoon") return "✨";
+    if (theme === "bloodmoon") return "✟";
     if (theme === "neonquest") return "👤";
         return facultyThemes.includes(theme) ? "🪶" : "💖";
 }
@@ -556,6 +576,7 @@ function GetThemeRelationsIcon(theme = gTheme) {
         systemlog: "🔗",
         oraclemoon: "💫",
         terminal: "♡",
+        bloodmoon: "🥀",
         neonquest: "🤖"
     };
 
