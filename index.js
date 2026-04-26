@@ -145,6 +145,19 @@ systemlog: {
     text: "#d8e7ee",
     danger: "#ff5e6c"
 },
+
+    neonquest: {
+    label: {
+        ru: "Neon Quest: игровой HUD, синий неон и пиксельный город",
+        en: "Neon Quest: game HUD, blue neon and pixel skyline"
+    },
+    bg: "#020817",
+    bg2: "#061a33",
+    accent: "#00d9ff",
+    accent2: "#2f7cff",
+    text: "#d8f7ff",
+    danger: "#ff4f9a"
+},
     
     gryffindor: {
         label: { ru: "Гриффиндор: бордо, золото и гербовый жар", en: "Gryffindor: crimson, gold, heraldic warmth" },
@@ -463,6 +476,11 @@ function GetThemeTitleData(theme = gTheme) {
         systemlog: {
     main: "▾ SYSTEM LOG // ACCESS GRANTED 🖳",
     sub: "↳ task issued · signal stable · archive open ✔"
+},
+
+        neonquest: {
+    main: "𝄃𝄃𝄂𝄂𝄀RP BOARD𝄁𝄃𝄂𝄂𝄃",
+    sub: "█Err⃟⃤r⁴⁰⁴"
 }
     };
 
@@ -476,6 +494,7 @@ function GetThemeLocationIcon(theme = gTheme) {
     const facultyThemes = ["gryffindor", "slytherin", "ravenclaw", "hufflepuff"];
     if (theme === "gengar") return "🕯️";
     if (theme === "systemlog") return "💾";
+    if (theme === "neonquest") return "⚙️";
      return facultyThemes.includes(theme) ? "📜" : "📍";
 }
 
@@ -483,6 +502,7 @@ function GetThemeCharsIcon(theme = gTheme) {
     const facultyThemes = ["gryffindor", "slytherin", "ravenclaw", "hufflepuff"];
     if (theme === "gengar") return "👻";
     if (theme === "systemlog") return "📊";
+    if (theme === "neonquest") return "👤";
         return facultyThemes.includes(theme) ? "🪶" : "💖";
 }
 
@@ -493,7 +513,8 @@ function GetThemeRelationsIcon(theme = gTheme) {
         ravenclaw: "💙",
         hufflepuff: "💛",
         gengar: "💜",
-        systemlog: "🔗"
+        systemlog: "🔗",
+        neonquest: "🤖"
     };
 
     return map[theme] || "🤍";
