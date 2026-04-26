@@ -9265,3 +9265,620 @@ content: "✦      ·\A   ✧      ·\A·       ✦" !important;
         height: 11px !important;
     }
 }
+
+/* =========================================================
+   CASE FILE THEME + EVIDENCE TAPE BAR STYLE
+   Must be LAST
+   ========================================================= */
+
+
+/* =========================================================
+   CASE FILE THEME
+   Detective dossier / evidence tape / noir archive
+   ========================================================= */
+
+.ib-theme-casefile {
+    --ib-bg-1: #151412;
+    --ib-bg-2: #25221d;
+    --ib-bg-3: #0d0c0a;
+
+    --ib-border: rgba(224, 184, 79, 0.24);
+    --ib-border-neon: rgba(224, 184, 79, 0.18);
+    --ib-soft-border: rgba(224, 184, 79, 0.12);
+
+    --ib-text: #eee5d8;
+    --ib-muted: #b7afa1;
+    --ib-dim: #787061;
+
+    --ib-accent: #e0b84f;
+    --ib-accent-2: #b7afa1;
+
+    --ib-green: #9ab47a;
+    --ib-blue: #87a6bd;
+    --ib-purple: #b08ab8;
+    --ib-warm: #e0b84f;
+    --ib-danger: #d65f4f;
+
+    --ib-chip-bg: rgba(224, 184, 79, 0.10);
+    --ib-chip-border: rgba(224, 184, 79, 0.22);
+
+    --ib-shadow: 0 16px 36px rgba(0, 0, 0, 0.58);
+    --ib-neon:
+        0 0 16px rgba(224, 184, 79, 0.075),
+        0 0 26px rgba(0, 0, 0, 0.25);
+
+    --ib-header-glow:
+        radial-gradient(circle at top right, rgba(224, 184, 79, 0.08), transparent 40%),
+        radial-gradient(circle at bottom left, rgba(255,255,255,0.035), transparent 42%);
+
+    --ib-pin-icon-off: "□";
+    --ib-pin-icon-on: "■";
+    --ib-pin-bg-off: #201d17;
+    --ib-pin-bg-hover: #302b20;
+    --ib-pin-bg-on: #3a301b;
+    --ib-pin-border-off: rgba(224, 184, 79, 0.26);
+    --ib-pin-border-hover: rgba(224, 184, 79, 0.46);
+    --ib-pin-border-on: rgba(224, 184, 79, 0.62);
+    --ib-pin-color-off: #aaa08f;
+    --ib-pin-color-hover: #eee5d8;
+    --ib-pin-color-on: #e0b84f;
+    --ib-pin-glow-on: rgba(224, 184, 79, 0.24);
+}
+
+.ib-theme-casefile .ib-board {
+    background:
+        radial-gradient(circle at 86% 6%, rgba(224, 184, 79, 0.085), transparent 26%),
+        radial-gradient(circle at 12% 92%, rgba(255,255,255,0.030), transparent 34%),
+        linear-gradient(135deg, #151412, #25221d 52%, #0d0c0a);
+    border-color: rgba(224, 184, 79, 0.24);
+    box-shadow:
+        0 16px 36px rgba(0, 0, 0, 0.58),
+        0 0 0 1px rgba(255,255,255,0.014),
+        0 0 20px rgba(224, 184, 79, 0.07),
+        inset 0 0 0 1px rgba(224, 184, 79, 0.030);
+    isolation: isolate;
+    font-family:
+        Georgia,
+        "Times New Roman",
+        "Segoe UI",
+        serif;
+}
+
+/* paper/noir grain */
+.ib-theme-casefile .ib-board::before {
+    content: "" !important;
+    position: absolute !important;
+    inset: 0 !important;
+    z-index: 0 !important;
+    pointer-events: none !important;
+    opacity: 0.115 !important;
+    mix-blend-mode: soft-light !important;
+
+    background-image:
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180' viewBox='0 0 180 180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)' opacity='0.72'/%3E%3C/svg%3E");
+    background-size: 150px 150px !important;
+}
+
+/* dossier glass */
+.ib-theme-casefile .ib-board::after {
+    content: "" !important;
+    position: absolute !important;
+    inset: 0 !important;
+    z-index: 1 !important;
+    pointer-events: none !important;
+    border-radius: inherit !important;
+    opacity: 0.72 !important;
+
+    background:
+        linear-gradient(120deg, rgba(255,255,255,0.020), transparent 34%),
+        radial-gradient(circle at 50% 0%, rgba(224,184,79,0.025), transparent 34%) !important;
+
+    box-shadow:
+        inset 0 0 0 1px rgba(224, 184, 79, 0.15),
+        inset 0 0 22px rgba(224, 184, 79, 0.026),
+        0 0 18px rgba(224, 184, 79, 0.055) !important;
+}
+
+.ib-theme-casefile .ib-title-wrap,
+.ib-theme-casefile .ib-full-wrap,
+.ib-theme-casefile .ib-compact-wrap,
+.ib-theme-casefile .ib-collapsed-wrap {
+    position: relative;
+    z-index: 2;
+}
+
+
+/* ---------- title banner ---------- */
+
+.ib-theme-casefile .ib-title-wrap {
+    min-height: 84px;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 15px 156px 14px 16px;
+    margin-bottom: 12px;
+    border: 1px solid rgba(224, 184, 79, 0.24);
+    border-radius: 8px;
+    background:
+        linear-gradient(135deg, rgba(255,255,255,0.030), rgba(255,255,255,0.006)),
+        rgba(14, 13, 11, 0.58);
+    box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.045),
+        inset 0 0 22px rgba(224,184,79,0.026),
+        0 0 14px rgba(224,184,79,0.045);
+    overflow: hidden;
+}
+
+/* evidence tag */
+.ib-theme-casefile .ib-title-wrap::before {
+    content: "EVIDENCE" !important;
+    position: absolute !important;
+    right: 22px !important;
+    top: 18px !important;
+    z-index: 2 !important;
+
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+
+    width: 96px !important;
+    height: 28px !important;
+
+    font-family:
+        "Cascadia Mono",
+        "Consolas",
+        ui-monospace,
+        monospace !important;
+    font-size: 11px !important;
+    font-weight: 900 !important;
+    letter-spacing: 1.3px !important;
+
+    color: #151412 !important;
+    background:
+        linear-gradient(135deg, #e0b84f, #a98228) !important;
+
+    border: 1px solid rgba(0,0,0,0.42) !important;
+    border-radius: 3px !important;
+
+    box-shadow:
+        0 0 10px rgba(224,184,79,0.18),
+        inset 0 1px 0 rgba(255,255,255,0.20),
+        inset 0 -1px 0 rgba(0,0,0,0.22) !important;
+
+    transform: rotate(-4deg) !important;
+    opacity: 0.92 !important;
+    pointer-events: none !important;
+}
+
+/* evidence tape strip */
+.ib-theme-casefile .ib-title-wrap::after {
+    content: "" !important;
+    position: absolute !important;
+    right: -18px !important;
+    bottom: 10px !important;
+    z-index: 1 !important;
+
+    width: 172px !important;
+    height: 18px !important;
+
+    background:
+        repeating-linear-gradient(
+            135deg,
+            #e0b84f 0,
+            #e0b84f 9px,
+            #17130a 9px,
+            #17130a 18px
+        ) !important;
+
+    border-top: 1px solid rgba(255,255,255,0.12) !important;
+    border-bottom: 1px solid rgba(0,0,0,0.42) !important;
+
+    box-shadow:
+        0 0 10px rgba(224,184,79,0.12),
+        inset 0 1px 0 rgba(255,255,255,0.16) !important;
+
+    transform: rotate(-8deg) !important;
+    opacity: 0.68 !important;
+    pointer-events: none !important;
+}
+
+.ib-theme-casefile .ib-title {
+    margin: 0;
+    position: relative;
+    z-index: 3;
+
+    color: #eee5d8;
+    font-size: 16px;
+    line-height: 1.15;
+    letter-spacing: 1.5px;
+    font-weight: 900;
+    text-transform: uppercase;
+    text-align: left;
+    text-shadow:
+        0 0 8px rgba(224,184,79,0.14),
+        0 2px 3px rgba(0,0,0,0.45);
+}
+
+.ib-theme-casefile .ib-title::before,
+.ib-theme-casefile .ib-title::after {
+    content: none !important;
+    display: none !important;
+}
+
+.ib-theme-casefile .ib-title-sub {
+    margin-top: 7px;
+    position: relative;
+    z-index: 3;
+
+    color: #e0b84f;
+    font-size: 11px;
+    line-height: 1.25;
+    letter-spacing: 0.5px;
+    text-align: left;
+    text-transform: lowercase;
+    text-shadow:
+        0 0 8px rgba(224,184,79,0.16),
+        0 2px 3px rgba(0,0,0,0.38);
+}
+
+
+/* ---------- panels ---------- */
+
+.ib-theme-casefile .ib-header,
+.ib-theme-casefile .ib-section,
+.ib-theme-casefile .ib-rel-card,
+.ib-theme-casefile .ib-compact-wrap,
+.ib-theme-casefile .ib-collapsed-tag {
+    background:
+        radial-gradient(circle at top left, rgba(224,184,79,0.028), transparent 44%),
+        rgba(255,255,255,0.022);
+    border-color: rgba(224,184,79,0.13);
+    border-radius: 8px;
+    box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.040),
+        0 0 12px rgba(224,184,79,0.026);
+}
+
+.ib-theme-casefile .ib-header::before {
+    background:
+        linear-gradient(90deg, transparent, #e0b84f, #b7afa1, transparent);
+    opacity: 0.76;
+    box-shadow:
+        0 0 10px rgba(224,184,79,0.12);
+}
+
+.ib-theme-casefile .ib-section-title {
+    color: #e0b84f;
+    text-shadow:
+        0 0 8px rgba(224,184,79,0.15),
+        0 2px 3px rgba(0,0,0,0.35);
+}
+
+.ib-theme-casefile .ib-header-location-text,
+.ib-theme-casefile .ib-char-name,
+.ib-theme-casefile .ib-rel-toggle-name,
+.ib-theme-casefile .ib-compact-rel-name {
+    color: #eee5d8;
+    font-weight: 800;
+}
+
+.ib-theme-casefile .ib-meta-pill,
+.ib-theme-casefile .ib-tag,
+.ib-theme-casefile .ib-status-chip,
+.ib-theme-casefile .ib-presence-chip,
+.ib-theme-casefile .ib-control-btn,
+.ib-theme-casefile .ib-mini-stat {
+    background:
+        radial-gradient(circle at top left, rgba(255,255,255,0.050), transparent 52%),
+        rgba(224, 184, 79, 0.055);
+    border-color: rgba(224,184,79,0.15);
+    box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.045),
+        0 2px 8px rgba(0,0,0,0.13);
+}
+
+.ib-theme-casefile .ib-tag {
+    color: #e0b84f;
+}
+
+.ib-theme-casefile .ib-mood-tag {
+    color: #e6d3a6;
+    border-color: rgba(224,184,79,0.26);
+    background:
+        radial-gradient(circle at top left, rgba(255,255,255,0.070), transparent 52%),
+        rgba(224,184,79,0.085);
+    font-style: normal;
+}
+
+.ib-theme-casefile .ib-mood-tag::before {
+    content: "NOTE ";
+    opacity: 0.74;
+    font-family:
+        "Cascadia Mono",
+        "Consolas",
+        ui-monospace,
+        monospace;
+    font-size: 8px;
+}
+
+.ib-theme-casefile .ib-char-icon-wrap {
+    border-color: rgba(224,184,79,0.20);
+    background:
+        radial-gradient(circle at 35% 25%, rgba(224,184,79,0.12), transparent 36%),
+        rgba(224,184,79,0.055);
+    box-shadow:
+        0 0 12px rgba(224,184,79,0.08),
+        0 0 18px rgba(0,0,0,0.08);
+}
+
+.ib-theme-casefile .ib-control-btn {
+    color: #b7afa1;
+}
+
+.ib-theme-casefile .ib-control-btn:hover,
+.ib-theme-casefile .ib-control-btn.ib-active {
+    color: #eee5d8;
+    background: rgba(224,184,79,0.11);
+    border-color: rgba(224,184,79,0.28);
+}
+
+.ib-theme-casefile .ib-rel-card::before {
+    background: linear-gradient(180deg, #e0b84f, rgba(224,184,79,0.02));
+    opacity: 0.54;
+}
+
+.ib-theme-casefile .ib-rel-subtitle {
+    color: #e0b84f;
+}
+
+.ib-theme-casefile .ib-rel-thought {
+    background:
+        radial-gradient(circle at top left, rgba(224,184,79,0.028), transparent 42%),
+        rgba(255,255,255,0.020);
+    border-color: rgba(224,184,79,0.12);
+}
+
+.ib-theme-casefile .ib-rel-thought-text {
+    color: #eee5d8;
+}
+
+.ib-theme-casefile .ib-collapsed-action::before {
+    content: "OPEN ";
+    color: #e0b84f;
+}
+
+
+/* status chips */
+.ib-theme-casefile .ib-status-neutral {
+    background: rgba(183,175,161,0.10);
+    color: #ddd2c2;
+    border-color: rgba(183,175,161,0.22);
+}
+
+.ib-theme-casefile .ib-status-romantic {
+    background: rgba(176,138,184,0.13);
+    color: #dfbee3;
+    border-color: rgba(176,138,184,0.26);
+}
+
+.ib-theme-casefile .ib-status-negative {
+    background: rgba(214,95,79,0.13);
+    color: #e9a89e;
+    border-color: rgba(214,95,79,0.28);
+}
+
+.ib-theme-casefile .ib-status-complex {
+    background: rgba(224,184,79,0.12);
+    color: #ebd08e;
+    border-color: rgba(224,184,79,0.28);
+}
+
+
+/* floating */
+#ib_floating_host.ib-theme-casefile .ib-floating-shell {
+    background:
+        radial-gradient(circle at top right, rgba(224,184,79,0.08), transparent 40%),
+        radial-gradient(circle at bottom left, rgba(255,255,255,0.035), transparent 42%),
+        linear-gradient(
+            135deg,
+            color-mix(in srgb, #151412 84%, transparent),
+            color-mix(in srgb, #25221d 78%, transparent),
+            color-mix(in srgb, #0d0c0a 86%, transparent)
+        ) !important;
+    border-color: rgba(224,184,79,0.22) !important;
+}
+
+#ib_floating_host.ib-theme-casefile .ib-floating-title::before {
+    content: "FILE ";
+    color: #e0b84f;
+}
+
+#ib_floating_tab.ib-theme-casefile::before {
+    content: "FILE ";
+    color: #e0b84f;
+}
+
+
+/* =========================================================
+   BAR STYLE: EVIDENCE TAPE
+   Black/yellow warning stripes
+   ========================================================= */
+
+.ib-bars-evidence .ib-bar {
+    height: 13px;
+    border-radius: 2px;
+    overflow: hidden;
+    border: 1px solid rgba(255,255,255,0.075);
+    background:
+        linear-gradient(180deg, rgba(255,255,255,0.035), rgba(0,0,0,0.30)),
+        rgba(0,0,0,0.42) !important;
+    box-shadow:
+        inset 0 1px 1px rgba(255,255,255,0.035),
+        inset 0 -1px 2px rgba(0,0,0,0.38),
+        0 0 8px rgba(0,0,0,0.20);
+}
+
+.ib-bars-evidence .ib-bar-fill {
+    --ib-tape-a: #e0b84f;
+    --ib-tape-b: #14120d;
+    --ib-tape-glow: rgba(224,184,79,0.24);
+
+    height: 100%;
+    border-radius: 0;
+    background:
+        linear-gradient(180deg, rgba(255,255,255,0.18), rgba(255,255,255,0.035) 42%, transparent 72%),
+        repeating-linear-gradient(
+            135deg,
+            var(--ib-tape-a) 0,
+            var(--ib-tape-a) 8px,
+            var(--ib-tape-b) 8px,
+            var(--ib-tape-b) 16px
+        ) !important;
+
+    box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.16),
+        inset 0 -1px 0 rgba(0,0,0,0.22),
+        0 0 7px var(--ib-tape-glow),
+        0 0 13px color-mix(in srgb, var(--ib-tape-glow) 70%, transparent) !important;
+
+    filter: saturate(0.96) brightness(0.94);
+}
+
+/* убираем круглую точку-носик из других баров */
+.ib-bars-evidence .ib-bar-fill::after {
+    display: none !important;
+    content: none !important;
+    opacity: 0 !important;
+}
+
+/* лёгкий верхний блик */
+.ib-bars-evidence .ib-bar-fill::before {
+    content: "" !important;
+    position: absolute !important;
+    inset: 1px 1px auto 1px !important;
+    height: 38% !important;
+    border-radius: 1px !important;
+    background:
+        linear-gradient(180deg, rgba(255,255,255,0.24), rgba(255,255,255,0.04)) !important;
+    opacity: 0.55 !important;
+    pointer-events: none !important;
+}
+
+
+/* metric tape colors */
+.ib-bars-evidence .ib-bar-fill.ib-bar-affection-pos {
+    --ib-tape-a: #d7b34a;
+    --ib-tape-b: #18140b;
+    --ib-tape-glow: rgba(215,179,74,0.24);
+}
+
+.ib-bars-evidence .ib-bar-fill.ib-bar-affection-neg {
+    --ib-tape-a: #c64e43;
+    --ib-tape-b: #16080a;
+    --ib-tape-glow: rgba(198,78,67,0.28);
+}
+
+.ib-bars-evidence .ib-bar-fill.ib-bar-trust-pos {
+    --ib-tape-a: #8ba9bd;
+    --ib-tape-b: #111720;
+    --ib-tape-glow: rgba(139,169,189,0.24);
+}
+
+.ib-bars-evidence .ib-bar-fill.ib-bar-trust-neg {
+    --ib-tape-a: #d18b3f;
+    --ib-tape-b: #160f08;
+    --ib-tape-glow: rgba(209,139,63,0.27);
+}
+
+.ib-bars-evidence .ib-bar-fill.ib-bar-love-pos {
+    --ib-tape-a: #b58abf;
+    --ib-tape-b: #151018;
+    --ib-tape-glow: rgba(181,138,191,0.26);
+}
+
+.ib-bars-evidence .ib-bar-fill.ib-bar-love-neg {
+    --ib-tape-a: #b9465f;
+    --ib-tape-b: #15080d;
+    --ib-tape-glow: rgba(185,70,95,0.29);
+}
+
+
+/* mini stats with evidence mood */
+.ib-bars-evidence .ib-mini-stat {
+    border-radius: 3px;
+    background:
+        radial-gradient(circle at top left, rgba(255,255,255,0.055), transparent 52%),
+        rgba(224,184,79,0.055);
+    border-color: rgba(224,184,79,0.13);
+}
+
+.ib-bars-evidence .ib-mini-stat-progress {
+    height: 4px;
+    border-radius: 0;
+    background:
+        repeating-linear-gradient(
+            135deg,
+            currentColor 0,
+            currentColor 7px,
+            rgba(0,0,0,0.34) 7px,
+            rgba(0,0,0,0.34) 14px
+        ) !important;
+    box-shadow:
+        0 0 5px currentColor,
+        0 0 10px rgba(224,184,79,0.12);
+}
+
+
+/* Case File + Evidence pairing */
+.ib-theme-casefile.ib-bars-evidence .ib-bar {
+    border-color: rgba(224,184,79,0.14);
+    background:
+        linear-gradient(180deg, rgba(255,255,255,0.030), rgba(0,0,0,0.34)),
+        rgba(0,0,0,0.50) !important;
+}
+
+.ib-theme-casefile.ib-bars-evidence .ib-meter-label {
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #e0b84f;
+}
+
+.ib-theme-casefile.ib-bars-evidence .ib-meter-value {
+    color: #b7afa1;
+}
+
+
+/* mobile */
+@media (max-width: 760px) {
+    .ib-theme-casefile .ib-title-wrap {
+        min-height: 74px;
+        padding: 13px 100px 12px 12px;
+    }
+
+    .ib-theme-casefile .ib-title-wrap::before {
+        right: 14px !important;
+        top: 15px !important;
+        width: 76px !important;
+        height: 24px !important;
+        font-size: 9px !important;
+    }
+
+    .ib-theme-casefile .ib-title-wrap::after {
+        right: -28px !important;
+        bottom: 12px !important;
+        width: 138px !important;
+        height: 15px !important;
+    }
+
+    .ib-theme-casefile .ib-title {
+        font-size: 13px;
+        letter-spacing: 1px;
+    }
+
+    .ib-theme-casefile .ib-title-sub {
+        font-size: 10px;
+    }
+
+    .ib-bars-evidence .ib-bar {
+        height: 12px;
+    }
+}
