@@ -130,6 +130,10 @@ negative → hatred / destructive attachment
   --ib-bg-2: #182033;
   --ib-bg-3: #0d1320;
 }
+```
+
+## This is an old version. A new, improved version with updates: https://github.com/KanonMama/Mom-Infoblock
+
 
 .ib-bars-deep .ib-bar-love-pos {
   background: linear-gradient(90deg, #d08bff, #7c38ff);
